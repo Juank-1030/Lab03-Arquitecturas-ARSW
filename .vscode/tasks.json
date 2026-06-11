@@ -1,0 +1,38 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "compile-grpc",
+            "type": "shell",
+            "command": "mvn clean compile",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "compile-tcp",
+            "type": "shell",
+            "command": "javac -d bin src/edu/eci/arsw/tcp/**/*.java",
+            "group": "build"
+        },
+        {
+            "label": "compile-rmi",
+            "type": "shell",
+            "command": "javac -d bin src/edu/eci/arsw/rmi/**/*.java",
+            "group": "build"
+        },
+        {
+            "label": "compile-http",
+            "type": "shell",
+            "command": "javac -d bin src/edu/eci/arsw/http/**/*.java",
+            "group": "build"
+        },
+        {
+            "label": "compile-eciciencia",
+            "type": "shell",
+            "command": "javac -d bin src/edu/eci/arsw/eciciencia/**/*.java",
+            "group": "build"
+        }
+    ]
+}

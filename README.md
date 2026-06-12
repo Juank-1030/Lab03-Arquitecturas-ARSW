@@ -335,6 +335,8 @@ Respuesta del servidor: ERROR: solicitud invalida
 
 ---
 
+![Guide 2.2 - TCP MovieServer](Images/Evidencias/Guias/guia2_2.png)
+
 ## 4. Exercise 2.3 - Room Management TCP
 
 **Package:** `src/edu/eci/arsw/excercise2_3/`
@@ -542,6 +544,8 @@ LIBERAR_SALON, E303    -> LIBERACION_EXITOSA
 
 ---
 
+![Exercise 2.3 - Room TCP](Images/Evidencias/Ejercicios/ejercicio2_3.png)
+
 ## 5. Guide 3.2 - MovieHttpServer
 
 **Package:** `src/edu/eci/arsw/guide3_2/`
@@ -707,6 +711,8 @@ curl "http://localhost:8080/"
 ```
 
 ---
+
+![Guide 3.2 - MovieHttpServer](Images/Evidencias/Guias/guia3_2.png)
 
 ## 6. Exercise 3.3 - Room Management HTTP
 
@@ -921,6 +927,10 @@ curl -X POST "http://localhost:8081/rooms/release?id=E303"
 ```
 
 ---
+
+![Exercise 3.3 - Room HTTP 1](Images/Evidencias/Ejercicios/ejercicio3_3_1.png)
+![Exercise 3.3 - Room HTTP 2](Images/Evidencias/Ejercicios/ejercicio3_3_2.png)
+![Exercise 3.3 - Room HTTP 3](Images/Evidencias/Ejercicios/ejercicio3_3_3.png)
 
 ## 7. Guide 4.2 - MovieService RMI
 
@@ -1146,6 +1156,8 @@ Película no encontrada
 ```
 
 ---
+
+![Guide 4.2 - MovieService RMI](Images/Evidencias/Guias/guia4_2.png)
 
 ## 8. Exercise 4.3 - Lab Inventory RMI
 
@@ -1419,6 +1431,8 @@ Equipos disponibles:
 
 ---
 
+![Exercise 4.3 - Lab Inventory RMI](Images/Evidencias/Ejercicios/ejercicio4_3.png)
+
 ## 9. Guide 5.2 - MovieService gRPC
 
 **Package:** `src/edu/eci/arsw/guide5_2/` (Maven project)
@@ -1621,6 +1635,8 @@ Película: Interstellar - Christopher Nolan - 2014
 ```
 
 ---
+
+![Guide 5.2 - MovieService gRPC](Images/Evidencias/Guias/guia5_2.png)
 
 ## 10. Exercise 5.3 - University Wellness gRPC
 
@@ -2014,6 +2030,8 @@ Citas de S123:
 
 ---
 
+![Exercise 5.3 - Wellness gRPC](Images/Evidencias/Ejercicios/ejercicio5_3.png)
+
 ## 11. Guide 6.2 - Movie Microservices
 
 **Package:** `src/edu/eci/arsw/guide6_2/`
@@ -2227,6 +2245,9 @@ Recommendations: [2, 3]
    - Guide 5.2 is simpler to operate but less scalable. Guide 6.2 is more complex but more flexible.
 
 ---
+
+![Guide 6.2 - Movie Microservices 1](Images/Evidencias/Guias/guia6_2_1.png)
+![Guide 6.2 - Movie Microservices 2](Images/Evidencias/Guias/guia6_2_2.png)
 
 ## 12. Exercise 6.3 - Wellness Microservices
 
@@ -2496,6 +2517,9 @@ Especialidad agregada exitosamente
 
 ---
 
+![Exercise 6.3 - Wellness Microservices 1](Images/Evidencias/Ejercicios/ejercicio6_3_1.png)
+![Exercise 6.3 - Wellness Microservices 2](Images/Evidencias/Ejercicios/ejercicio6_3_2.png)
+
 ## 13. Guide 7.2 - MovieGateway
 
 **Package:** `src/edu/eci/arsw/guide7_2/`
@@ -2671,6 +2695,9 @@ curl "http://localhost:8082/consolidated?id=1"
    - Guide 6.2 uses Client-Side Discovery: the client queries a service registry (or has hardcoded ports) and calls services directly. Guide 7.2 uses Server-Side Discovery: a Gateway is the single entry point and routes requests to the appropriate services.
 
 ---
+
+![Guide 7.2 - MovieGateway 1](Images/Evidencias/Guias/guia7_2_1.png)
+![Guide 7.2 - MovieGateway 2](Images/Evidencias/Guias/guia7_2_2.png)
 
 ## 14. Exercise 7.3 - WellnessGateway
 
@@ -2859,6 +2886,9 @@ curl "http://localhost:8083/wellness-summary?studentId=S123"
    - The Gateway will throw a `StatusRuntimeException` from gRPC. In the current implementation, this propagates as a 500 error. A production Gateway would add retry logic, circuit breakers, and graceful degradation (returning partial results).
 
 ---
+
+![Exercise 7.3 - WellnessGateway 1](Images/Evidencias/Ejercicios/ejercicio7_3_1.png)
+![Exercise 7.3 - WellnessGateway 2](Images/Evidencias/Ejercicios/ejercicio7_3_2.png)
 
 ## 15. Exercise 8 - ECICIENCIA
 
@@ -3385,6 +3415,8 @@ All architecture diagrams are in `docs/diagrams/` as PlantUML (`.puml`) files. R
 | 14 | `docs/diagrams/exercise8_architecture.puml` | Exercise 8 | ECICIENCIA — full platform architecture |
 
 ---
+
+![Exercise 8 - ECICIENCIA](Images/Evidencias/Ejercicios/ejercicio8_3_1.png)
 
 ## Port Summary
 

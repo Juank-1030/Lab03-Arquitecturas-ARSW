@@ -417,6 +417,8 @@ Se generan 4 archivos `.class` en `bin/edu/eci/arsw/guide2_2/`:
 
 ---
 
+![Guia 2.2 - MovieServer TCP](Images/Evidencias/Guias/guia2_2.png)
+
 ## Ejercicio 2.3 - Gestion Salones TCP
 
 **Paquete:** `src/edu/eci/arsw/excercise2_3/`
@@ -668,6 +670,8 @@ run.bat exercise2_3 client
 
 ---
 
+![Ejercicio 2.3 - Gestion Salones TCP](Images/Evidencias/Ejercicios/ejercicio2_3.png)
+
 ## Guia 3.2 - MovieHttpServer
 
 **Paquete:** `src/edu/eci/arsw/guide3_2/`
@@ -875,6 +879,8 @@ curl "http://localhost:8080/movie?id=1"
 ```
 
 ---
+
+![Guia 3.2 - MovieHttpServer](Images/Evidencias/Guias/guia3_2.png)
 
 ## Ejercicio 3.3 - Gestion Salones HTTP
 
@@ -1167,6 +1173,10 @@ curl -X POST "http://localhost:8081/rooms/release?id=E303"
 
 ---
 
+![Ejercicio 3.3 - Gestion Salones HTTP 1](Images/Evidencias/Ejercicios/ejercicio3_3_1.png)
+![Ejercicio 3.3 - Gestion Salones HTTP 2](Images/Evidencias/Ejercicios/ejercicio3_3_2.png)
+![Ejercicio 3.3 - Gestion Salones HTTP 3](Images/Evidencias/Ejercicios/ejercicio3_3_3.png)
+
 ## Guia 4.2 - MovieService RMI
 
 **Paquete:** `src/edu/eci/arsw/guide4_2/`
@@ -1383,6 +1393,8 @@ run.bat guide4_2 compile
 - **Proximo paso:** gRPC (guia 5.2) resuelve las limitaciones de RMI: define el contrato en un archivo `.proto` independiente del lenguaje y usa HTTP/2 como transporte, permitiendo clientes en cualquier lenguaje.
 
 ---
+
+![Guia 4.2 - MovieService RMI](Images/Evidencias/Guias/guia4_2.png)
 
 ## Ejercicio 4.3 - Inventario Laboratorios RMI
 
@@ -1737,6 +1749,8 @@ run.bat exercise4_3 client
 
 ---
 
+![Ejercicio 4.3 - Inventario Laboratorios RMI](Images/Evidencias/Ejercicios/ejercicio4_3.png)
+
 ## Guia 5.2 - MovieService gRPC
 
 **Paquete:** `src/edu/eci/arsw/guide5_2/` (proyecto Maven independiente)
@@ -1973,6 +1987,8 @@ run.bat guide5_2 client
 ```
 
 ---
+
+![Guia 5.2 - MovieService gRPC](Images/Evidencias/Guias/guia5_2.png)
 
 ## Ejercicio 5.3 - Bienestar Universitario gRPC
 
@@ -2271,6 +2287,8 @@ run.bat exercise5_3 client
 
 ---
 
+![Ejercicio 5.3 - Bienestar Universitario gRPC](Images/Evidencias/Ejercicios/ejercicio5_3.png)
+
 ## Guia 6.2 - Microservicios Peliculas
 
 **Paquete:** `src/edu/eci/arsw/guide6_2/`
@@ -2554,6 +2572,9 @@ run.bat guide6_2 client
 
 ---
 
+
+![Guia 6.2 - Microservicios Peliculas 1](Images/Evidencias/Guias/guia6_2_1.png)
+![Guia 6.2 - Microservicios Peliculas 2](Images/Evidencias/Guias/guia6_2_2.png)
 
 ## Ejercicio 6.3 - Microservicios Bienestar
 
@@ -2846,6 +2867,9 @@ run.bat exercise6_3 client
 ---
 
 
+![Ejercicio 6.3 - Microservicios Bienestar 1](Images/Evidencias/Ejercicios/ejercicio6_3_1.png)
+![Ejercicio 6.3 - Microservicios Bienestar 2](Images/Evidencias/Ejercicios/ejercicio6_3_2.png)
+
 ## Guia 7.2 - MovieGateway
 
 **Paquete:** `src/edu/eci/arsw/guide7_2/`
@@ -2940,6 +2964,9 @@ curl "http://localhost:8082/consolidated?id=1"
 
 ---
 
+![Guia 7.2 - MovieGateway 1](Images/Evidencias/Guias/guia7_2_1.png)
+![Guia 7.2 - MovieGateway 2](Images/Evidencias/Guias/guia7_2_2.png)
+
 ## Ejercicio 7.3 - WellnessGateway
 
 **Paquete:** `src/edu/eci/arsw/excercise7_3/`
@@ -3025,6 +3052,9 @@ curl "http://localhost:8083/wellness-summary?studentId=S123"
 ---
 
 
+
+![Ejercicio 7.3 - WellnessGateway 1](Images/Evidencias/Ejercicios/ejercicio7_3_1.png)
+![Ejercicio 7.3 - WellnessGateway 2](Images/Evidencias/Ejercicios/ejercicio7_3_2.png)
 
 ## Ejercicio 8 - ECICIENCIA
 
@@ -3237,6 +3267,8 @@ run.bat <directorio> client
 7. excercise8/* (Ejercicio integrador)
 
 ---
+
+![Ejercicio 8 - ECICIENCIA](Images/Evidencias/Ejercicios/ejercicio8_3_1.png)
 
 ## Guía de Pruebas Paso a Paso
 

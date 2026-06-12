@@ -1,0 +1,24 @@
+@startuml
+title Exercise 4.3 - Lab Inventory RMI Architecture
+
+actor "User" as user
+participant "EquipmentRmiClient" as client
+participant "RMI Registry\n(:24000)" as registry
+participant "EquipmentServiceImpl" as server
+database "EquipmentRepository\n(in memory)" as repo
+
+user -> client : types command + equipment code
+client -> registry : lookup("equipmentService")
+registry --> client : remote stub
+client -> server : consultarEquipos()\nreservarEquipo(code)
+server -> repo : query/modify
+repo --> server : result
+server --> client : String / boolean
+client --> user : display result
+
+legend right
+  4 operations: list/consult/reserve/release
+  Java-only (RMI)
+endlegend
+
+@enduml

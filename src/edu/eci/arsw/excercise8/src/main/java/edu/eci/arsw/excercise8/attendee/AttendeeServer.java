@@ -35,12 +35,21 @@ public class AttendeeServer {
 
         @Override
         public void registerAttendee(RegisterRequest request, StreamObserver<AttendeeResponse> responseObserver) {
+            String name = request.getName() != null ? request.getName().trim() : "";
+            String email = request.getEmail() != null ? request.getEmail().trim() : "";
+            if (name.isEmpty() || email.isEmpty()) {
+                AttendeeResponse error = AttendeeResponse.newBuilder()
+                        .setAttendeeId(0).setName(name).setEmail(email).setFound(false).build();
+                System.out.println("Error: nombre o email vacio");
+                responseObserver.onNext(error);
+                responseObserver.onCompleted();
+                return;
+            }
             int id = idCounter.getAndIncrement();
             AttendeeResponse response = AttendeeResponse.newBuilder()
-                    .setAttendeeId(id).setName(request.getName())
-                    .setEmail(request.getEmail()).setFound(true).build();
+                    .setAttendeeId(id).setName(name).setEmail(email).setFound(true).build();
             attendees.put(id, response);
-            System.out.println("Registrado asistente: " + request.getName() + " (ID " + id + ")");
+            System.out.println("Registrado asistente: " + name + " (ID " + id + ")");
             responseObserver.onNext(response);
             responseObserver.onCompleted();
         }

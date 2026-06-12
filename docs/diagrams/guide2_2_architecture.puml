@@ -1,0 +1,25 @@
+@startuml
+title Guide 2.2 - MovieServer TCP Architecture
+
+actor "User" as user
+participant "MovieClient" as client
+participant "TCP Socket\n(:35000)" as socket
+participant "MovieServer" as server
+database "MovieRepository\n(in memory)" as repo
+
+user -> client : types movie ID
+client -> socket : connect()\nMOVIE:1
+socket -> server : accept()\nreadLine()
+server -> repo : findById(1)
+repo --> server : Movie
+server --> socket : println()\n"1,Interstellar,..."
+socket --> client : readLine()
+client --> user : display result
+
+legend right
+  Protocol: MOVIE:id
+  Format: CSV text
+  Single-threaded
+endlegend
+
+@enduml

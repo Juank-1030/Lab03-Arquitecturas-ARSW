@@ -1,0 +1,25 @@
+@startuml
+title Exercise 2.3 - Room Management TCP Architecture
+
+actor "User" as user
+participant "RoomClient" as client
+participant "TCP Socket\n(:36000)" as socket
+participant "RoomServer" as server
+database "RoomRepository\n(E301-E304)" as repo
+
+user -> client : types command + room code
+client -> socket : connect()\nRESERVAR_SALON,E303
+socket -> server : accept()\nreadLine()
+server -> repo : reserve("E303")
+repo --> server : "RESERVA_EXITOSA"
+server --> socket : println()
+socket --> client : readLine()
+client --> user : display result
+
+legend right
+  Protocol: COMANDO,CODIGO
+  3 operations: consult/reserve/release
+  Single-threaded
+endlegend
+
+@enduml

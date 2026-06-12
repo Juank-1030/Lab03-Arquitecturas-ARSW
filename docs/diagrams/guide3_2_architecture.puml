@@ -1,0 +1,22 @@
+@startuml
+title Guide 3.2 - MovieHttpServer Architecture
+
+actor "Browser / curl" as client
+participant "HTTP\n(:8080)" as http
+participant "MovieHandler" as handler
+database "MovieRepository\n(in memory)" as repo
+
+client -> http : GET /movie?id=1
+http -> handler : handle(HttpExchange)
+handler -> repo : findById(1)
+repo --> handler : Movie
+handler --> http : 200 OK\n<html>...</html>
+http --> client : HTML response
+
+legend right
+  Standard HTTP
+  No framework
+  Single-threaded
+endlegend
+
+@enduml

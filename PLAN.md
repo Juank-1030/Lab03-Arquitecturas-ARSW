@@ -22,6 +22,40 @@
 
 ---
 
+## Referencia Rapida
+
+### Limpiar todos los archivos generados (directorios target)
+
+```bash
+# Compilar todos los modulos (seguro: no borra target/ generado por protobuf)
+run.bat
+
+# NOTA: Use 'run.bat' para compilar y ejecutar guias/ejercicios individuales.
+# Para compilar todo desde Maven directamente: mvn compile
+# Luego recargue el servidor de lenguaje Java en VSCode: Ctrl+Shift+P → Java: Reload Projects
+```
+
+### Scripts de ayuda
+
+Se incluyen dos scripts para facilitar el uso del proyecto:
+
+| Script | Descripcion |
+|--------|-------------|
+| `clean.bat` | Menu seguro de compilacion/limpieza |
+| `run.bat`   | Lanzador interactivo para guias y ejercicios |
+
+> **⚠️ VSCode + protobuf:** Si usa `clean.bat` opcion 2 (limpiar y recompilar), VSCode mostrara errores temporales en archivos que usan clases generadas por protobuf (guide5_2, exercise5_3, guide6_2, exercise6_3, exercise8). **Solucion:** Cierre y reabra el archivo, o use `Ctrl+Shift+P → Java: Reload Projects`. Para evitarlo, use `clean.bat` opcion 1 (compilar sin limpiar).
+
+```bash
+# Compilar todo (seguro)
+clean.bat
+
+# Lanzador de guias y ejercicios
+run.bat
+```
+
+---
+
 ## Introduccion
 
 Este plan tecnico documenta el proceso de reorganizacion e implementacion progresiva del Laboratorio 3 de Arquitecturas de Software. El laboratorio sigue la evolucion de los mecanismos de comunicacion distribuida: desde sockets TCP hasta un API Gateway, pasando por HTTP, RMI, gRPC y microservicios.
@@ -300,11 +334,12 @@ public class MovieClient {
 
 ```bash
 # Terminal 1 — iniciar servidor
-javac -d bin src/edu/eci/arsw/guide2_2/*.java
-java -cp bin edu.eci.arsw.guide2_2.MovieServer
+# Limpiar primero si es necesario: clean.bat
+run.bat guide2_2 compile
+run.bat guide2_2 server
 
 # Terminal 2 — ejecutar cliente
-java -cp bin edu.eci.arsw.guide2_2.MovieClient
+run.bat guide2_2 client
 ```
 
 **Orden:** El servidor debe iniciar antes que el cliente; de lo contrario, `Socket("127.0.0.1", 35000)` lanzara `ConnectException: Connection refused` porque no hay un proceso escuchando en ese puerto.
@@ -361,7 +396,8 @@ $reader.ReadLine()
 #### Paso 6 — Verificacion
 
 ```bash
-javac -d bin src/edu/eci/arsw/guide2_2/*.java
+# Limpiar primero si es necesario: clean.bat
+run.bat guide2_2 compile
 # Sin errores de compilacion
 ```
 
@@ -548,11 +584,12 @@ System.out.println("Respuesta del servidor: " + response);
 
 ```bash
 # Terminal 1 — iniciar servidor
-javac -d bin src/edu/eci/arsw/excercise2_3/*.java
-java -cp bin edu.eci.arsw.excercise2_3.RoomServer
+# Limpiar primero si es necesario: clean.bat
+run.bat exercise2_3 compile
+run.bat exercise2_3 server
 
 # Terminal 2 — ejecutar cliente
-java -cp bin edu.eci.arsw.excercise2_3.RoomClient
+run.bat exercise2_3 client
 ```
 
 **Prueba esperada:**
@@ -589,7 +626,8 @@ LIBERAR_SALON, E303   → ERROR_OPERACION_INVALIDA
 #### Paso 6 — Verificacion
 
 ```bash
-javac -d bin src/edu/eci/arsw/excercise2_3/*.java
+# Limpiar primero si es necesario: clean.bat
+run.bat exercise2_3 compile
 # Sin errores
 ```
 
@@ -620,11 +658,12 @@ Se generan 4 archivos `.class`:
 
 ```bash
 # Terminal 1 - Servidor
-javac -d bin src/edu/eci/arsw/excercise2_3/*.java
-java -cp bin edu.eci.arsw.excercise2_3.RoomServer
+# Limpiar primero si es necesario: clean.bat
+run.bat exercise2_3 compile
+run.bat exercise2_3 server
 
 # Terminal 2 - Cliente
-java -cp bin edu.eci.arsw.excercise2_3.RoomClient
+run.bat exercise2_3 client
 ```
 
 ---
@@ -765,8 +804,9 @@ static class MovieHandler implements HttpHandler {
 #### Paso 4 — Ejecucion
 
 ```bash
-javac -d bin src/edu/eci/arsw/guide3_2/*.java
-java -cp bin edu.eci.arsw.guide3_2.MovieHttpServer
+# Limpiar primero si es necesario: clean.bat
+run.bat guide3_2 compile
+run.bat guide3_2 server
 ```
 
 **Prueba esperada:**
@@ -789,7 +829,8 @@ curl "http://localhost:8080/"
 #### Paso 5 — Verificacion
 
 ```bash
-javac -d bin src/edu/eci/arsw/guide3_2/*.java
+# Limpiar primero si es necesario: clean.bat
+run.bat guide3_2 compile
 # Sin errores
 ```
 
@@ -825,8 +866,9 @@ javac -d bin src/edu/eci/arsw/guide3_2/*.java
 
 ```bash
 # Terminal
-javac -d bin src/edu/eci/arsw/guide3_2/*.java
-java -cp bin edu.eci.arsw.guide3_2.MovieHttpServer
+# Limpiar primero si es necesario: clean.bat
+run.bat guide3_2 compile
+run.bat guide3_2 server
 
 # Probar con curl
 curl "http://localhost:8080/movie?id=1"
@@ -1010,8 +1052,9 @@ static class RoomsHandler implements HttpHandler {
 #### Paso 5 — Ejecucion
 
 ```bash
-javac -d bin src/edu/eci/arsw/excercise3_3/*.java
-java -cp bin edu.eci.arsw.excercise3_3.RoomHttpServer
+# Limpiar primero si es necesario: clean.bat
+run.bat exercise3_3 compile
+run.bat exercise3_3 server
 ```
 
 **Prueba esperada:**
@@ -1054,7 +1097,8 @@ curl "http://localhost:8081/rooms/xyz"
 #### Paso 6 — Verificacion
 
 ```bash
-javac -d bin src/edu/eci/arsw/excercise3_3/*.java
+# Limpiar primero si es necesario: clean.bat
+run.bat exercise3_3 compile
 # Sin errores
 ```
 
@@ -1110,8 +1154,9 @@ javac -d bin src/edu/eci/arsw/excercise3_3/*.java
 ### Como ejecutar
 
 ```bash
-javac -d bin src/edu/eci/arsw/excercise3_3/*.java
-java -cp bin edu.eci.arsw.excercise3_3.RoomHttpServer
+# Limpiar primero si es necesario: clean.bat
+run.bat exercise3_3 compile
+run.bat exercise3_3 server
 
 # Probar con curl
 curl "http://localhost:8081/rooms"
@@ -1284,9 +1329,10 @@ public class MovieRmiClient {
 #### Paso 6 — Ejecucion
 
 ```bash
-javac -d bin src/edu/eci/arsw/guide4_2/*.java
-java -cp bin edu.eci.arsw.guide4_2.MovieRmiServer     # Terminal 1
-java -cp bin edu.eci.arsw.guide4_2.MovieRmiClient     # Terminal 2
+# Limpiar primero si es necesario: clean.bat
+run.bat guide4_2 compile
+run.bat guide4_2 server
+run.bat guide4_2 client
 ```
 
 **Prueba esperada:**
@@ -1306,7 +1352,8 @@ Película no encontrada
 #### Paso 7 — Verificacion
 
 ```bash
-javac -d bin src/edu/eci/arsw/guide4_2/*.java
+# Limpiar primero si es necesario: clean.bat
+run.bat guide4_2 compile
 # Sin errores
 ```
 
@@ -1633,7 +1680,8 @@ Saliendo...
 #### Paso 6 — Verificacion
 
 ```bash
-javac -d bin src/edu/eci/arsw/excercise4_3/*.java
+# Limpiar primero si es necesario: clean.bat
+run.bat exercise4_3 compile
 # Sin errores
 ```
 
@@ -1681,9 +1729,10 @@ javac -d bin src/edu/eci/arsw/excercise4_3/*.java
 ### Como ejecutar
 
 ```bash
-javac -d bin src/edu/eci/arsw/excercise4_3/*.java
-java -cp bin edu.eci.arsw.excercise4_3.EquipmentRmiServer     # Terminal 1
-java -cp bin edu.eci.arsw.excercise4_3.EquipmentRmiClient     # Terminal 2
+# Limpiar primero si es necesario: clean.bat
+run.bat exercise4_3 compile
+run.bat exercise4_3 server
+run.bat exercise4_3 client
 ```
 
 ---
@@ -1721,7 +1770,7 @@ gRPC introduce un cambio fundamental respecto a RMI: el contrato se define en un
 | `MovieGrpcServer.java` | `guide5_2/src/main/java/edu/eci/arsw/guide5_2/MovieGrpcServer.java` | Servidor gRPC con implementacion del servicio |
 | `MovieGrpcClient.java` | `guide5_2/src/main/java/edu/eci/arsw/guide5_2/MovieGrpcClient.java` | Cliente gRPC con stub bloqueante |
 
-**Nota:** El `pom.xml` y el plugin `protobuf-maven-plugin` generan automaticamente las clases Java a partir del `.proto` durante `mvn compile`. Las clases generadas aparecen en `target/generated-sources/protobuf/` e incluyen `MovieServiceGrpc.java`, `MovieRequest.java`, `MovieResponse.java`, etc.
+**Nota:** El `pom.xml` y el plugin `protobuf-maven-plugin` generan automaticamente las clases Java a partir del `.proto` durante `run.bat guide5_2 compile`. Las clases generadas aparecen en `target/generated-sources/protobuf/` e incluyen `MovieServiceGrpc.java`, `MovieRequest.java`, `MovieResponse.java`, etc.
 
 ### Contrato (.proto)
 
@@ -1762,13 +1811,13 @@ message MovieResponse {
 
 1. **`.proto` como contrato universal:** El archivo `.proto` es el equivalente a la interfaz `Remote` de RMI, pero independiente del lenguaje. Un equipo puede definir el servicio en un `.proto` y el equipo de frontend genera un cliente JavaScript, mientras el backend genera un servidor Java.
 2. **Protocol Buffers (protobuf):** Formato de serializacion binario mas compacto y rapido que JSON y que Java Serialization. Los mensajes son fuertemente tipados y definidos por un schema. Los campos se identifican por numero, no por nombre, lo que permite renombrar campos sin romper clientes viejos.
-3. **Code generation:** El `protobuf-maven-plugin` invoca `protoc` durante `mvn compile` para generar las clases Java. No se escriben a mano las clases `MovieRequest` ni `MovieResponse`. Si el `.proto` cambia, se recompila y las clases se regeneran automaticamente.
+3. **Code generation:** El `protobuf-maven-plugin` invoca `protoc` durante `run.bat guide5_2 compile` para generar las clases Java. No se escriben a mano las clases `MovieRequest` ni `MovieResponse`. Si el `.proto` cambia, se recompila y las clases se regeneran automaticamente.
 4. **gRPC sobre HTTP/2:** A diferencia de RMI que usa un protocolo binario propietario sobre TCP, gRPC usa HTTP/2. Esto significa que los mensajes viajan sobre un protocolo web estandar, permitiendo features como multiplexacion, compression de headers, y streaming.
 5. **Stub bloqueante vs asincrono:** El cliente usa `MovieServiceGrpc.newBlockingStub(channel)` que bloquea hasta recibir la respuesta. gRPC tambien ofrece `newFutureStub()` (asincrono con `ListenableFuture`) y `newStub()` (streaming con callbacks).
 
 ### Flujo detallado
 
-1. `mvn clean compile` ejecuta el plugin protobuf, que genera `MovieServiceGrpc.java`, `MovieRequest.java`, `MovieResponse.java`, etc. en `target/generated-sources/protobuf/`.
+1. `run.bat guide5_2 compile` ejecuta el plugin protobuf, que genera `MovieServiceGrpc.java`, `MovieRequest.java`, `MovieResponse.java`, etc. en `target/generated-sources/protobuf/`.
 2. `MovieGrpcServer.main()` crea un `MovieServiceImpl` (que extiende `MovieServiceGrpc.MovieServiceImplBase`) y lo registra via `ServerBuilder.forPort(50051).addService().build().start()`.
 3. El servidor queda a la espera de conexiones gRPC en el puerto 50051.
 4. `MovieGrpcClient.main()` crea un `ManagedChannel` hacia `localhost:50051` con `usePlaintext()` (sin TLS, para desarrollo).
@@ -1781,7 +1830,7 @@ message MovieResponse {
 
 #### Paso 1 — `pom.xml`
 
-El `pom.xml` declara las dependencias `grpc-netty-shaded` (transporte HTTP/2 con Netty), `grpc-protobuf` (serializacion protobuf), `grpc-stub` (clases stub), `protobuf-java` y `javax.annotation-api`. Ademas configura el `protobuf-maven-plugin` que ejecuta `protoc` durante `mvn compile` para generar codigo a partir del `.proto`.
+El `pom.xml` declara las dependencias `grpc-netty-shaded` (transporte HTTP/2 con Netty), `grpc-protobuf` (serializacion protobuf), `grpc-stub` (clases stub), `protobuf-java` y `javax.annotation-api`. Ademas configura el `protobuf-maven-plugin` que ejecuta `protoc` durante `run.bat guide5_2 compile` para generar codigo a partir del `.proto`.
 
 **Decisiones de diseno:**
 - **`grpc-netty-shaded`:** Incluye Netty (servidor HTTP/2) empaquetado (shaded) para evitar conflictos de versiones con otras dependencias Netty en el classpath.
@@ -1854,13 +1903,14 @@ MovieResponse response = stub.getMovie(request);
 
 ```bash
 # Compilar (genera codigo a partir del .proto)
-mvn clean compile -f src/edu/eci/arsw/guide5_2/pom.xml
+# Limpiar primero si es necesario: clean.bat
+run.bat guide5_2 compile
 
 # Terminal 1 — servidor
-mvn exec:java -f src/edu/eci/arsw/guide5_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide5_2.MovieGrpcServer"
+run.bat guide5_2 server
 
 # Terminal 2 — cliente
-mvn exec:java -f src/edu/eci/arsw/guide5_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide5_2.MovieGrpcClient"
+run.bat guide5_2 client
 ```
 
 **Prueba esperada:**
@@ -1873,12 +1923,13 @@ Terminal 2:
 Pelicula: Interstellar - Christopher Nolan - 2014
 ```
 
-Para probar con un ID diferente, cambiar `setId(1)` por otro valor en `MovieGrpcClient.java` y recompilar (`mvn clean compile`).
+Para probar con un ID diferente, cambiar `setId(1)` por otro valor en `MovieGrpcClient.java` y recompilar (`run.bat guide5_2 compile`).
 
 #### Paso 6 — Verificacion
 
 ```bash
-mvn clean compile -f src/edu/eci/arsw/guide5_2/pom.xml
+# Limpiar primero si es necesario: clean.bat
+run.bat guide5_2 compile
 # BUILD SUCCESS — 8 source files compiled (3 generados + 5 escritos a mano)
 ```
 
@@ -1911,13 +1962,14 @@ mvn clean compile -f src/edu/eci/arsw/guide5_2/pom.xml
 
 ```bash
 # Compilar
-mvn clean compile -f src/edu/eci/arsw/guide5_2/pom.xml
+# Limpiar primero si es necesario: clean.bat
+run.bat guide5_2 compile
 
 # Servidor (Terminal 1)
-mvn exec:java -f src/edu/eci/arsw/guide5_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide5_2.MovieGrpcServer"
+run.bat guide5_2 server
 
 # Cliente (Terminal 2)
-mvn exec:java -f src/edu/eci/arsw/guide5_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide5_2.MovieGrpcClient"
+run.bat guide5_2 client
 ```
 
 ---
@@ -2092,13 +2144,14 @@ El cliente usa el mismo patron de menu interactivo que el Exercise 4.3, pero con
 
 ```bash
 # Compilar
-mvn clean compile -f src/edu/eci/arsw/excercise5_3/pom.xml
+# Limpiar primero si es necesario: clean.bat
+run.bat exercise5_3 compile
 
 # Terminal 1 — servidor
-mvn exec:java -f src/edu/eci/arsw/excercise5_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise5_3.WellnessGrpcServer"
+run.bat exercise5_3 server
 
 # Terminal 2 — cliente
-mvn exec:java -f src/edu/eci/arsw/excercise5_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise5_3.WellnessGrpcClient"
+run.bat exercise5_3 client
 ```
 
 **Prueba esperada (menu interactivo, opcion 4 para salir):**
@@ -2153,7 +2206,8 @@ Saliendo...
 #### Paso 5 — Verificacion
 
 ```bash
-mvn clean compile -f src/edu/eci/arsw/excercise5_3/pom.xml
+# Limpiar primero si es necesario: clean.bat
+run.bat exercise5_3 compile
 # BUILD SUCCESS — 22 source files compiled
 ```
 
@@ -2205,13 +2259,14 @@ mvn clean compile -f src/edu/eci/arsw/excercise5_3/pom.xml
 
 ```bash
 # Compilar
-mvn clean compile -f src/edu/eci/arsw/excercise5_3/pom.xml
+# Limpiar primero si es necesario: clean.bat
+run.bat exercise5_3 compile
 
 # Servidor (Terminal 1)
-mvn exec:java -f src/edu/eci/arsw/excercise5_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise5_3.WellnessGrpcServer"
+run.bat exercise5_3 server
 
 # Cliente (Terminal 2)
-mvn exec:java -f src/edu/eci/arsw/excercise5_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise5_3.WellnessGrpcClient"
+run.bat exercise5_3 client
 ```
 
 ---
@@ -2282,7 +2337,7 @@ Cada `.proto` define un unico servicio con un unico RPC, siguiendo el mismo patr
 
 ### Flujo detallado
 
-1. `mvn clean compile` compila los 3 `.proto` y genera las clases Java en `target/generated-sources/protobuf/`.
+1. `run.bat guide6_2 compile` compila los 3 `.proto` y genera las clases Java en `target/generated-sources/protobuf/`.
 2. Se inician 3 servidores en terminales separadas: MovieService (50051), ReviewService (50052), RecommendationService (50053).
 3. Cada servidor registra su implementacion (`MovieServiceImpl`, `ReviewServiceImpl`, `RecommendationServiceImpl`) y queda a la espera de conexiones.
 4. El cliente `MicroserviceClient` crea 3 canales y 3 stubs, luego presenta un menu con 5 opciones.
@@ -2372,19 +2427,20 @@ RecommendationServiceGrpc.RecommendationServiceBlockingStub recommendationStub =
 
 ```bash
 # Compilar desde la raiz
-mvn clean compile
+# Limpiar primero si es necesario: clean.bat
+run.bat guide6_2 compile
 
 # Terminal 1 — MovieService
-mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide6_2.movie.MovieServiceServer"
+run.bat guide6_2 server1
 
 # Terminal 2 — ReviewService
-mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide6_2.review.ReviewServiceServer"
+run.bat guide6_2 server2
 
 # Terminal 3 — RecommendationService
-mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide6_2.recommendation.RecommendationServiceServer"
+run.bat guide6_2 server3
 
 # Terminal 4 — Cliente
-mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide6_2.MicroserviceClient"
+run.bat guide6_2 client
 ```
 
 **Orden:** Los servidores deben iniciar antes que el cliente. Si un servidor no esta corriendo, el cliente recibe `StatusRuntimeException` con codigo `UNAVAILABLE` al intentar conectarse.
@@ -2431,7 +2487,8 @@ Saliendo...
 #### Paso 5 — Verificacion
 
 ```bash
-mvn clean compile
+# Limpiar primero si es necesario: clean.bat
+run.bat guide6_2 compile
 # BUILD SUCCESS — 5 modulos compilados
 ```
 
@@ -2473,28 +2530,30 @@ mvn clean compile
 3. **?Como se compara con el enfoque monolitico de la guia 5.2?**
    - En guia 5.2, todo el dominio (peliculas, resenas, recomendaciones) estaria en un solo `.proto` y un solo servidor. El cliente haria una sola llamada.
    - En guia 6.2, cada subdominio es un servicio independiente. El cliente debe hacer 3 llamadas.
-   - La guia 5.2 es mas simple de operar pero menos escalable. La guia 6.2 es mas compleja pero mas flexible.
+    - La guia 5.2 es mas simple de operar pero menos escalable. La guia 6.2 es mas compleja pero mas flexible.
 
 ### Como ejecutar
 
 ```bash
 # Compilar desde la raiz
-mvn clean compile
+# Limpiar primero si es necesario: clean.bat
+run.bat guide6_2 compile
 
 # Terminal 1 — MovieService
-mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide6_2.movie.MovieServiceServer"
+run.bat guide6_2 server1
 
 # Terminal 2 — ReviewService
-mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide6_2.review.ReviewServiceServer"
+run.bat guide6_2 server2
 
 # Terminal 3 — RecommendationService
-mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide6_2.recommendation.RecommendationServiceServer"
+run.bat guide6_2 server3
 
 # Terminal 4 — Cliente
-mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide6_2.MicroserviceClient"
+run.bat guide6_2 client
 ```
 
 ---
+
 
 ## Ejercicio 6.3 - Microservicios Bienestar
 
@@ -2577,7 +2636,7 @@ El cliente (`WellnessClient`) mantiene 4 canales gRPC separados y un menu intera
 
 ### Flujo detallado
 
-1. `mvn clean compile` compila los 4 `.proto` con los nuevos mensajes (11 adicionales) y genera las clases Java.
+1. `run.bat exercise6_3 compile` compila los 4 `.proto` con los nuevos mensajes (11 adicionales) y genera las clases Java.
 2. Se inician 4 servidores en terminales separadas.
 3. El cliente `WellnessClient` crea 4 canales y 4 stubs, luego presenta un menu con 18 opciones (0-17).
 4. Dependiendo de la opcion, el cliente invoca el stub correspondiente: citas (ops 1-5), especialidades (ops 6-9), gimnasio (ops 10-13), recreacion (ops 14-17).
@@ -2662,22 +2721,23 @@ ManagedChannel recreationChannel = ...localhost:50064...;
 
 ```bash
 # Compilar desde la raiz
-mvn clean compile
+# Limpiar primero si es necesario: clean.bat
+run.bat exercise6_3 compile
 
 # Terminal 1 — AppointmentService
-mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.appointment.AppointmentServer"
+run.bat exercise6_3 server1
 
 # Terminal 2 — MedicalService
-mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.medical.MedicalServer"
+run.bat exercise6_3 server2
 
 # Terminal 3 — GymService
-mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.gym.GymServer"
+run.bat exercise6_3 server3
 
 # Terminal 4 — RecreationService
-mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.recreation.RecreationServer"
+run.bat exercise6_3 server4
 
 # Terminal 5 — Cliente
-mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.WellnessClient"
+run.bat exercise6_3 client
 ```
 
 **Prueba esperada:**
@@ -2730,7 +2790,8 @@ Recurso reservado exitosamente
 #### Paso 5 — Verificacion
 
 ```bash
-mvn clean compile
+# Limpiar primero si es necesario: clean.bat
+run.bat exercise6_3 compile
 # BUILD SUCCESS — 5 modulos compilados
 ```
 
@@ -2757,31 +2818,33 @@ mvn clean compile
    - En 5.3, todo el dominio de bienestar estaba en un solo servidor con 3 RPCs. En 6.3, hay 4 servidores especializados con 17 RPCs en total (5+4+4+4). La ventaja es independencia de despliegue; la desventaja es que el cliente necesita 4 conexiones y gestiona mas operaciones.
 
 4. **?Que patron de eliminacion se uso en cada servicio y por que?**
-   - AppointmentService ofrece dos modos: `CancelAppointment` (soft delete, cambia Status a CANCELLED) y `DeleteAppointment` (hard delete, remueve del mapa). GymService solo soft delete via `CancelSession` (active=false). RecreationService usa toggle con `ReturnResource` (available=true). MedicalService usa hard delete directo con `RemoveSpecialty`. La decision depende del dominio: las citas medicas requieren auditoria (soft), los recursos recreativos necesitan retorno (toggle), las especialidades son datos maestros (hard).
+    - AppointmentService ofrece dos modos: `CancelAppointment` (soft delete, cambia Status a CANCELLED) y `DeleteAppointment` (hard delete, remueve del mapa). GymService solo soft delete via `CancelSession` (active=false). RecreationService usa toggle con `ReturnResource` (available=true). MedicalService usa hard delete directo con `RemoveSpecialty`. La decision depende del dominio: las citas medicas requieren auditoria (soft), los recursos recreativos necesitan retorno (toggle), las especialidades son datos maestros (hard).
 
 ### Como ejecutar
 
 ```bash
 # Compilar desde la raiz
-mvn clean compile
+# Limpiar primero si es necesario: clean.bat
+run.bat exercise6_3 compile
 
 # Terminal 1 — AppointmentService
-mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.appointment.AppointmentServer"
+run.bat exercise6_3 server1
 
 # Terminal 2 — MedicalService
-mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.medical.MedicalServer"
+run.bat exercise6_3 server2
 
 # Terminal 3 — GymService
-mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.gym.GymServer"
+run.bat exercise6_3 server3
 
 # Terminal 4 — RecreationService
-mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.recreation.RecreationServer"
+run.bat exercise6_3 server4
 
 # Terminal 5 — Cliente
-mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.WellnessClient"
+run.bat exercise6_3 client
 ```
 
 ---
+
 
 ## Guia 7.2 - MovieGateway
 
@@ -2855,19 +2918,20 @@ El Gateway recibe una solicitud unificada, consulta internamente los 3 servicios
 
 ```bash
 # Paso 1 — Instalar todos los artefactos (necesario para resolver dependencias del gateway)
-mvn install -DskipTests
+# Limpiar primero si es necesario: clean.bat
+run.bat guide7_2 compile
 
 # Terminal 1 — MovieService
-mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass=edu.eci.arsw.guide6_2.movie.MovieServiceServer
+run.bat guide7_2 server1
 
 # Terminal 2 — ReviewService
-mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass=edu.eci.arsw.guide6_2.review.ReviewServiceServer
+run.bat guide7_2 server2
 
 # Terminal 3 — RecommendationService
-mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass=edu.eci.arsw.guide6_2.recommendation.RecommendationServiceServer
+run.bat guide7_2 server3
 
 # Terminal 4 — Gateway
-mvn exec:java -f src/edu/eci/arsw/guide7_2/pom.xml -Dexec.mainClass=edu.eci.arsw.guide7_2.MovieGateway
+run.bat guide7_2 gateway
 
 # Pruebas con curl
 curl "http://localhost:8082/movie?id=1"
@@ -2935,22 +2999,23 @@ Gateway para centralizar el acceso a los servicios de bienestar universitario: A
 
 ```bash
 # Paso 1 — Instalar todos los artefactos (necesario para resolver dependencias del gateway)
-mvn install -DskipTests
+# Limpiar primero si es necesario: clean.bat
+run.bat exercise7_3 compile
 
 # Terminal 1 — AppointmentService
-mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass=edu.eci.arsw.excercise6_3.appointment.AppointmentServer
+run.bat exercise7_3 server1
 
 # Terminal 2 — MedicalService
-mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass=edu.eci.arsw.excercise6_3.medical.MedicalServer
+run.bat exercise7_3 server2
 
 # Terminal 3 — GymService
-mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass=edu.eci.arsw.excercise6_3.gym.GymServer
+run.bat exercise7_3 server3
 
 # Terminal 4 — RecreationService
-mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass=edu.eci.arsw.excercise6_3.recreation.RecreationServer
+run.bat exercise7_3 server4
 
 # Terminal 5 — Gateway
-mvn exec:java -f src/edu/eci/arsw/excercise7_3/pom.xml -Dexec.mainClass=edu.eci.arsw.excercise7_3.WellnessGateway
+run.bat exercise7_3 gateway
 
 # Pruebas con curl
 curl -X POST "http://localhost:8083/appointment?studentId=S123&serviceType=MEDICINE&date=2026-06-15"
@@ -2958,6 +3023,8 @@ curl "http://localhost:8083/wellness-summary?studentId=S123"
 ```
 
 ---
+
+
 
 ## Ejercicio 8 - ECICIENCIA
 
@@ -3017,27 +3084,36 @@ Define 3 servicios con 10 RPCs total:
 | GET | `/workshop/attendee` | `id` | Reservas de un asistente |
 | GET | `/consolidated` | `id` | Info completa + reservas |
 
+### Capacidades
+
+| Servicio | Que puede hacer |
+|----------|----------------|
+| **AttendeeService** (gRPC :8091) | Registrar asistentes (`name` + `email`, valida no vacio); consultar por ID (2 precargados: Carlos Perez ID=1, Maria Gomez ID=2); listar todos los asistentes; IDs autoincrementales desde 3 |
+| **AgendaService** (gRPC :8092) | 4 actividades precargadas (ML 50 cupo, Arduino 20 cupo, Ciberseguridad 40 cupo, Robotica 15 cupo); consultar por franja horaria (`start`-`end`, comparacion string `HH:mm`); ver detalle (titulo, descripcion, ponente, lugar, horario); consultar capacidad actual |
+| **WorkshopService** (gRPC :8093) | Reservar cupo → `CONFIRMED` + `success=true` si hay espacio; lista de espera → `WAITING` + `success=false` + posicion en cola si esta lleno; promocion automatica `WAITING`→`CONFIRMED` al cancelar una confirmada; cancelar reserva (solo si no estaba cancelada); consultar reservas por asistente; consultar disponibilidad; 1 reserva precargada (asistente 1 en actividad 2) |
+| **Gateway** (HTTP :8090) | 8 endpoints HTTP↔gRPC; manejo de errores: params faltantes → 400, no encontrado → 404, metodo incorrecto → 405, backend caido → 500, numero invalido → 500; shutdown hook graceful |
+
 ### 8.4 Como compilar y ejecutar
 
 ```bash
 # Desde la raiz: instalar dependencias primero
-mvn install -DskipTests
+# Limpiar primero si es necesario: clean.bat
+run.bat exercise8 compile
 
 # Terminal 1: AttendeeService (puerto 8091)
-mvn exec:java -pl src/edu/eci/arsw/excercise8 -Dexec.mainClass="edu.eci.arsw.excercise8.attendee.AttendeeServer"
+run.bat exercise8 server1
 
 # Terminal 2: AgendaService (puerto 8092)
-mvn exec:java -pl src/edu/eci/arsw/excercise8 -Dexec.mainClass="edu.eci.arsw.excercise8.agenda.AgendaServer"
+run.bat exercise8 server2
 
 # Terminal 3: WorkshopService (puerto 8093)
-mvn exec:java -pl src/edu/eci/arsw/excercise8 -Dexec.mainClass="edu.eci.arsw.excercise8.workshop.WorkshopServer"
+run.bat exercise8 server3
 
 # Terminal 4: Gateway (puerto 8090)
-mvn exec:java -pl src/edu/eci/arsw/excercise8 -Dexec.mainClass="edu.eci.arsw.excercise8.gateway.EcicienciaGateway"
+run.bat exercise8 gateway
 ```
 
-> **Nota:** Usamos `-pl src/edu/eci/arsw/excercise8` (project list por ruta del modulo) desde la raiz. Esto evita los problemas de quoting en Windows que ocurren con `-f` y comillas simples. Si prefieres `-f`, usa comillas dobles:  
-> `mvn exec:java -f src/edu/eci/arsw/excercise8/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise8.attendee.AttendeeServer"`
+> **Nota:** El comando `run.bat exercise8 compile` se encarga de compilar el modulo. Si prefieres usar Maven directamente, ejecuta `mvn compile -pl src/edu/eci/arsw/excercise8 -am` desde la raiz.
 
 ### 8.5 Pruebas con curl
 
@@ -3135,15 +3211,17 @@ ECICIENCIA compone gRPC (estilo 4), microservicios (estilo 5) y Gateway (estilo 
 ### Proyectos Java puro (guide2_2, excercise2_3, guide3_2, excercise3_3, guide4_2, excercise4_3, guide7_2, excercise7_3, excercise8)
 
 ```bash
-javac -d bin src/edu/eci/arsw/<directorio>/**/*.java
-java -cp bin edu.eci.arsw.<directorio>.<MainClass>
+run.bat <directorio> compile
+run.bat <directorio> server
+run.bat <directorio> client
 ```
 
 ### Proyectos gRPC y microservicios (guide5_2, excercise5_3, guide6_2, excercise6_3)
 
 ```bash
-mvn clean compile
-mvn exec:java -Dexec.mainClass="edu.eci.arsw.<directorio>.<MainClass>"
+run.bat <directorio> compile
+run.bat <directorio> server|server1|server2|...
+run.bat <directorio> client
 ```
 
 ---
@@ -3157,3 +3235,316 @@ mvn exec:java -Dexec.mainClass="edu.eci.arsw.<directorio>.<MainClass>"
 5. guide6_2/* -> excercise6_3/* (Microservicios)
 6. guide7_2 -> excercise7_3 (API Gateway)
 7. excercise8/* (Ejercicio integrador)
+
+---
+
+## Guía de Pruebas Paso a Paso
+
+Esta sección detalla el procedimiento exacto para compilar, ejecutar y verificar cada guía y ejercicio del laboratorio.
+
+---
+
+### Guía 2.2 — MovieServer TCP
+
+**Paso 1 — Compilar:**
+```bash
+run.bat guide2_2 compile
+```
+*Esperado:* `BUILD SUCCESS` (archivos .class generados en `bin/`)
+
+**Paso 2 — Iniciar servidor (Terminal 1):**
+```bash
+run.bat guide2_2 server
+```
+*Esperado:* El servidor imprime "MovieServer started on port 35000" y queda esperando conexiones.
+
+**Paso 3 — Ejecutar cliente (Terminal 2):**
+```bash
+run.bat guide2_2 client
+```
+*Esperado:* El cliente se conecta y solicita escribir un nombre de película.
+
+**Paso 4 — Prueba:** Escriba un nombre (ej: `Batman`, `Superman`).
+*Esperado:* El servidor responde con año y calificación (ej: `Batman (2022) - Rating: 7.2/10`). Escriba `quit` para salir.
+
+---
+
+### Ejercicio 2.3 — Gestión de Salones TCP
+
+**Paso 1 — Compilar:**
+```bash
+run.bat exercise2_3 compile
+```
+
+**Paso 2 — Iniciar servidor (Terminal 1):**
+```bash
+run.bat exercise2_3 server
+```
+*Esperado:* "RoomServer started on port 36000"
+
+**Paso 3 — Ejecutar cliente (Terminal 2):**
+```bash
+run.bat exercise2_3 client
+```
+*Esperado:* Menú interactivo (reservar, cancelar, listar salones).
+
+**Paso 4 — Prueba:** Seleccione opción 1 (reservar) e ingrese "101".
+*Esperado:* "Room 101 booked successfully." Luego liste salones para confirmar.
+
+---
+
+### Guía 3.2 — MovieHttpServer
+
+**Paso 1 — Compilar e iniciar servidor:**
+```bash
+run.bat guide3_2 compile
+run.bat guide3_2 server
+```
+*Esperado:* "MovieHttpServer started on port 8080"
+
+**Paso 2 — Probar con curl:**
+```bash
+curl "http://localhost:8080/movies?name=Batman"
+```
+*Esperado:* `{"name":"Batman","year":2022,"rating":7.2}`
+
+```bash
+curl "http://localhost:8080/movies?name=Inexistente"
+```
+*Esperado:* `404 Not Found` o `{"error":"Movie not found"}`
+
+---
+
+### Ejercicio 3.3 — Gestión de Salones HTTP
+
+**Paso 1 — Compilar e iniciar servidor:**
+```bash
+run.bat exercise3_3 compile
+run.bat exercise3_3 server
+```
+*Esperado:* "RoomHttpServer started on port 8081"
+
+**Paso 2 — Probar endpoints:**
+```bash
+curl -X POST "http://localhost:8081/rooms" -d "name=101"
+curl "http://localhost:8081/rooms"
+curl -X POST "http://localhost:8081/rooms/101/book"
+curl -X POST "http://localhost:8081/rooms/101/cancel"
+```
+
+---
+
+### Guía 4.2 — MovieService RMI
+
+**Paso 1 — Compilar:**
+```bash
+run.bat guide4_2 compile
+```
+
+**Paso 2 — Iniciar servidor (Terminal 1):**
+```bash
+run.bat guide4_2 server
+```
+*Esperado:* "MovieService RMI Server started on port 23000" (también inicia `rmiregistry`)
+
+**Paso 3 — Ejecutar cliente (Terminal 2):**
+```bash
+run.bat guide4_2 client
+```
+*Esperado:* Cliente obtiene lista de películas vía RMI. Ej: `Movies: [Batman (2022) - 7.2, Superman (1978) - 7.4, ...]`
+
+---
+
+### Ejercicio 4.3 — Inventario de Laboratorios RMI
+
+**Paso 1 — Compilar e iniciar servidor:**
+```bash
+run.bat exercise4_3 compile
+run.bat exercise4_3 server
+```
+*Esperado:* "EquipmentService RMI Server started on port 24000"
+
+**Paso 2 — Ejecutar cliente:**
+```bash
+run.bat exercise4_3 client
+```
+*Esperado:* Menú interactivo para agregar, eliminar, listar y buscar equipos.
+
+---
+
+### Guía 5.2 — MovieService gRPC
+
+**Paso 1 — Compilar:**
+```bash
+run.bat guide5_2 compile
+```
+*Esperado:* `BUILD SUCCESS`. Las clases protobuf se generan en `target/generated-sources/`.
+
+**Paso 2 — Iniciar servidor (Terminal 1):**
+```bash
+run.bat guide5_2 server
+```
+*Esperado:* "MovieGrpcServer started, listening on port 50051"
+
+**Paso 3 — Ejecutar cliente (Terminal 2):**
+```bash
+run.bat guide5_2 client
+```
+*Esperado:* Cliente envía peticiones gRPC e imprime detalles de películas.
+
+---
+
+### Ejercicio 5.3 — Bienestar Universitario gRPC
+
+**Paso 1 — Compilar:**
+```bash
+run.bat exercise5_3 compile
+```
+
+**Paso 2 — Iniciar servidor (Terminal 1):**
+```bash
+run.bat exercise5_3 server
+```
+*Esperado:* "WellnessGrpcServer started, listening on port 50061"
+
+**Paso 3 — Ejecutar cliente (Terminal 2):**
+```bash
+run.bat exercise5_3 client
+```
+*Esperado:* Cliente interactúa con servicios de bienestar (citas, historial médico, etc.) vía gRPC.
+
+---
+
+### Guía 6.2 — Microservicios de Películas
+
+**Paso 1 — Compilar:**
+```bash
+run.bat guide6_2 compile
+```
+
+**Paso 2 — Iniciar 3 servidores (Terminales 1-3):**
+```bash
+run.bat guide6_2 server1    # MovieService → puerto 50051
+run.bat guide6_2 server2    # ReviewService → puerto 50052
+run.bat guide6_2 server3    # RecommendationService → puerto 50053
+```
+*Esperado:* Cada uno imprime "XxxService started, listening on port YYYYY"
+
+**Paso 3 — Ejecutar cliente (Terminal 4):**
+```bash
+run.bat guide6_2 client
+```
+*Esperado:* Cliente consulta los 3 microservicios y muestra resultados agregados.
+
+---
+
+### Ejercicio 6.3 — Microservicios de Bienestar
+
+**Paso 1 — Compilar:**
+```bash
+run.bat exercise6_3 compile
+```
+
+**Paso 2 — Iniciar 4 servidores (Terminales 1-4):**
+```bash
+run.bat exercise6_3 server1    # AppointmentService → puerto 50061
+run.bat exercise6_3 server2    # MedicalService → puerto 50062
+run.bat exercise6_3 server3    # GymService → puerto 50063
+run.bat exercise6_3 server4    # RecreationService → puerto 50064
+```
+
+**Paso 3 — Ejecutar cliente (Terminal 5):**
+```bash
+run.bat exercise6_3 client
+```
+*Esperado:* Cliente agrega datos de los 4 servicios de bienestar.
+
+---
+
+### Guía 7.2 — MovieGateway
+
+**Paso 1 — Instalar dependencias (solo una vez):**
+```bash
+run.bat guide7_2 compile
+```
+Esto ejecuta `mvn install -DskipTests` para asegurar que el JAR de guide6_2 esté disponible.
+
+**Paso 2 — Iniciar 3 microservicios (Terminales 1-3):**
+```bash
+run.bat guide7_2 server1    # MovieService
+run.bat guide7_2 server2    # ReviewService
+run.bat guide7_2 server3    # RecommendationService
+```
+
+**Paso 3 — Iniciar gateway (Terminal 4):**
+```bash
+run.bat guide7_2 gateway
+```
+*Esperado:* "MovieGateway started on port 8082"
+
+**Paso 4 — Probar vía gateway:**
+```bash
+curl "http://localhost:8082/movies?name=Batman"
+```
+*Esperado:* El gateway recibe la petición, delega a los microservicios y retorna la respuesta completa.
+
+---
+
+### Ejercicio 7.3 — WellnessGateway
+
+**Paso 1 — Instalar dependencias:**
+```bash
+run.bat exercise7_3 compile
+```
+Esto ejecuta `mvn install -DskipTests` para asegurar que el JAR de exercise6_3 esté disponible.
+
+**Paso 2 — Iniciar 4 microservicios (Terminales 1-4):**
+```bash
+run.bat exercise7_3 server1    # AppointmentService
+run.bat exercise7_3 server2    # MedicalService
+run.bat exercise7_3 server3    # GymService
+run.bat exercise7_3 server4    # RecreationService
+```
+
+**Paso 3 — Iniciar gateway (Terminal 5):**
+```bash
+run.bat exercise7_3 gateway
+```
+*Esperado:* "WellnessGateway started on port 8083"
+
+**Paso 4 — Probar vía gateway:**
+```bash
+curl "http://localhost:8083/appointments?user=123"
+curl "http://localhost:8083/medical/records?user=123"
+```
+*Esperado:* El gateway agrega respuestas de los microservicios de bienestar.
+
+---
+
+### Ejercicio 8 — ECICIENCIA
+
+**Paso 1 — Compilar:**
+```bash
+run.bat exercise8 compile
+```
+
+**Paso 2 — Iniciar 3 servidores (Terminales 1-3):**
+```bash
+run.bat exercise8 server1    # AttendeeService → puerto 8091
+run.bat exercise8 server2    # AgendaService → puerto 8092
+run.bat exercise8 server3    # WorkshopService → puerto 8093
+```
+
+**Paso 3 — Iniciar gateway (Terminal 4):**
+```bash
+run.bat exercise8 gateway
+```
+*Esperado:* "EcicienciaGateway started on port 8090"
+
+**Paso 4 — Probar vía gateway:**
+```bash
+curl "http://localhost:8090/attendees"
+curl "http://localhost:8090/agenda"
+curl "http://localhost:8090/workshops"
+```
+*Esperado:* El gateway retorna datos agregados de los 3 servicios backend.

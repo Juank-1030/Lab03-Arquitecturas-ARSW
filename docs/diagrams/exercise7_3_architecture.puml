@@ -1,0 +1,46 @@
+@startuml
+title Exercise 7.3 - WellnessGateway Architecture
+
+actor "Client / curl" as client
+
+rectangle "WellnessGateway\n(:8083)" as gateway {
+  component [HTTP Server\ncom.sun.net.httpserver] as http
+  component [AppointmentStub\ngRPC] as appStub
+  component [MedicalStub\ngRPC] as medStub
+  component [GymStub\ngRPC] as gymStub
+  component [RecreationStub\ngRPC] as recStub
+}
+
+node "AppointmentService\n(:50061)" as appSvc {
+  [AppointmentServiceImpl] as appImpl
+}
+
+node "MedicalService\n(:50062)" as medSvc {
+  [MedicalServiceImpl] as medImpl
+}
+
+node "GymService\n(:50063)" as gymSvc {
+  [GymServiceImpl] as gymImpl
+}
+
+node "RecreationService\n(:50064)" as recSvc {
+  [RecreationServiceImpl] as recImpl
+}
+
+client --> gateway : HTTP POST /appointment\nHTTP GET /wellness-summary
+http --> appStub : route
+http --> medStub : route
+http --> gymStub : route
+http --> recStub : route
+appStub --> appImpl : gRPC
+medStub --> medImpl : gRPC
+gymStub --> gymImpl : gRPC
+recStub --> recImpl : gRPC
+
+legend right
+  Gateway for 4 wellness services
+  HTTP/gRPC protocol adapter
+  Single entry point (:8083)
+endlegend
+
+@enduml

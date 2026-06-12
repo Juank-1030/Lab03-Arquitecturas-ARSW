@@ -1,7 +1,6 @@
 edu\eci\arsw\excercise8\AttendeeServiceGrpc$MethodHandlers.class
 edu\eci\arsw\excercise8\AttendeeServiceGrpc$AsyncService.class
 edu\eci\arsw\excercise8\attendee\AttendeeServer$AttendeeServiceImpl.class
-edu\eci\arsw\excercise8\AttendeeResponse$Builder.class
 edu\eci\arsw\excercise8\AgendaServiceGrpc.class
 edu\eci\arsw\excercise8\AttendeeIdRequest$Builder.class
 edu\eci\arsw\excercise8\WorkshopServiceGrpc$1.class
@@ -23,7 +22,6 @@ edu\eci\arsw\excercise8\ActivityResponse$Builder.class
 edu\eci\arsw\excercise8\ReservationList.class
 edu\eci\arsw\excercise8\ActivityResponse$1.class
 edu\eci\arsw\excercise8\CancelReserveRequestOrBuilder.class
-edu\eci\arsw\excercise8\CancelReserveRequest.class
 edu\eci\arsw\excercise8\WorkshopServiceGrpc$AsyncService.class
 edu\eci\arsw\excercise8\CapacityResponseOrBuilder.class
 edu\eci\arsw\excercise8\EcicienciaProto.class
@@ -41,7 +39,6 @@ edu\eci\arsw\excercise8\WorkshopServiceGrpc.class
 edu\eci\arsw\excercise8\AttendeeServiceGrpc$AttendeeServiceImplBase.class
 edu\eci\arsw\excercise8\workshop\WorkshopServer.class
 edu\eci\arsw\excercise8\AgendaServiceGrpc$AgendaServiceImplBase.class
-edu\eci\arsw\excercise8\AttendeeResponseOrBuilder.class
 edu\eci\arsw\excercise8\AgendaServiceGrpc$2.class
 edu\eci\arsw\excercise8\WorkshopServiceGrpc$WorkshopServiceMethodDescriptorSupplier.class
 edu\eci\arsw\excercise8\Empty$Builder.class
@@ -55,7 +52,6 @@ edu\eci\arsw\excercise8\RegisterRequest$1.class
 edu\eci\arsw\excercise8\AgendaServiceGrpc$AgendaServiceFutureStub.class
 edu\eci\arsw\excercise8\RegisterRequestOrBuilder.class
 edu\eci\arsw\excercise8\ReserveRequest$1.class
-edu\eci\arsw\excercise8\CancelReserveRequest$Builder.class
 edu\eci\arsw\excercise8\ReserveResponse$1.class
 edu\eci\arsw\excercise8\AttendeeIdRequestOrBuilder.class
 edu\eci\arsw\excercise8\ActivityListOrBuilder.class

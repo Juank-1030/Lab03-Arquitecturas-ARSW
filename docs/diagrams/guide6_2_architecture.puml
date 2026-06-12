@@ -1,0 +1,40 @@
+@startuml
+title Guide 6.2 - Movie Microservices Architecture
+
+actor "User" as user
+participant "MicroserviceClient" as client
+
+node "MovieService\n(:50051)" as movie {
+  database "Movies DB\n(in memory)" as movieDb
+  [MovieServiceImpl] as movieSvc
+  movieSvc --> movieDb
+}
+
+node "ReviewService\n(:50052)" as review {
+  database "Reviews DB\n(in memory)" as reviewDb
+  [ReviewServiceImpl] as reviewSvc
+  reviewSvc --> reviewDb
+}
+
+node "RecommendationService\n(:50053)" as rec {
+  database "Recommendations\n(in memory)" as recDb
+  [RecommendationServiceImpl] as recSvc
+  recSvc --> recDb
+}
+
+user -> client : selects option (1-4)
+client -> movie : gRPC : GetMovie(movieId)
+client -> review : gRPC : GetReviews(movieId)
+client -> rec : gRPC : GetRecommendations(movieId)
+movie --> client : MovieResponse
+review --> client : ReviewList
+rec --> client : RecommendationList
+client --> user : consolidated result
+
+legend right
+  Client-Side Discovery
+  3 independent gRPC servers
+  Client knows all 3 ports
+endlegend
+
+@enduml

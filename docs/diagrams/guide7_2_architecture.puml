@@ -1,0 +1,43 @@
+@startuml
+title Guide 7.2 - MovieGateway Architecture
+
+actor "Client / curl" as client
+
+rectangle "API Gateway\n(:8082)" as gateway {
+  component [HTTP Server\ncom.sun.net.httpserver] as http
+  component [MovieStub\ngRPC] as movieStub
+  component [ReviewStub\ngRPC] as reviewStub
+  component [RecommendationStub\ngRPC] as recStub
+  http --> movieStub : route /movie
+  http --> movieStub : route /consolidated
+  http --> reviewStub : route /consolidated
+  http --> recStub : route /consolidated
+}
+
+node "MovieService\n(:50051)" as movie {
+  [MovieServiceImpl] as movieSvc
+}
+
+node "ReviewService\n(:50052)" as review {
+  [ReviewServiceImpl] as reviewSvc
+}
+
+node "RecommendationService\n(:50053)" as rec {
+  [RecommendationServiceImpl] as recSvc
+}
+
+client --> gateway : HTTP GET /movie?id=1\nHTTP GET /consolidated?id=1
+movieStub --> movieSvc : gRPC
+reviewStub --> reviewSvc : gRPC
+recStub --> recSvc : gRPC
+movieSvc --> movieStub : MovieResponse
+reviewSvc --> reviewStub : ReviewList
+recSvc --> recStub : RecommendationList
+
+legend right
+  Server-Side Discovery
+  Single endpoint for client
+  Gateway aggregates responses
+endlegend
+
+@enduml

@@ -1,4 +1,5 @@
 edu\eci\arsw\excercise5_3\AppointmentServiceGrpc$AppointmentServiceBlockingStub.class
+edu\eci\arsw\excercise5_3\WellnessGrpcClient.class
 edu\eci\arsw\excercise5_3\AppointmentServiceGrpc$AppointmentServiceImplBase.class
 edu\eci\arsw\excercise5_3\AppointmentList$1.class
 edu\eci\arsw\excercise5_3\CancelResponse.class
@@ -33,11 +34,13 @@ edu\eci\arsw\excercise5_3\AppointmentServiceGrpc.class
 edu\eci\arsw\excercise5_3\AppointmentResponse$Builder.class
 edu\eci\arsw\excercise5_3\AppointmentList$Builder.class
 edu\eci\arsw\excercise5_3\CancelResponse$Builder.class
+edu\eci\arsw\excercise5_3\WellnessGrpcServer.class
 edu\eci\arsw\excercise5_3\ServiceType$1.class
 edu\eci\arsw\excercise5_3\AppointmentResponseOrBuilder.class
 edu\eci\arsw\excercise5_3\Appointment$Builder.class
 edu\eci\arsw\excercise5_3\StudentRequest$Builder.class
 edu\eci\arsw\excercise5_3\StudentRequestOrBuilder.class
+edu\eci\arsw\excercise5_3\WellnessGrpcServer$AppointmentServiceImpl.class
 edu\eci\arsw\excercise5_3\CancelResponse$1.class
 edu\eci\arsw\excercise5_3\AppointmentRequest$Builder.class
 edu\eci\arsw\excercise5_3\AppointmentServiceGrpc$AppointmentServiceMethodDescriptorSupplier.class

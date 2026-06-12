@@ -1,0 +1,48 @@
+syntax = "proto3";
+option java_multiple_files = true;
+option java_package = "edu.eci.arsw.excercise6_3.gym";
+option java_outer_classname = "GymProto";
+
+service GymService {
+  rpc ReserveSession (SessionRequest) returns (SessionResponse);
+  rpc GetSessions (StudentSessionsRequest) returns (SessionList);
+  rpc CancelSession (CancelSessionRequest) returns (CancelSessionResponse);
+  rpc GetAllSessions (GymEmpty) returns (SessionList);
+}
+
+message GymEmpty {}
+
+message CancelSessionRequest {
+  string sessionId = 1;
+}
+
+message CancelSessionResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message SessionRequest {
+  string studentId = 1;
+  string timeSlot = 2;
+}
+
+message SessionResponse {
+  bool success = 1;
+  string message = 2;
+  string sessionId = 3;
+}
+
+message StudentSessionsRequest {
+  string studentId = 1;
+}
+
+message GymSession {
+  string id = 1;
+  string studentId = 2;
+  string timeSlot = 3;
+  bool active = 4;
+}
+
+message SessionList {
+  repeated GymSession sessions = 1;
+}

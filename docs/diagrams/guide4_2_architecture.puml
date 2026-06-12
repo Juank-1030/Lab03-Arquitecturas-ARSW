@@ -1,0 +1,25 @@
+@startuml
+title Guide 4.2 - MovieService RMI Architecture
+
+actor "User" as user
+participant "MovieRmiClient" as client
+participant "RMI Registry\n(:23000)" as registry
+participant "MovieServiceImpl" as server
+database "MovieRepository\n(in memory)" as repo
+
+user -> client : types movie ID
+client -> registry : lookup("movieService")
+registry --> client : remote stub
+client -> server : getMovie(1)\n(remote call)
+server -> repo : findById(1)
+repo --> server : Movie
+server --> client : serialized Movie
+client --> user : display result
+
+legend right
+  Contract: MovieService interface
+  Java-only (RMI)
+  Serializable required
+endlegend
+
+@enduml

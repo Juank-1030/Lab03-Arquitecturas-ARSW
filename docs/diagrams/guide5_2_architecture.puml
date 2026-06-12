@@ -1,0 +1,32 @@
+@startuml
+title Guide 5.2 - MovieService gRPC Architecture
+
+package "Development Time" {
+  file "movie.proto" as proto
+  rectangle "protoc compiler" as compiler
+  proto --> compiler : contract definition
+  compiler --> [MovieGrpcServer.java] : generated stub
+  compiler --> [MovieGrpcClient.java] : generated stub
+}
+
+package "Runtime" {
+  participant "MovieGrpcClient" as client
+  participant "gRPC Channel\n(:50051)" as channel
+  participant "MovieGrpcServer" as server
+  database "MovieRepository\n(in memory)" as repo
+
+  client -> channel : getMovie(Request)
+  channel -> server : HTTP/2\nprotobuf binary
+  server -> repo : findById(1)
+  repo --> server : Movie
+  server --> channel : MovieResponse
+  channel --> client : deserialized response
+}
+
+legend right
+  Contract: .proto file
+  Cross-language
+  HTTP/2 + protobuf
+endlegend
+
+@enduml

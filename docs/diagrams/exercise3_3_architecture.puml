@@ -1,0 +1,23 @@
+@startuml
+title Exercise 3.3 - Room Management HTTP Architecture
+
+actor "Browser / curl" as client
+participant "HTTP\n(:8081)" as http
+participant "RoomsHandler" as handler
+database "RoomRepository\n(E301-E304)" as repo
+
+client -> http : GET /rooms
+client -> http : GET /rooms?id=E303
+client -> http : POST /rooms/reserve?id=E303
+http -> handler : handle(HttpExchange)\n(method + path dispatch)
+handler -> repo : findAll() / consult() / reserve() / release()
+repo --> handler : status text
+handler --> http : 200 OK\n<html>...</html>
+http --> client : HTML response
+
+legend right
+  4 routes: list/consult/reserve/release
+  Dispatch by method+path
+endlegend
+
+@enduml

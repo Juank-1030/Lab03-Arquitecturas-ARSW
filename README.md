@@ -26,6 +26,45 @@
 
 ---
 
+## Quick Reference
+
+### Compilar todos los modulos (seguro: no borra target/ generado por protobuf)
+
+```bash
+# Compilar todos los modulos (seguro: no borra target/ generado por protobuf)
+mvn compile
+
+# NOTA: Evite usar 'mvn clean' suelto. Si necesita limpiar, ejecute 'mvn clean compile'
+# para que las clases generadas por protobuf se regeneren inmediatamente.
+# Luego recargue el servidor de lenguaje Java en VSCode: Ctrl+Shift+P → Java: Reload Projects
+```
+
+### Scripts de ayuda
+
+Se incluyen dos scripts para facilitar el uso del proyecto:
+
+| Script | Descripcion |
+|--------|-------------|
+| `clean.bat` | Menu seguro de compilacion/limpieza. Evita el uso de `mvn clean` solo. |
+| `run.bat` | Lanzador interactivo. Ejecutelo sin parametros para ver el menu, o use: `run.bat compile`, `run.bat install`, `run.bat menu` |
+
+> **⚠️ VSCode + protobuf:** Si usa `clean.bat` opcion 2 (limpiar y recompilar), VSCode mostrara errores temporales en archivos que usan clases generadas por protobuf (guide5_2, exercise5_3, guide6_2, exercise6_3, exercise8). **Solucion:** Cierre y reabra el archivo, o use `Ctrl+Shift+P → Java: Reload Projects`. Para evitarlo, use `clean.bat` opcion 1 (compilar sin limpiar).
+
+```bash
+# Compilar todo (seguro)
+clean.bat          # Menu interactivo
+
+# Lanzador de guias y ejercicios
+run.bat            # Menu interactivo con todas las opciones
+
+# Ejemplos de uso directo:
+run.bat compile                     # Compilar todos los modulos Maven
+run.bat install                     # Instalar modulos (para gateways)
+run.bat menu                        # Menu interactivo
+```
+
+---
+
 ## 1. Introduction
 
 This document traces the progressive evolution of distributed communication mechanisms in the context of the ARSW Lab 03 workshop. Starting from raw TCP sockets and progressing through HTTP, Java RMI, gRPC, microservices, and an API Gateway, each section presents a guided example followed by an applied exercise. The same base domain (a movie information system) is transformed across architectural styles to highlight how the choice of communication mechanism affects coupling, interoperability, contract formality, and design decisions. The workshop is structured as a hands-on journey where each style builds on the lessons of the previous one.
@@ -85,6 +124,8 @@ Implement a TCP server that allows a client to query movie information using a t
 
 The system consists of two processes communicating via a TCP socket. `MovieServer` listens on port 35000 and holds a `MovieRepository` with three pre-loaded movies in memory. `MovieClient` connects to the server, sends a text request in the format `MOVIE:<id>`, and receives a CSV response (`id,title,director,year`). There are no intermediaries — the client writes directly to the socket's `OutputStream` and reads from the `InputStream`. The protocol is ad-hoc: both parties must agree on the exact text format, the delimiter (`:`), and the response structure.
 
+> **Architecture diagram:** `docs/diagrams/guide2_2_architecture.puml`
+
 ### Components
 
 | File | Description |
@@ -105,12 +146,14 @@ The system consists of two processes communicating via a TCP socket. `MovieServe
 ### How to Build and Run
 
 ```bash
+# Optionally clean first: clean.bat
+run.bat guide2_2 compile
+
 # Terminal 1 — start server
-javac -d bin src/edu/eci/arsw/guide2_2/*.java
-java -cp bin edu.eci.arsw.guide2_2.MovieServer
+run.bat guide2_2 server
 
 # Terminal 2 — run client
-java -cp bin edu.eci.arsw.guide2_2.MovieClient
+run.bat guide2_2 client
 ```
 
 The server must be started before the client; otherwise the client receives `ConnectionException: Connection refused`.
@@ -306,6 +349,8 @@ Design and implement a TCP server for managing room reservations (rooms E301, E3
 
 The system follows the same client-server pattern as Guide 2.2 but with a different domain and protocol. `RoomServer` listens on port 36000 and maintains a `RoomRepository` with four pre-loaded rooms. `RoomClient` sends commands in the format `COMANDO,CODIGO` (e.g. `RESERVAR_SALON,E303`) and receives plain-text responses. The comma (`,`) as separator distinguishes this protocol from the movie protocol (which uses `:`). Unlike the movie server (read-only), this server supports write operations (reserve/release) that mutate shared repository state.
 
+> **Architecture diagram:** `docs/diagrams/exercise2_3_architecture.puml`
+
 ### Components
 
 | File | Description |
@@ -326,12 +371,10 @@ The system follows the same client-server pattern as Guide 2.2 but with a differ
 ### How to Build and Run
 
 ```bash
-# Terminal 1 — start server
-javac -d bin src/edu/eci/arsw/excercise2_3/*.java
-java -cp bin edu.eci.arsw.excercise2_3.RoomServer
-
-# Terminal 2 — run client
-java -cp bin edu.eci.arsw.excercise2_3.RoomClient
+# Optionally clean first: clean.bat
+run.bat exercise2_3 compile
+run.bat exercise2_3 server
+run.bat exercise2_3 client
 ```
 
 ### Execution Flow
@@ -513,6 +556,8 @@ Replace the custom TCP client with any standard HTTP client (browser, curl, Post
 
 The system replaces the custom TCP client with any standard HTTP client (browser, curl, Postman). `MovieHttpServer` runs on port 8080 using `com.sun.net.httpserver.HttpServer`. It registers a `MovieHandler` at the `/movie` context, which extracts the `id` parameter from the query string of `GET` requests, queries the `MovieRepository`, and returns the result as a minimal HTML page. The critical architectural change is that the client no longer needs custom Java code — the contract is now the standard HTTP protocol: method (`GET`), path (`/movie`), and query parameter (`id=1`).
 
+> **Architecture diagram:** `docs/diagrams/guide3_2_architecture.puml`
+
 ### Components
 
 | File | Description |
@@ -534,9 +579,9 @@ The system replaces the custom TCP client with any standard HTTP client (browser
 ### How to Build and Run
 
 ```bash
-# Terminal
-javac -d bin src/edu/eci/arsw/guide3_2/*.java
-java -cp bin edu.eci.arsw.guide3_2.MovieHttpServer
+# Optionally clean first: clean.bat
+run.bat guide3_2 compile
+run.bat guide3_2 server
 
 # Test with curl
 curl "http://localhost:8080/movie?id=1"
@@ -677,6 +722,8 @@ Transform the TCP room management system (Exercise 2.3) to HTTP using `com.sun.n
 
 The system extends the HTTP pattern from Guide 3.2 to support multiple operations on a single resource. `RoomHttpServer` runs on port 8081 and registers a single `RoomsHandler` at the `/rooms` context. Unlike the movie server (which only handles GET), this handler inspects both the HTTP method (`GET` vs `POST`) and the path (`/rooms`, `/rooms/reserve`, `/rooms/release`) to dispatch to the correct `RoomRepository` method.
 
+> **Architecture diagram:** `docs/diagrams/exercise3_3_architecture.puml`
+
 ### Components
 
 | File | Description |
@@ -697,9 +744,9 @@ The system extends the HTTP pattern from Guide 3.2 to support multiple operation
 ### How to Build and Run
 
 ```bash
-# Terminal
-javac -d bin src/edu/eci/arsw/excercise3_3/*.java
-java -cp bin edu.eci.arsw.excercise3_3.RoomHttpServer
+# Optionally clean first: clean.bat
+run.bat exercise3_3 compile
+run.bat exercise3_3 server
 
 # Test with curl
 curl "http://localhost:8081/rooms"
@@ -889,6 +936,8 @@ Replace HTTP with Java RMI to expose movie query functionality as a remote metho
 
 The system introduces a three-tier RMI architecture. `MovieRmiServer` creates a `MovieServiceImpl` (extending `UnicastRemoteObject` for auto-export) and binds it to an RMI `Registry` on port 23000 under the name `"movieService"`. `MovieRmiClient` connects to the same Registry via `LocateRegistry.getRegistry()`, looks up `"movieService"` to obtain a stub (a dynamic proxy implementing `MovieService` locally), and calls `getMovie(2)` as if it were a local method. Behind the scenes, RMI serializes the `int` argument, transmits it to the server's JVM, deserializes it, invokes the real implementation, serializes the returned `Movie` object, and sends it back to the client where it is deserialized into a local copy.
 
+> **Architecture diagram:** `docs/diagrams/guide4_2_architecture.puml`
+
 ### Components
 
 | File | Description |
@@ -920,12 +969,10 @@ public interface MovieService extends Remote {
 ### How to Build and Run
 
 ```bash
-# Terminal 1 — start server
-javac -d bin src/edu/eci/arsw/guide4_2/*.java
-java -cp bin edu.eci.arsw.guide4_2.MovieRmiServer
-
-# Terminal 2 — run client
-java -cp bin edu.eci.arsw.guide4_2.MovieRmiClient
+# Optionally clean first: clean.bat
+run.bat guide4_2 compile
+run.bat guide4_2 server
+run.bat guide4_2 client
 ```
 
 ### Execution Flow
@@ -1110,6 +1157,8 @@ Película no encontrada
 
 Build an RMI system for querying and reserving laboratory equipment. Unlike the room domain (Exercise 2.3/3.3) which worked with plain strings, the lab inventory requires returning structured objects and lists. RMI handles this complexity automatically via serialization.
 
+> **Architecture diagram:** `docs/diagrams/exercise4_3_architecture.puml`
+
 ### Architecture
 
 The system follows the same RMI pattern as Guide 4.2 but with a richer contract including collection retrieval (`List<String> consultarEquipos()`) and write operations (`boolean reservarEquipo()`, `boolean liberarEquipo()`). `EquipmentRmiServer` publishes an `EquipmentServiceImpl` (auto-exported via `UnicastRemoteObject`) on port 24000 under the name `"equipmentService"`. The implementation maintains a `HashMap<String, Equipment>` with five lab equipment items.
@@ -1155,12 +1204,10 @@ public interface EquipmentService extends Remote {
 ### How to Build and Run
 
 ```bash
-# Terminal 1 — start server
-javac -d bin src/edu/eci/arsw/excercise4_3/*.java
-java -cp bin edu.eci.arsw.excercise4_3.EquipmentRmiServer
-
-# Terminal 2 — run client
-java -cp bin edu.eci.arsw.excercise4_3.EquipmentRmiClient
+# Optionally clean first: clean.bat
+run.bat exercise4_3 compile
+run.bat exercise4_3 server
+run.bat exercise4_3 client
 ```
 
 ### Execution Flow
@@ -1386,6 +1433,8 @@ Implement a movie query service using gRPC with Protocol Buffers. The contract i
 
 gRPC introduces a fundamental change: the contract is defined in a `.proto` file independent of language. A tool (`protoc`) generates both server and client code from this file. The server implements the generated interface and the client invokes it as if local, but the underlying communication uses HTTP/2 with binary serialization via Protocol Buffers.
 
+> **Architecture diagram:** `docs/diagrams/guide5_2_architecture.puml`
+
 `MovieGrpcServer` runs on port 50051 using `ServerBuilder.forPort()`. It registers `MovieServiceImpl` extending the generated `MovieServiceGrpc.MovieServiceImplBase`. `MovieGrpcClient` creates a `ManagedChannel` to `localhost:50051`, builds a `MovieServiceBlockingStub`, and invokes `stub.getMovie(request)`.
 
 ### Components
@@ -1425,19 +1474,15 @@ message MovieResponse {
 ### How to Build and Run
 
 ```bash
-# Compile (generates code from .proto)
-mvn clean compile -f src/edu/eci/arsw/guide5_2/pom.xml
-
-# Terminal 1 — server
-mvn exec:java -f src/edu/eci/arsw/guide5_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide5_2.MovieGrpcServer"
-
-# Terminal 2 — client
-mvn exec:java -f src/edu/eci/arsw/guide5_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide5_2.MovieGrpcClient"
+# Optionally clean first: clean.bat
+run.bat guide5_2 compile
+run.bat guide5_2 server
+run.bat guide5_2 client
 ```
 
 ### Execution Flow
 
-1. `mvn clean compile` executes the protobuf plugin, generating `MovieServiceGrpc.java`, `MovieRequest.java`, `MovieResponse.java`, etc.
+1. `run.bat guide5_2 compile` executes the protobuf plugin, generating `MovieServiceGrpc.java`, `MovieRequest.java`, `MovieResponse.java`, etc.
 2. `MovieGrpcServer.main()` creates a `MovieServiceImpl` and registers it via `ServerBuilder.forPort(50051).addService().build().start()`.
 3. The server waits for gRPC connections on port 50051.
 4. `MovieGrpcClient.main()` creates a `ManagedChannel` to `localhost:50051` with `usePlaintext()`.
@@ -1593,6 +1638,8 @@ The system follows the same gRPC pattern as Guide 5.2 but with three RPCs instea
 
 The `.proto` defines three main entities (`Student`, `Appointment`, `ServiceType`, `Status`) and five request/response messages, demonstrating protobuf's richness for modeling complex domains.
 
+> **Architecture diagram:** `docs/diagrams/exercise5_3_architecture.puml`
+
 ### Components
 
 | File | Description |
@@ -1675,19 +1722,15 @@ service AppointmentService {
 ### How to Build and Run
 
 ```bash
-# Compile
-mvn clean compile -f src/edu/eci/arsw/excercise5_3/pom.xml
-
-# Terminal 1 — server
-mvn exec:java -f src/edu/eci/arsw/excercise5_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise5_3.WellnessGrpcServer"
-
-# Terminal 2 — client
-mvn exec:java -f src/edu/eci/arsw/excercise5_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise5_3.WellnessGrpcClient"
+# Optionally clean first: clean.bat
+run.bat exercise5_3 compile
+run.bat exercise5_3 server
+run.bat exercise5_3 client
 ```
 
 ### Execution Flow
 
-1. `mvn clean compile` generates classes from `appointment.proto`.
+1. `run.bat exercise5_3 compile` generates classes from `appointment.proto`.
 2. `WellnessGrpcServer` starts on port 50061 with `AppointmentServiceImpl`.
 3. Client connects via `ManagedChannel` to `localhost:50061` and creates a blocking stub.
 4. Menu loop: option 1 calls `requestAppointment()`, option 2 calls `cancelAppointment()`, option 3 calls `getAppointments()`.
@@ -1993,6 +2036,8 @@ Decomposition of the movie system into 3 independent microservices, each in its 
 
 Each microservice is an independent Maven process within the same module (same `pom.xml`). They share the same `groupId` but each has its own `.proto` with a unique `java_package`, generating classes in separate packages and avoiding name conflicts.
 
+> **Architecture diagram:** `docs/diagrams/guide6_2_architecture.puml`
+
 The client (`MicroserviceClient`) maintains 3 separate gRPC channels, one to each service, and an interactive menu to query each service individually or all at once.
 
 ### Components
@@ -2099,20 +2144,12 @@ public class MovieServiceServer {
 ### How to Build and Run
 
 ```bash
-# Compile from root
-mvn clean compile
-
-# Terminal 1 — MovieService
-mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide6_2.movie.MovieServiceServer"
-
-# Terminal 2 — ReviewService
-mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide6_2.review.ReviewServiceServer"
-
-# Terminal 3 — RecommendationService
-mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide6_2.recommendation.RecommendationServiceServer"
-
-# Terminal 4 — Client
-mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide6_2.MicroserviceClient"
+# Optionally clean first: clean.bat
+run.bat guide6_2 compile
+run.bat guide6_2 server1
+run.bat guide6_2 server2
+run.bat guide6_2 server3
+run.bat guide6_2 client
 ```
 
 Servers must be started before the client; otherwise the client receives `StatusRuntimeException` with code `UNAVAILABLE`.
@@ -2214,9 +2251,11 @@ Decomposition of the university wellness system into 4 microservices, each with 
 
 Each microservice is an independent Maven process within the same module. Each `.proto` defines its own contract with a unique `java_package` to avoid conflicts between identically-named messages (e.g., `MedicalEmpty` vs `RecreationEmpty`).
 
+> **Architecture diagram:** `docs/diagrams/exercise6_3_architecture.puml`
+
 The client (`WellnessClient`) maintains 4 separate gRPC channels and an interactive menu with 18 operations covering full CRUD for each service.
 
-> **Diagrams:** PlantUML sources at `docs/diagrams/exercise6_3_architecture.puml` and `docs/diagrams/exercise6_3_crud_flow.puml`.
+> **CRUD flow diagram:** `docs/diagrams/exercise6_3_crud_flow.puml`
 
 ### Components
 
@@ -2365,23 +2404,13 @@ public class AppointmentServer {
 ### How to Build and Run
 
 ```bash
-# Compile from root
-mvn clean compile
-
-# Terminal 1 — AppointmentService
-mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.appointment.AppointmentServer"
-
-# Terminal 2 — MedicalService
-mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.medical.MedicalServer"
-
-# Terminal 3 — GymService
-mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.gym.GymServer"
-
-# Terminal 4 — RecreationService
-mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.recreation.RecreationServer"
-
-# Terminal 5 — Client
-mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.WellnessClient"
+# Optionally clean first: clean.bat
+run.bat exercise6_3 compile
+run.bat exercise6_3 server1
+run.bat exercise6_3 server2
+run.bat exercise6_3 server3
+run.bat exercise6_3 server4
+run.bat exercise6_3 client
 ```
 
 ### Expected Output
@@ -2483,6 +2512,8 @@ The Gateway receives a unified request, internally queries the 3 services, and c
 
 `MovieGateway` runs an HTTP server (`com.sun.net.httpserver.HttpServer`) on port 8082. Internally, it creates 3 gRPC channels (one to each microservice) and acts as a gRPC client. The client only needs HTTP (browser, curl) and is completely unaware of the gRPC topology behind the Gateway.
 
+> **Architecture diagram:** `docs/diagrams/guide7_2_architecture.puml`
+
 | Endpoint | Method | Description | Delegates to |
 |----------|--------|-------------|--------------|
 | `/movie?id=X` | GET | Query movie info | MovieService (50051) |
@@ -2580,20 +2611,12 @@ public class MovieGateway {
 ### How to Build and Run
 
 ```bash
-# Step 1 — Install all artifacts (needed for gateway dependency resolution)
-mvn install -DskipTests
-
-# Terminal 1 — MovieService
-mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass=edu.eci.arsw.guide6_2.movie.MovieServiceServer
-
-# Terminal 2 — ReviewService
-mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass=edu.eci.arsw.guide6_2.review.ReviewServiceServer
-
-# Terminal 3 — RecommendationService
-mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass=edu.eci.arsw.guide6_2.recommendation.RecommendationServiceServer
-
-# Terminal 4 — Gateway
-mvn exec:java -f src/edu/eci/arsw/guide7_2/pom.xml -Dexec.mainClass=edu.eci.arsw.guide7_2.MovieGateway
+# Optionally clean first: clean.bat
+run.bat guide7_2 compile
+run.bat guide7_2 server1
+run.bat guide7_2 server2
+run.bat guide7_2 server3
+run.bat guide7_2 gateway
 
 # Test with curl
 curl "http://localhost:8082/movie?id=1"
@@ -2662,6 +2685,8 @@ Gateway to centralize access to the university wellness services: AppointmentSer
 ### Architecture
 
 `WellnessGateway` runs an HTTP server on port 8083 and internally creates 4 gRPC channels (one to each wellness microservice). The client uses HTTP (browser, curl) and is unaware of the gRPC topology.
+
+> **Architecture diagram:** `docs/diagrams/exercise7_3_architecture.puml`
 
 | Endpoint | Method | Description | Delegates to |
 |----------|--------|-------------|--------------|
@@ -2773,23 +2798,13 @@ public class WellnessGateway {
 ### How to Build and Run
 
 ```bash
-# Step 1 — Install all artifacts (needed for gateway dependency resolution)
-mvn install -DskipTests
-
-# Terminal 1 — AppointmentService
-mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass=edu.eci.arsw.excercise6_3.appointment.AppointmentServer
-
-# Terminal 2 — MedicalService
-mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass=edu.eci.arsw.excercise6_3.medical.MedicalServer
-
-# Terminal 3 — GymService
-mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass=edu.eci.arsw.excercise6_3.gym.GymServer
-
-# Terminal 4 — RecreationService
-mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass=edu.eci.arsw.excercise6_3.recreation.RecreationServer
-
-# Terminal 5 — Gateway
-mvn exec:java -f src/edu/eci/arsw/excercise7_3/pom.xml -Dexec.mainClass=edu.eci.arsw.excercise7_3.WellnessGateway
+# Optionally clean first: clean.bat
+run.bat exercise7_3 compile
+run.bat exercise7_3 server1
+run.bat exercise7_3 server2
+run.bat exercise7_3 server3
+run.bat exercise7_3 server4
+run.bat exercise7_3 gateway
 
 # Test with curl
 curl -X POST "http://localhost:8083/appointment?studentId=S123&serviceType=MEDICINE&date=2026-06-15"
@@ -2973,6 +2988,15 @@ static class WorkshopServiceImpl extends WorkshopServiceGrpc.WorkshopServiceImpl
 | GET | `/workshop/attendee` | `id` | Attendee's reservations |
 | GET | `/consolidated` | `id` | Full info + reservations |
 
+### Capabilities
+
+| Service | What it can do |
+|---------|---------------|
+| **AttendeeService** (gRPC :8091) | Register attendees (`name` + `email`, validates non-empty); query attendee by ID (2 pre-loaded: Carlos Perez ID=1, Maria Gomez ID=2); list all attendees; auto-incrementing IDs from 3 |
+| **AgendaService** (gRPC :8092) | 4 pre-loaded activities (ML talk 50 cap, Arduino workshop 20 cap, Cybersecurity talk 40 cap, Robotics workshop 15 cap); query activities by time slot (`start`-`end`, string comparison `HH:mm`); view activity details (title, description, speaker, location, time); check current capacity per activity |
+| **WorkshopService** (gRPC :8093) | Reserve a spot → `CONFIRMED` + `success=true` if space available; waiting list → `WAITING` + `success=false` + queue position if full; automatic promotion from `WAITING`→`CONFIRMED` when a confirmed reservation is cancelled; cancel reservation (only if not already cancelled); query all reservations by attendee; query available spots per activity; 1 pre-loaded reservation (attendee 1 in activity 2) |
+| **Gateway** (HTTP :8090) | 8 HTTP↔gRPC endpoints; error handling: missing params → 400, not found → 404, wrong method → 405, backend down → 500, invalid number → 500; graceful shutdown via shutdown hook |
+
 ```java
 public class EcicienciaGateway {
     private final AttendeeServiceGrpc.AttendeeServiceBlockingStub attendeeStub;
@@ -3003,8 +3027,8 @@ public class EcicienciaGateway {
 #### 1. Compile
 
 ```bash
-# From repository root (compiles proto, generates gRPC stubs, compiles Java)
-mvn compile -pl src/edu/eci/arsw/excercise8 -am
+# Optionally clean first: clean.bat
+run.bat exercise8 compile
 ```
 
 #### 2. Start the 4 processes (in order: 3 gRPC servers → Gateway)
@@ -3012,17 +3036,10 @@ mvn compile -pl src/edu/eci/arsw/excercise8 -am
 Open **4 separate terminals** (cmd.exe or PowerShell) from the repository root:
 
 ```bash
-# Terminal 1: AttendeeService (gRPC, port 8091)
-mvn exec:java -pl src/edu/eci/arsw/excercise8 -Dexec.mainClass="edu.eci.arsw.excercise8.attendee.AttendeeServer"
-
-# Terminal 2: AgendaService (gRPC, port 8092)
-mvn exec:java -pl src/edu/eci/arsw/excercise8 -Dexec.mainClass="edu.eci.arsw.excercise8.agenda.AgendaServer"
-
-# Terminal 3: WorkshopService (gRPC, port 8093)
-mvn exec:java -pl src/edu/eci/arsw/excercise8 -Dexec.mainClass="edu.eci.arsw.excercise8.workshop.WorkshopServer"
-
-# Terminal 4: ECICIENCIA Gateway (HTTP, port 8090)
-mvn exec:java -pl src/edu/eci/arsw/excercise8 -Dexec.mainClass="edu.eci.arsw.excercise8.gateway.EcicienciaGateway"
+run.bat exercise8 server1
+run.bat exercise8 server2
+run.bat exercise8 server3
+run.bat exercise8 gateway
 ```
 
 > **Note:** Use `-pl src/edu/eci/arsw/excercise8` (project list by module path) from the root to avoid quoting issues on Windows. If you prefer `-f`, use:  
@@ -3172,6 +3189,115 @@ curl "http://localhost:8090/workshop/attendee?id=3"
 # → Shows CANCELLED status
 ```
 
+### Additional execution scenarios
+
+```bash
+# ======================================================================
+# SCENARIO A: RESERVATION CAPACITY & WAITING LIST
+# ======================================================================
+# First, check current capacity of activity 1 (e.g., Yoga session)
+curl "http://localhost:8090/agenda/activity?id=1"
+# → Shows current occupancy (e.g., "Aforo: 5/10" if 5 are taken)
+
+# Register new attendees to fill remaining spots
+curl -X POST "http://localhost:8090/attendee/register?name=Luis+Garcia&email=luis@mail.com"
+curl -X POST "http://localhost:8090/attendee/register?name=Marta+Rios&email=marta@mail.com"
+curl -X POST "http://localhost:8090/attendee/register?name=Pedro+Sol&email=pedro@mail.com"
+# → Each returns a new ID: 4, 5, 6 (IDs increment)
+
+# Reserve spots until capacity is reached
+curl -X POST "http://localhost:8090/workshop/reserve?attendeeId=4&activityId=1"
+curl -X POST "http://localhost:8090/workshop/reserve?attendeeId=5&activityId=1"
+curl -X POST "http://localhost:8090/workshop/reserve?attendeeId=6&activityId=1"
+# → First reservations are CONFIRMED (success=true)
+
+# Now check updated capacity
+curl "http://localhost:8090/agenda/activity?id=1"
+# → Shows "Aforo: X/Y (0 disponibles)" if full
+
+# Reserve when FULL — goes to WAITING list
+curl -X POST "http://localhost:8090/workshop/reserve?attendeeId=1&activityId=1"
+# → Returns success=false with WAITING status
+
+# ======================================================================
+# SCENARIO B: WAITING LIST PROMOTION (cancel → promote next in queue)
+# ======================================================================
+# Cancel one of the CONFIRMED reservations (find its reservationId first)
+curl "http://localhost:8090/workshop/attendee?id=4"
+# → Shows reservation IDs for attendee 4 (note the reservationId, e.g. 7)
+
+# Cancel that reservation
+curl -X POST "http://localhost:8090/workshop/cancel?reservationId=7"
+# → Returns "Reserva cancelada exitosamente"
+
+# NOW check attendee 1's reservation — it should be promoted from WAITING to CONFIRMED
+curl "http://localhost:8090/workshop/attendee?id=1"
+# → Shows CONFIRMED status (was automatically promoted from WAITING)
+
+# ======================================================================
+# SCENARIO C: MULTIPLE ACTIVITIES FOR ONE ATTENDEE
+# ======================================================================
+curl -X POST "http://localhost:8090/workshop/reserve?attendeeId=3&activityId=3"
+curl -X POST "http://localhost:8090/workshop/reserve?attendeeId=3&activityId=4"
+# → Reserve in two different activities
+
+curl "http://localhost:8090/workshop/attendee?id=3"
+# → Lists ALL reservations for attendee 3
+
+curl "http://localhost:8090/consolidated?id=3"
+# → Full profile + all reservations across activities
+
+# ======================================================================
+# SCENARIO D: AGENDA QUERIES — different time slots
+# ======================================================================
+# Full day
+curl "http://localhost:8090/agenda?start=08:00&end=18:00"
+
+# Afternoon only
+curl "http://localhost:8090/agenda?start=14:00&end=17:00"
+
+# Empty slot (no activities) — returns empty list or message
+curl "http://localhost:8090/agenda?start=20:00&end=22:00"
+
+# ======================================================================
+# SCENARIO E: CHECK CAPACITY CHANGES OVER TIME
+# ======================================================================
+# Before any reservation
+curl "http://localhost:8090/agenda/activity?id=1"
+
+# After filling some spots (run reserve commands from Scenario A first)
+curl "http://localhost:8090/agenda/activity?id=1"
+# → Shows reduced available spots
+
+# Activity with 0 available spots (if full):
+curl "http://localhost:8090/agenda/activity?id=1"
+# → Shows "0 disponibles"
+
+# ======================================================================
+# SCENARIO F: EDGE CASES
+# ======================================================================
+# Cancel a non-existent reservation
+curl -X POST "http://localhost:8090/workshop/cancel?reservationId=999"
+# → HTTP 404 — "Reserva no encontrada"
+
+# Reserve the same activity twice for the same attendee
+curl -X POST "http://localhost:8090/workshop/reserve?attendeeId=3&activityId=2"
+curl -X POST "http://localhost:8090/workshop/reserve?attendeeId=3&activityId=2"
+# → First returns CONFIRMED, second should return error (ya registrado)
+
+# Register with empty name
+curl -X POST "http://localhost:8090/attendee/register?name=&email=test@mail.com"
+# → 400 — Nombre no puede estar vacio
+
+# Register with invalid email format (if validation exists)
+curl -X POST "http://localhost:8090/attendee/register?name=Test&email=invalid"
+# → Depends on validation rules
+
+# Query agenda with start > end (invalid range)
+curl "http://localhost:8090/agenda?start=18:00&end=09:00"
+# → 400 — Rango invalido o lista vacia
+```
+
 ### 15.1 Design Decisions
 
 - **gRPC over HTTP for internal services:** Formal contracts guarantee compile-time interface validation.
@@ -3237,6 +3363,29 @@ The workshop traces a clear progression across six architectural styles, each so
 
 ---
 
+## Diagram Index
+
+All architecture diagrams are in `docs/diagrams/` as PlantUML (`.puml`) files. Render them with any PlantUML viewer or use the [PlantUML online server](https://www.plantuml.com/plantuml/).
+
+| # | Diagram File | Section | Description |
+|---|-------------|---------|-------------|
+| 1 | `docs/diagrams/guide2_2_architecture.puml` | Guide 2.2 | MovieServer TCP — Client-Server flow |
+| 2 | `docs/diagrams/exercise2_3_architecture.puml` | Exercise 2.3 | Room Management TCP — Client-Server flow |
+| 3 | `docs/diagrams/guide3_2_architecture.puml` | Guide 3.2 | MovieHttpServer — HTTP Browser-Server flow |
+| 4 | `docs/diagrams/exercise3_3_architecture.puml` | Exercise 3.3 | Room Management HTTP — HTTP route dispatch |
+| 5 | `docs/diagrams/guide4_2_architecture.puml` | Guide 4.2 | MovieService RMI — Registry lookup flow |
+| 6 | `docs/diagrams/exercise4_3_architecture.puml` | Exercise 4.3 | Lab Inventory RMI — Registry lookup flow |
+| 7 | `docs/diagrams/guide5_2_architecture.puml` | Guide 5.2 | MovieService gRPC — .proto compilation + runtime |
+| 8 | `docs/diagrams/exercise5_3_architecture.puml` | Exercise 5.3 | Wellness gRPC — single-server architecture |
+| 9 | `docs/diagrams/guide6_2_architecture.puml` | Guide 6.2 | Movie Microservices — 3 services + client |
+| 10 | `docs/diagrams/exercise6_3_architecture.puml` | Exercise 6.3 | Wellness Microservices — 4 services architecture |
+| 11 | `docs/diagrams/exercise6_3_crud_flow.puml` | Exercise 6.3 | Wellness CRUD flow — sequence diagram |
+| 12 | `docs/diagrams/guide7_2_architecture.puml` | Guide 7.2 | MovieGateway — Gateway + 3 services |
+| 13 | `docs/diagrams/exercise7_3_architecture.puml` | Exercise 7.3 | WellnessGateway — Gateway + 4 services |
+| 14 | `docs/diagrams/exercise8_architecture.puml` | Exercise 8 | ECICIENCIA — full platform architecture |
+
+---
+
 ## Port Summary
 
 | Component | Technology | Port |
@@ -3262,3 +3411,327 @@ The workshop traces a clear progression across six architectural styles, each so
 | AttendeeService (Exercise 8) | gRPC | 8091 |
 | AgendaService (Exercise 8) | gRPC | 8092 |
 | WorkshopService (Exercise 8) | gRPC | 8093 |
+
+---
+
+## Step-by-Step Testing Guide
+
+This section provides precise steps and expected outputs for every exercise.
+
+---
+
+### Guide 2.2 — MovieServer TCP
+
+**Step 1 — Compile:**
+```bash
+run.bat guide2_2 compile
+```
+*Expected:* `BUILD SUCCESS` (class files generated in `bin/`)
+
+**Step 2 — Start server (Terminal 1):**
+```bash
+run.bat guide2_2 server
+```
+*Expected:* The server prints "MovieServer started on port 35000" and waits for connections.
+
+**Step 3 — Run client (Terminal 2):**
+```bash
+run.bat guide2_2 client
+```
+*Expected:* Client connects and asks you to type a movie name.
+
+**Step 4 — Test interaction:** Type a movie name (e.g., `Batman`, `Superman`, `Iron Man`).
+*Expected:* Server responds with the movie's year and rating (e.g., `Batman (2022) - Rating: 7.2/10`). Type `quit` to exit.
+
+---
+
+### Exercise 2.3 — Room Management TCP
+
+**Step 1 — Compile:**
+```bash
+run.bat exercise2_3 compile
+```
+
+**Step 2 — Start server (Terminal 1):**
+```bash
+run.bat exercise2_3 server
+```
+*Expected:* "RoomServer started on port 36000"
+
+**Step 3 — Run client (Terminal 2):**
+```bash
+run.bat exercise2_3 client
+```
+*Expected:* Interactive menu with options (book room, cancel, list rooms, etc.)
+
+**Step 4 — Test:** Choose option 1 (book) and enter a room name (e.g., "101").
+*Expected:* "Room 101 booked successfully." Then list rooms to confirm.
+
+---
+
+### Guide 3.2 — MovieHttpServer
+
+**Step 1 — Compile:**
+```bash
+run.bat guide3_2 compile
+```
+
+**Step 2 — Start server (Terminal 1):**
+```bash
+run.bat guide3_2 server
+```
+*Expected:* "MovieHttpServer started on port 8080"
+
+**Step 3 — Test with curl (same or new terminal):**
+```bash
+curl "http://localhost:8080/movies?name=Batman"
+```
+*Expected:* `{"name":"Batman","year":2022,"rating":7.2}`
+
+```bash
+curl "http://localhost:8080/movies?name=NonExistent"
+```
+*Expected:* `404 Not Found` or `{"error":"Movie not found"}`
+
+---
+
+### Exercise 3.3 — Room Management HTTP
+
+**Step 1 — Compile & start server:**
+```bash
+run.bat exercise3_3 compile
+run.bat exercise3_3 server
+```
+*Expected:* "RoomHttpServer started on port 8081"
+
+**Step 2 — Test endpoints with curl:**
+```bash
+# Create a room
+curl -X POST "http://localhost:8081/rooms" -d "name=101"
+
+# List all rooms
+curl "http://localhost:8081/rooms"
+
+# Book a room
+curl -X POST "http://localhost:8081/rooms/101/book"
+
+# Cancel booking
+curl -X POST "http://localhost:8081/rooms/101/cancel"
+```
+
+---
+
+### Guide 4.2 — MovieService RMI
+
+**Step 1 — Compile:**
+```bash
+run.bat guide4_2 compile
+```
+
+**Step 2 — Start server (Terminal 1):**
+```bash
+run.bat guide4_2 server
+```
+*Expected:* "MovieService RMI Server started on port 23000" (also starts `rmiregistry`)
+
+**Step 3 — Run client (Terminal 2):**
+```bash
+run.bat guide4_2 client
+```
+*Expected:* Client fetches movie list from server. Example output: `Movies: [Batman (2022) - 7.2, Superman (1978) - 7.4, ...]`
+
+---
+
+### Exercise 4.3 — Lab Inventory RMI
+
+**Step 1 — Compile & start server:**
+```bash
+run.bat exercise4_3 compile
+run.bat exercise4_3 server
+```
+*Expected:* "EquipmentService RMI Server started on port 24000"
+
+**Step 2 — Run client:**
+```bash
+run.bat exercise4_3 client
+```
+*Expected:* Interactive menu to add, remove, list, and search equipment.
+
+---
+
+### Guide 5.2 — MovieService gRPC
+
+**Step 1 — Compile:**
+```bash
+run.bat guide5_2 compile
+```
+*Expected:* `BUILD SUCCESS`. Note: protobuf classes are generated in `target/generated-sources/`.
+
+**Step 2 — Start server (Terminal 1):**
+```bash
+run.bat guide5_2 server
+```
+*Expected:* "MovieGrpcServer started, listening on port 50051"
+
+**Step 3 — Run client (Terminal 2):**
+```bash
+run.bat guide5_2 client
+```
+*Expected:* Client sends gRPC requests and prints movie details. Example: `Movie: Batman (2022) - Rating: 7.2`
+
+---
+
+### Exercise 5.3 — University Wellness gRPC
+
+**Step 1 — Compile:**
+```bash
+run.bat exercise5_3 compile
+```
+
+**Step 2 — Start server (Terminal 1):**
+```bash
+run.bat exercise5_3 server
+```
+*Expected:* "WellnessGrpcServer started, listening on port 50061"
+
+**Step 3 — Run client (Terminal 2):**
+```bash
+run.bat exercise5_3 client
+```
+*Expected:* Client interacts with wellness services (appointments, medical records, etc.) via gRPC.
+
+---
+
+### Guide 6.2 — Movie Microservices
+
+**Step 1 — Compile:**
+```bash
+run.bat guide6_2 compile
+```
+
+**Step 2 — Start 3 servers (Terminals 1-3):**
+```bash
+run.bat guide6_2 server1    # MovieService → port 50051
+run.bat guide6_2 server2    # ReviewService → port 50052
+run.bat guide6_2 server3    # RecommendationService → port 50053
+```
+*Expected:* Each prints "XxxService started, listening on port YYYYY"
+
+**Step 3 — Run client (Terminal 4):**
+```bash
+run.bat guide6_2 client
+```
+*Expected:* Client queries all 3 microservices and shows aggregated results.
+
+---
+
+### Exercise 6.3 — Wellness Microservices
+
+**Step 1 — Compile:**
+```bash
+run.bat exercise6_3 compile
+```
+
+**Step 2 — Start 4 servers (Terminals 1-4):**
+```bash
+run.bat exercise6_3 server1    # AppointmentService → port 50061
+run.bat exercise6_3 server2    # MedicalService → port 50062
+run.bat exercise6_3 server3    # GymService → port 50063
+run.bat exercise6_3 server4    # RecreationService → port 50064
+```
+
+**Step 3 — Run client (Terminal 5):**
+```bash
+run.bat exercise6_3 client
+```
+*Expected:* Client aggregates data from all 4 wellness services.
+
+---
+
+### Guide 7.2 — MovieGateway
+
+**Step 1 — Install dependencies (required once):**
+```bash
+run.bat guide7_2 compile
+```
+This runs `mvn install -DskipTests` to ensure guide6_2 JAR is available.
+
+**Step 2 — Start 3 microservice servers (Terminals 1-3):**
+```bash
+run.bat guide7_2 server1    # MovieService
+run.bat guide7_2 server2    # ReviewService
+run.bat guide7_2 server3    # RecommendationService
+```
+
+**Step 3 — Start gateway (Terminal 4):**
+```bash
+run.bat guide7_2 gateway
+```
+*Expected:* "MovieGateway started on port 8082"
+
+**Step 4 — Test via gateway (any terminal):**
+```bash
+curl "http://localhost:8082/movies?name=Batman"
+```
+*Expected:* Gateway proxies the request to the microservices and returns a complete response.
+
+---
+
+### Exercise 7.3 — WellnessGateway
+
+**Step 1 — Install dependencies:**
+```bash
+run.bat exercise7_3 compile
+```
+This runs `mvn install -DskipTests` to ensure exercise6_3 JAR is available.
+
+**Step 2 — Start 4 microservice servers (Terminals 1-4):**
+```bash
+run.bat exercise7_3 server1    # AppointmentService
+run.bat exercise7_3 server2    # MedicalService
+run.bat exercise7_3 server3    # GymService
+run.bat exercise7_3 server4    # RecreationService
+```
+
+**Step 3 — Start gateway (Terminal 5):**
+```bash
+run.bat exercise7_3 gateway
+```
+*Expected:* "WellnessGateway started on port 8083"
+
+**Step 4 — Test via gateway:**
+```bash
+curl "http://localhost:8083/appointments?user=123"
+curl "http://localhost:8083/medical/records?user=123"
+```
+*Expected:* Gateway aggregates responses from the wellness microservices.
+
+---
+
+### Exercise 8 — ECICIENCIA
+
+**Step 1 — Compile:**
+```bash
+run.bat exercise8 compile
+```
+
+**Step 2 — Start 3 servers (Terminals 1-3):**
+```bash
+run.bat exercise8 server1    # AttendeeService → port 8091
+run.bat exercise8 server2    # AgendaService → port 8092
+run.bat exercise8 server3    # WorkshopService → port 8093
+```
+
+**Step 3 — Start gateway (Terminal 4):**
+```bash
+run.bat exercise8 gateway
+```
+*Expected:* "EcicienciaGateway started on port 8090"
+
+**Step 4 — Test via gateway (any terminal):**
+```bash
+curl "http://localhost:8090/attendees"
+curl "http://localhost:8090/agenda"
+curl "http://localhost:8090/workshops"
+```
+*Expected:* Gateway returns data aggregated from all 3 backend services.

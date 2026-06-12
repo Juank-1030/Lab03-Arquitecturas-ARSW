@@ -1,0 +1,50 @@
+syntax = "proto3";
+option java_multiple_files = true;
+option java_package = "edu.eci.arsw.excercise6_3.medical";
+option java_outer_classname = "MedicalProto";
+
+service MedicalService {
+  rpc GetSpecialty (SpecialtyRequest) returns (SpecialtyResponse);
+  rpc ListSpecialties (MedicalEmpty) returns (SpecialtyList);
+  rpc AddSpecialty (AddSpecialtyRequest) returns (AddSpecialtyResponse);
+  rpc RemoveSpecialty (RemoveSpecialtyRequest) returns (RemoveSpecialtyResponse);
+}
+
+message AddSpecialtyRequest {
+  string code = 1;
+  string name = 2;
+  string description = 3;
+  bool available = 4;
+}
+
+message AddSpecialtyResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message RemoveSpecialtyRequest {
+  string code = 1;
+}
+
+message RemoveSpecialtyResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message MedicalEmpty {}
+
+message SpecialtyRequest {
+  string code = 1;
+}
+
+message SpecialtyResponse {
+  string code = 1;
+  string name = 2;
+  string description = 3;
+  bool available = 4;
+  bool found = 5;
+}
+
+message SpecialtyList {
+  repeated SpecialtyResponse specialties = 1;
+}

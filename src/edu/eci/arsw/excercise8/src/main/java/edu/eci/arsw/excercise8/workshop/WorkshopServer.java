@@ -6,7 +6,9 @@ import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class WorkshopServer {
@@ -23,6 +25,7 @@ public class WorkshopServer {
         private final Map<Integer, ReserveResponse> reservations = new HashMap<>();
         private final Map<Integer, Integer> activityCount = new HashMap<>();
         private final Map<Integer, Integer> activityCapacity = new HashMap<>();
+        private final Map<Integer, Queue<Integer>> activityWaitingQueue = new HashMap<>();
         private final AtomicInteger reservationIdCounter = new AtomicInteger(1);
 
         public WorkshopServiceImpl() {
@@ -62,7 +65,7 @@ public class WorkshopServer {
                 status = "WAITING";
                 queuePos = currentCount - maxCap + 1;
                 message = "Actividad llena. Posicion en lista de espera: " + queuePos;
-                success = true;
+                success = false;
             }
 
             ReserveResponse response = ReserveResponse.newBuilder()
@@ -70,6 +73,10 @@ public class WorkshopServer {
                     .setActivityId(request.getActivityId()).setStatus(status)
                     .setPositionInQueue(queuePos).setSuccess(success).setMessage(message).build();
             reservations.put(rid, response);
+
+            if ("WAITING".equals(status)) {
+                activityWaitingQueue.computeIfAbsent(request.getActivityId(), k -> new LinkedList<>()).add(rid);
+            }
             System.out.println("Reserva " + rid + " para asistente " + request.getAttendeeId()
                     + " en actividad " + request.getActivityId() + ": " + status);
             responseObserver.onNext(response);
@@ -88,6 +95,20 @@ public class WorkshopServer {
                         .setStatus("CANCELLED").setMessage("Reserva cancelada exitosamente").build();
                 reservations.put(request.getReservationId(), response);
                 System.out.println("Reserva " + request.getReservationId() + " cancelada.");
+
+                Queue<Integer> queue = activityWaitingQueue.get(actId);
+                if (queue != null && !queue.isEmpty()) {
+                    int promotedId = queue.poll();
+                    ReserveResponse waiting = reservations.get(promotedId);
+                    if (waiting != null) {
+                        ReserveResponse promoted = waiting.toBuilder()
+                                .setStatus("CONFIRMED").setPositionInQueue(0)
+                                .setSuccess(true).setMessage("Cupo liberado, reserva confirmada").build();
+                        reservations.put(promotedId, promoted);
+                        activityCount.put(actId, activityCount.getOrDefault(actId, 0) + 1);
+                        System.out.println("Reserva " + promotedId + " promovida de WAITING a CONFIRMED.");
+                    }
+                }
             } else {
                 response = ReserveResponse.newBuilder()
                         .setReservationId(request.getReservationId())

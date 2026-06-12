@@ -1,0 +1,57 @@
+@startuml
+!theme plain
+
+title Exercise 6.3 - CRUD Operation Flow (AppointmentService Example)
+
+actor "User" as USER
+participant "WellnessClient" as CLIENT
+participant "AppointmentStub" as STUB
+participant "AppointmentServiceImpl\n(Port 50061)" as SERVER
+database "Appointments Map" as DB
+
+== CREATE (Request Appointment) ==
+USER -> CLIENT : Option 1: studentId, serviceType, date
+CLIENT -> STUB : requestAppointment(AppointmentRequest)
+STUB -> SERVER : gRPC call
+SERVER -> DB : put(id, new Appointment(REQUESTED))
+SERVER --> STUB : AppointmentResponse(success, appointment)
+STUB --> CLIENT : response
+CLIENT --> USER : "Cita solicitada exitosamente" + details
+
+== READ (Get Appointments) ==
+USER -> CLIENT : Option 3: studentId
+CLIENT -> STUB : getAppointments(StudentRequest)
+STUB -> SERVER : gRPC call
+SERVER -> DB : values().filter(studentId)
+SERVER --> STUB : AppointmentList
+STUB --> CLIENT : list
+CLIENT --> USER : formatted appointment list
+
+== UPDATE (Reprogram Date) ==
+USER -> CLIENT : Option 5: appointmentId, newDate
+CLIENT -> STUB : updateAppointmentDate(UpdateDateRequest)
+STUB -> SERVER : gRPC call
+SERVER -> DB : get(id) -> toBuilder().setDate(newDate).build()
+SERVER --> STUB : UpdateDateResponse(success, updated)
+STUB --> CLIENT : response
+CLIENT --> USER : "Cita reprogramada exitosamente"
+
+== DELETE (Hard) ==
+USER -> CLIENT : Option 4: appointmentId
+CLIENT -> STUB : deleteAppointment(DeleteAppointmentRequest)
+STUB -> SERVER : gRPC call
+SERVER -> DB : remove(id)
+SERVER --> STUB : DeleteAppointmentResponse(success)
+STUB --> CLIENT : response
+CLIENT --> USER : "Cita eliminada permanentemente"
+
+== DELETE (Soft - Cancel) ==
+USER -> CLIENT : Option 2: appointmentId
+CLIENT -> STUB : cancelAppointment(CancelRequest)
+STUB -> SERVER : gRPC call
+SERVER -> DB : get(id) -> toBuilder().setStatus(CANCELLED).build()
+SERVER --> STUB : CancelResponse(success)
+STUB --> CLIENT : response
+CLIENT --> USER : "Cita cancelada exitosamente"
+
+@enduml

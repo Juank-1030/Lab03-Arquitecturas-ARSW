@@ -42,11 +42,11 @@ src/edu/eci/arsw/
 |-- excercise4_3/    # §4.3 Ejercicio: Inventario de Laboratorios (RMI)
 |-- guide5_2/        # §5.2 Guia: MovieService gRPC
 |-- excercise5_3/    # §5.3 Ejercicio: Sistema de Bienestar Universitario (gRPC)
-|-- guide6_2/        # §6.2 Guia: Microservicios de Peliculas (pendiente)
-|-- excercise6_3/    # §6.3 Ejercicio: Microservicios Bienestar (pendiente)
-|-- guide7_2/        # §7.2 Guia: MovieGateway (pendiente)
-|-- excercise7_3/    # §7.3 Ejercicio: WellnessGateway (pendiente)
-|-- excercise8/      # §8   Ejercicio Integrador - ECICIENCIA (pendiente)
+|-- guide6_2/        # §6.2 Guia: Microservicios de Peliculas (completado)
+|-- excercise6_3/    # §6.3 Ejercicio: Microservicios Bienestar (completado)
+|-- guide7_2/        # §7.2 Guia: MovieGateway (completado)
+|-- excercise7_3/    # §7.3 Ejercicio: WellnessGateway (completado)
+|-- excercise8/      # §8   Ejercicio Integrador - ECICIENCIA (implementado)
 ```
 
 ---
@@ -337,11 +337,11 @@ Respuesta del servidor: 2,Matrix,Wachowski,1999
 
 Terminal 2 (sesion 3 — ID inexistente):
 Ingrese el ID de la pelicula: 5
-Respuesta del servidor: ERROR: movie not found
+Respuesta del servidor: ERROR: pelicula no encontrada
 
 Terminal 2 (sesion 4 — entrada invalida):
 Ingrese el ID de la pelicula: abc
-Respuesta del servidor: ERROR: invalid request
+Respuesta del servidor: ERROR: solicitud invalida
 ```
 
 **Verificacion con herramientas externas:**
@@ -1718,8 +1718,8 @@ gRPC introduce un cambio fundamental respecto a RMI: el contrato se define en un
 |---------|-------------------------------|-------------|
 | `pom.xml` | `guide5_2/pom.xml` | Configuracion Maven con dependencias gRPC y plugin protobuf |
 | `movie.proto` | `guide5_2/src/main/proto/movie.proto` | Definicion del servicio y mensajes |
-| `MovieGrpcServer.java` | `guide5_2/src/main/java/edu/eci/arsw/movie/MovieGrpcServer.java` | Servidor gRPC con implementacion del servicio |
-| `MovieGrpcClient.java` | `guide5_2/src/main/java/edu/eci/arsw/movie/MovieGrpcClient.java` | Cliente gRPC con stub bloqueante |
+| `MovieGrpcServer.java` | `guide5_2/src/main/java/edu/eci/arsw/guide5_2/MovieGrpcServer.java` | Servidor gRPC con implementacion del servicio |
+| `MovieGrpcClient.java` | `guide5_2/src/main/java/edu/eci/arsw/guide5_2/MovieGrpcClient.java` | Cliente gRPC con stub bloqueante |
 
 **Nota:** El `pom.xml` y el plugin `protobuf-maven-plugin` generan automaticamente las clases Java a partir del `.proto` durante `mvn compile`. Las clases generadas aparecen en `target/generated-sources/protobuf/` e incluyen `MovieServiceGrpc.java`, `MovieRequest.java`, `MovieResponse.java`, etc.
 
@@ -1728,7 +1728,7 @@ gRPC introduce un cambio fundamental respecto a RMI: el contrato se define en un
 ```protobuf
 syntax = "proto3";
 option java_multiple_files = true;
-option java_package = "edu.eci.arsw.movie";
+option java_package = "edu.eci.arsw.guide5_2";
 option java_outer_classname = "MovieProto";
 
 service MovieService {
@@ -1752,7 +1752,7 @@ message MovieResponse {
 
 - `syntax = "proto3"` — Usa la version 3 de Protocol Buffers (mas simple que proto2, sin campos requeridos/opcionales).
 - `option java_multiple_files = true` — Genera una clase Java separada por cada mensaje, en vez de una sola clase gigante.
-- `option java_package = "edu.eci.arsw.movie"` — Paquete Java de las clases generadas. No necesita coincidir con la estructura de directorios.
+- `option java_package = "edu.eci.arsw.guide5_2"` — Paquete Java de las clases generadas. No necesita coincidir con la estructura de directorios.
 - `service MovieService` — Define un servicio RPC con un unico metodo `GetMovie`.
 - `rpc GetMovie (MovieRequest) returns (MovieResponse)` — RPC unario (request-response). gRPC soporta tambien streaming server, streaming client y bidireccional.
 - `int32 id = 1` — Campo numerado. El `= 1` es el *field number* usado en la serializacion binaria. Una vez asignado, no debe cambiarse para mantener compatibilidad hacia atras.
@@ -1773,7 +1773,7 @@ message MovieResponse {
 3. El servidor queda a la espera de conexiones gRPC en el puerto 50051.
 4. `MovieGrpcClient.main()` crea un `ManagedChannel` hacia `localhost:50051` con `usePlaintext()` (sin TLS, para desarrollo).
 5. A partir del canal, crea un `MovieServiceBlockingStub`. El stub implementa la interfaz `MovieService` del lado del cliente usando el canal HTTP/2.
-6. El cliente construye un `MovieRequest` via `MovieRequest.newBuilder().setId(2).build()`, invoca `stub.getMovie(request)`.
+6. El cliente construye un `MovieRequest` via `MovieRequest.newBuilder().setId(1).build()`, invoca `stub.getMovie(request)`.
 7. gRPC serializa `MovieRequest` a binario protobuf, lo envia como trama HTTP/2, el servidor lo deserializa, ejecuta `getMovie()`, serializa `MovieResponse` y lo retorna.
 8. El cliente deserializa la respuesta y accede a los campos via getters generados.
 
@@ -1841,14 +1841,14 @@ ManagedChannel channel = ManagedChannelBuilder
         .forAddress("localhost", 50051).usePlaintext().build();
 MovieServiceGrpc.MovieServiceBlockingStub stub =
         MovieServiceGrpc.newBlockingStub(channel);
-MovieRequest request = MovieRequest.newBuilder().setId(2).build();
+MovieRequest request = MovieRequest.newBuilder().setId(1).build();
 MovieResponse response = stub.getMovie(request);
 ```
 
 **Decisiones de diseno:**
 - **`usePlaintext()`:** Deshabilita TLS para desarrollo local. En produccion se usaria SSL/TLS con certificados.
 - **BlockingStub:** El stub bloqueante es el mas simple de usar. La llamada `stub.getMovie(request)` bloquea hasta recibir la respuesta. Para alta concurrencia se usaria un FutureStub.
-- **`MovieRequest.newBuilder().setId(2).build()`:** Construye un mensaje protobuf. Todos los campos del builder tienen valores por defecto (0 para numeros, "" para strings, false para booleanos).
+- **`MovieRequest.newBuilder().setId(1).build()`:** Construye un mensaje protobuf. Todos los campos del builder tienen valores por defecto (0 para numeros, "" para strings, false para booleanos).
 
 #### Paso 5 — Ejecucion
 
@@ -1857,10 +1857,10 @@ MovieResponse response = stub.getMovie(request);
 mvn clean compile -f src/edu/eci/arsw/guide5_2/pom.xml
 
 # Terminal 1 — servidor
-mvn exec:java -f src/edu/eci/arsw/guide5_2/pom.xml -Dexec.mainClass="edu.eci.arsw.movie.MovieGrpcServer"
+mvn exec:java -f src/edu/eci/arsw/guide5_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide5_2.MovieGrpcServer"
 
 # Terminal 2 — cliente
-mvn exec:java -f src/edu/eci/arsw/guide5_2/pom.xml -Dexec.mainClass="edu.eci.arsw.movie.MovieGrpcClient"
+mvn exec:java -f src/edu/eci/arsw/guide5_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide5_2.MovieGrpcClient"
 ```
 
 **Prueba esperada:**
@@ -1869,18 +1869,11 @@ mvn exec:java -f src/edu/eci/arsw/guide5_2/pom.xml -Dexec.mainClass="edu.eci.ars
 Terminal 1:
 Movie gRPC Server iniciado en puerto 50051
 
-Terminal 2 (sesion 1 — pelicula existente):
-Ingrese ID de pelicula (1-3): 1
+Terminal 2:
 Pelicula: Interstellar - Christopher Nolan - 2014
-
-Terminal 2 (sesion 2 — otra pelicula):
-Ingrese ID de pelicula (1-3): 2
-Pelicula: Matrix - Wachowski - 1999
-
-Terminal 2 (sesion 3 — ID inexistente):
-Ingrese ID de pelicula (1-3): 5
-Pelicula no encontrada
 ```
+
+Para probar con un ID diferente, cambiar `setId(1)` por otro valor en `MovieGrpcClient.java` y recompilar (`mvn clean compile`).
 
 #### Paso 6 — Verificacion
 
@@ -1921,10 +1914,10 @@ mvn clean compile -f src/edu/eci/arsw/guide5_2/pom.xml
 mvn clean compile -f src/edu/eci/arsw/guide5_2/pom.xml
 
 # Servidor (Terminal 1)
-mvn exec:java -f src/edu/eci/arsw/guide5_2/pom.xml -Dexec.mainClass="edu.eci.arsw.movie.MovieGrpcServer"
+mvn exec:java -f src/edu/eci/arsw/guide5_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide5_2.MovieGrpcServer"
 
 # Cliente (Terminal 2)
-mvn exec:java -f src/edu/eci/arsw/guide5_2/pom.xml -Dexec.mainClass="edu.eci.arsw.movie.MovieGrpcClient"
+mvn exec:java -f src/edu/eci/arsw/guide5_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide5_2.MovieGrpcClient"
 ```
 
 ---
@@ -1951,8 +1944,8 @@ El `.proto` define tres entidades principales (`Student`, `Appointment`, `Servic
 |---------|-------------------------------|-------------|
 | `pom.xml` | `excercise5_3/pom.xml` | Mismo pom.xml que la guia 5.2 pero con diferente artifactId |
 | `appointment.proto` | `excercise5_3/src/main/proto/appointment.proto` | Servicio, mensajes y enumeraciones |
-| `WellnessGrpcServer.java` | `excercise5_3/src/main/java/edu/eci/arsw/wellness/WellnessGrpcServer.java` | Servidor con `AppointmentServiceImpl` |
-| `WellnessGrpcClient.java` | `excercise5_3/src/main/java/edu/eci/arsw/wellness/WellnessGrpcClient.java` | Cliente interactivo con menu |
+| `WellnessGrpcServer.java` | `excercise5_3/src/main/java/edu/eci/arsw/excercise5_3/WellnessGrpcServer.java` | Servidor con `AppointmentServiceImpl` |
+| `WellnessGrpcClient.java` | `excercise5_3/src/main/java/edu/eci/arsw/excercise5_3/WellnessGrpcClient.java` | Cliente interactivo con menu |
 
 ### Contrato (.proto)
 
@@ -2102,10 +2095,10 @@ El cliente usa el mismo patron de menu interactivo que el Exercise 4.3, pero con
 mvn clean compile -f src/edu/eci/arsw/excercise5_3/pom.xml
 
 # Terminal 1 — servidor
-mvn exec:java -f src/edu/eci/arsw/excercise5_3/pom.xml -Dexec.mainClass="edu.eci.arsw.wellness.WellnessGrpcServer"
+mvn exec:java -f src/edu/eci/arsw/excercise5_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise5_3.WellnessGrpcServer"
 
 # Terminal 2 — cliente
-mvn exec:java -f src/edu/eci/arsw/excercise5_3/pom.xml -Dexec.mainClass="edu.eci.arsw.wellness.WellnessGrpcClient"
+mvn exec:java -f src/edu/eci/arsw/excercise5_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise5_3.WellnessGrpcClient"
 ```
 
 **Prueba esperada (menu interactivo, opcion 4 para salir):**
@@ -2215,10 +2208,10 @@ mvn clean compile -f src/edu/eci/arsw/excercise5_3/pom.xml
 mvn clean compile -f src/edu/eci/arsw/excercise5_3/pom.xml
 
 # Servidor (Terminal 1)
-mvn exec:java -f src/edu/eci/arsw/excercise5_3/pom.xml -Dexec.mainClass="edu.eci.arsw.wellness.WellnessGrpcServer"
+mvn exec:java -f src/edu/eci/arsw/excercise5_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise5_3.WellnessGrpcServer"
 
 # Cliente (Terminal 2)
-mvn exec:java -f src/edu/eci/arsw/excercise5_3/pom.xml -Dexec.mainClass="edu.eci.arsw.wellness.WellnessGrpcClient"
+mvn exec:java -f src/edu/eci/arsw/excercise5_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise5_3.WellnessGrpcClient"
 ```
 
 ---
@@ -2227,28 +2220,278 @@ mvn exec:java -f src/edu/eci/arsw/excercise5_3/pom.xml -Dexec.mainClass="edu.eci
 
 **Paquete:** `src/edu/eci/arsw/guide6_2/`
 
-**Estado:** :white_large_square: No implementado — pendiente.
+**Estado:** :ballot_box_with_check: Implementada.
 
 ### Descripcion
 
-Descomposicion del sistema de peliculas en 3 microservicios independientes, cada uno en su propio puerto gRPC.
+Descomposicion del sistema de peliculas en 3 microservicios independientes, cada uno en su propio puerto gRPC. A diferencia de la guia 5.2 (un solo servidor gRPC con todo el dominio), aqui cada servicio es un proceso independiente con su propio `.proto`, su propio `Server` y su propio puerto. El cliente debe conocer y conectarse a los 3 puertos individualmente.
 
-### Servicios
+### Novedades respecto a gRPC unico (Guia 5.2)
 
-| Servicio | Responsabilidad | Puerto |
-|----------|----------------|--------|
-| MovieService | Consultar informacion de peliculas | 50051 |
-| ReviewService | Consultar resenas de una pelicula | 50052 |
-| RecommendationService | Sugerir peliculas relacionadas | 50053 |
+| Aspecto | Guia 5.2 (un solo servidor) | Guia 6.2 (microservicios) |
+|---------|----------------------------|---------------------------|
+| **Numero de servicios** | 1 servicio, 1 RPC | 3 servicios, 1 RPC cada uno |
+| **Puertos** | 1 puerto (50051) | 3 puertos (50051-50053) |
+| **Archivos `.proto`** | 1 archivo | 3 archivos (movie.proto, review.proto, recommendation.proto) |
+| **Servidores** | 1 servidor (`MovieGrpcServer`) | 3 servidores independientes |
+| **Cliente** | 1 stub, 1 canal | 3 stubs, 3 canales |
+| **Despliegue** | Un solo proceso JVM | 4 procesos JVM (3 servidores + 1 cliente) |
+| **Acoplamiento** | Bajo (cliente conoce solo 1 puerto) | Alto (cliente conoce 3 puertos) |
 
-### Como ejecutar (cuando este implementado)
+### Arquitectura
+
+Cada microservicio es un proceso Maven independiente dentro del mismo modulo (mismo `pom.xml`). Comparten el mismo `groupId` y `pom.xml`, pero cada uno tiene su propio `.proto` con su propio `java_package`, lo que genera clases en paquetes separados y evita conflictos de nombres.
+
+El cliente (`MicroserviceClient`) mantiene 3 canales gRPC separados, uno hacia cada servicio, y un menu interactivo para consultar cada servicio individualmente o los tres a la vez (opcion 4).
+
+### Archivos
+
+| Archivo | Ruta | Descripcion |
+|---------|------|-------------|
+| `pom.xml` | `guide6_2/pom.xml` | Configuracion Maven con dependencias gRPC (identico al de guide5_2) |
+| `movie.proto` | `guide6_2/src/main/proto/movie.proto` | Define `MovieService` con `GetMovie` (identico al de guide5_2) |
+| `review.proto` | `guide6_2/src/main/proto/review.proto` | Define `ReviewService` con `GetReview` |
+| `recommendation.proto` | `guide6_2/src/main/proto/recommendation.proto` | Define `RecommendationService` con `GetRecommendation` |
+| `MovieServiceServer.java` | `guide6_2/src/main/java/.../movie/MovieServiceServer.java` | Servidor gRPC en puerto 50051 |
+| `ReviewServiceServer.java` | `guide6_2/src/main/java/.../review/ReviewServiceServer.java` | Servidor gRPC en puerto 50052 |
+| `RecommendationServiceServer.java` | `guide6_2/src/main/java/.../recommendation/RecommendationServiceServer.java` | Servidor gRPC en puerto 50053 |
+| `MicroserviceClient.java` | `guide6_2/src/main/java/.../guide6_2/MicroserviceClient.java` | Cliente interactivo con 3 canales |
+
+### Contratos (.proto)
+
+Cada `.proto` define un unico servicio con un unico RPC, siguiendo el mismo patron de la guia 5.2 pero aislado en su propio paquete:
+
+**movie.proto** (`java_package = "edu.eci.arsw.guide6_2.movie"`):
+- `MovieService` / `GetMovie(MovieRequest) → MovieResponse`
+- Mismos campos que guide5_2: `int32 id`, `string title`, `string director`, `int32 year`, `bool found`
+
+**review.proto** (`java_package = "edu.eci.arsw.guide6_2.review"`):
+- `ReviewService` / `GetReview(ReviewRequest) → ReviewResponse`
+- Campos: `int32 movieId`, `string reviewer`, `int32 rating`, `string comment`, `bool found`
+
+**recommendation.proto** (`java_package = "edu.eci.arsw.guide6_2.recommendation"`):
+- `RecommendationService` / `GetRecommendation(RecommendationRequest) → RecommendationResponse`
+- Campos: `int32 movieId`, `repeated int32 recommendedIds`, `bool found`
+
+### Conceptos clave
+
+1. **Multiples `.proto` en un mismo proyecto:** Cada `.proto` se compila independientemente. El plugin protobuf genera clases en paquetes separados (`...movie.*`, `...review.*`, `...recommendation.*`). No hay conflictos de nombres porque los paquetes Java son distintos.
+2. **Multiples canales gRPC:** El cliente crea un `ManagedChannel` por cada servidor. Cada canal mantiene una conexion HTTP/2 independiente. Esto es necesario porque cada servidor escucha en un puerto diferente.
+3. **Despliegue independiente:** Cada microservicio puede iniciarse, detenerse y actualizarse sin afectar a los demas. Esto es la esencia de la arquitectura de microservicios.
+4. **Acoplamiento cliente-puertos:** El cliente debe conocer los 3 puertos. Si un servicio cambia de puerto, el cliente debe actualizarse. Esto se resolvera en la guia 7.2 con un API Gateway.
+
+### Flujo detallado
+
+1. `mvn clean compile` compila los 3 `.proto` y genera las clases Java en `target/generated-sources/protobuf/`.
+2. Se inician 3 servidores en terminales separadas: MovieService (50051), ReviewService (50052), RecommendationService (50053).
+3. Cada servidor registra su implementacion (`MovieServiceImpl`, `ReviewServiceImpl`, `RecommendationServiceImpl`) y queda a la espera de conexiones.
+4. El cliente `MicroserviceClient` crea 3 canales y 3 stubs, luego presenta un menu con 5 opciones.
+5. Dependiendo de la opcion, el cliente invoca el stub correspondiente y muestra la respuesta.
+
+### Detalle de implementacion paso a paso
+
+#### Paso 1 — Archivos `.proto`
+
+Cada archivo sigue la misma estructura que `movie.proto` de la guia 5.2, pero con `java_package` unico:
+
+```protobuf
+// movie.proto
+option java_package = "edu.eci.arsw.guide6_2.movie";
+
+// review.proto
+option java_package = "edu.eci.arsw.guide6_2.review";
+
+// recommendation.proto
+option java_package = "edu.eci.arsw.guide6_2.recommendation";
+```
+
+**Decision de diseno:** Se usa un `java_package` diferente para cada `.proto` para que las clases generadas (ej. `MovieRequest`, `ReviewRequest`, `RecommendationRequest`) vivan en paquetes distintos y no colisionen. Si todos usaran el mismo paquete, `MovieRequest` y `ReviewRequest` coexistirian, pero `Empty` o nombres genericos podrian conflictuar.
+
+#### Paso 2 — Servidores
+
+Cada servidor sigue el patron exacto de `MovieGrpcServer` de la guia 5.2:
+
+```java
+// MovieServiceServer.java (puerto 50051)
+public class MovieServiceServer {
+    public static void main(String[] args) throws Exception {
+        Server server = ServerBuilder.forPort(50051)
+                .addService(new MovieServiceImpl())
+                .build().start();
+        System.out.println("MovieService Microservicio iniciado en puerto 50051");
+        server.awaitTermination();
+    }
+
+    static class MovieServiceImpl extends MovieServiceGrpc.MovieServiceImplBase {
+        private Map<Integer, MovieResponse> movies = new HashMap<>();
+        // mismos datos que guide5_2
+    }
+}
+```
+
+Los servidores `ReviewServiceServer` (50052) y `RecommendationServiceServer` (50053) son identicos en estructura pero con sus propios datos:
+
+- **ReviewService:** Almacena 3 resenas hardcodeadas (una por pelicula) con campos `reviewer`, `rating` y `comment`.
+- **RecommendationService:** Almacena 3 listas de recomendaciones hardcodeadas (peliculas relacionadas entre si).
+
+**Decision de diseno:** Los datos son hardcodeados para mantener el foco en la arquitectura de microservicios, no en la persistencia. En un sistema real, cada servicio tendria su propia base de datos.
+
+#### Paso 3 — Cliente (`MicroserviceClient.java`)
+
+El cliente mantiene 3 canales gRPC separados y un menu interactivo:
+
+```java
+ManagedChannel movieChannel = ManagedChannelBuilder
+        .forAddress("localhost", 50051).usePlaintext().build();
+ManagedChannel reviewChannel = ManagedChannelBuilder
+        .forAddress("localhost", 50052).usePlaintext().build();
+ManagedChannel recommendationChannel = ManagedChannelBuilder
+        .forAddress("localhost", 50053).usePlaintext().build();
+
+MovieServiceGrpc.MovieServiceBlockingStub movieStub = ...;
+ReviewServiceGrpc.ReviewServiceBlockingStub reviewStub = ...;
+RecommendationServiceGrpc.RecommendationServiceBlockingStub recommendationStub = ...;
+```
+
+**Opciones del menu:**
+
+| Opcion | Accion | Servicio consultado |
+|--------|--------|-------------------|
+| 1 | Consultar pelicula | MovieService (50051) |
+| 2 | Consultar resena | ReviewService (50052) |
+| 3 | Obtener recomendaciones | RecommendationService (50053) |
+| 4 | Consultar todo (3 servicios) | Los 3 servicios |
+| 5 | Salir | — |
+
+**Decisiones de diseno:**
+- **Opcion 4 (consulta completa):** Demuestra el patron "agregacion" donde el cliente orquesta llamadas a multiples servicios. Esto es analogo al patron API Gateway pero implementado en el cliente. La opcion 4 muestra la desventaja del microservicio sin gateway: el cliente debe hacer 3 llamadas de red en vez de 1.
+- **Tres canales independientes:** Cada canal tiene su propia conexion HTTP/2. No se comparten. Esto es correcto pero ineficiente — en produccion se usaria un pool de conexiones.
+- **Menu interactivo:** Sigue el mismo patron que los clientes de los ejercicios previos (excercise4_3, excercise5_3).
+
+#### Paso 4 — Ejecucion
+
+```bash
+# Compilar desde la raiz
+mvn clean compile
+
+# Terminal 1 — MovieService
+mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide6_2.movie.MovieServiceServer"
+
+# Terminal 2 — ReviewService
+mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide6_2.review.ReviewServiceServer"
+
+# Terminal 3 — RecommendationService
+mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide6_2.recommendation.RecommendationServiceServer"
+
+# Terminal 4 — Cliente
+mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide6_2.MicroserviceClient"
+```
+
+**Orden:** Los servidores deben iniciar antes que el cliente. Si un servidor no esta corriendo, el cliente recibe `StatusRuntimeException` con codigo `UNAVAILABLE` al intentar conectarse.
+
+**Prueba esperada:**
+
+```
+Terminal 1:
+MovieService Microservicio iniciado en puerto 50051
+
+Terminal 2:
+ReviewService Microservicio iniciado en puerto 50052
+
+Terminal 3:
+RecommendationService Microservicio iniciado en puerto 50053
+
+Terminal 4:
+=== Movie Microservices Client ===
+
+--- Consultar pelicula ---
+Seleccione una opcion: 1
+ID de la pelicula (1-3): 1
+Pelicula: Interstellar - Christopher Nolan - 2014
+
+--- Consultar resena ---
+Seleccione una opcion: 2
+ID de la pelicula (1-3): 1
+Resena por Roger Ebert: 5/5 - Una obra maestra de la ciencia ficcion
+
+--- Consultar todo ---
+Seleccione una opcion: 4
+ID de la pelicula (1-3): 1
+
+=== Resultados completos para pelicula 1 ===
+Pelicula: Interstellar - Christopher Nolan - 2014
+Resena: Roger Ebert - 5/5 - Una obra maestra de la ciencia ficcion
+Recomendaciones: [2, 3]
+
+--- Salir ---
+Seleccione una opcion: 5
+Saliendo...
+```
+
+#### Paso 5 — Verificacion
 
 ```bash
 mvn clean compile
-mvn exec:java -Dexec.mainClass="edu.eci.arsw.guide6_2.movie.MovieServiceServer"              # Terminal 1
-mvn exec:java -Dexec.mainClass="edu.eci.arsw.guide6_2.review.ReviewServiceServer"            # Terminal 2
-mvn exec:java -Dexec.mainClass="edu.eci.arsw.guide6_2.recommendation.RecommendationServiceServer" # Terminal 3
-mvn exec:java -Dexec.mainClass="edu.eci.arsw.guide6_2.MicroserviceClient"                    # Terminal 4
+# BUILD SUCCESS — 5 modulos compilados
+```
+
+### Comparacion: gRPC unico (Guia 5.2) vs Microservicios (Guia 6.2)
+
+| Aspecto | Guia 5.2 (gRPC unico) | Guia 6.2 (microservicios) |
+|---------|----------------------|---------------------------|
+| **Numero de procesos** | 2 (servidor + cliente) | 4 (3 servidores + 1 cliente) |
+| **Puertos** | 1 (50051) | 3 (50051, 50052, 50053) |
+| **Contratos** | 1 `.proto` con 1 RPC | 3 `.proto` con 1 RPC cada uno |
+| **Canales cliente** | 1 canal | 3 canales |
+| **Responsabilidad** | Todo en un servicio | Separada por dominio |
+| **Despliegue** | Un solo JAR | Cada servicio desde el mismo modulo |
+| **Escalabilidad** | Escala vertical (mas recursos) | Escala horizontal (mas instancias por servicio) |
+| **Aislamiento** | Bajo (fallo afecta todo) | Alto (fallo afecta solo un servicio) |
+
+### Reflexion arquitectonica
+
+- **Separacion de responsabilidades:** Cada microservicio tiene una unica responsabilidad (consulta de peliculas, resenas, recomendaciones). Esto sigue el principio de Responsabilidad Unica (SRP) aplicado a nivel arquitectonico.
+- **Complejidad de operacion:** Pasamos de 2 procesos (guia 5.2) a 4 procesos (guia 6.2). La complejidad operativa aumenta: hay que iniciar 3 servidores en lugar de 1, y el orden de inicio importa.
+- **El cliente conoce demasiado:** El cliente debe saber que MovieService esta en 50051, ReviewService en 50052 y RecommendationService en 50053. Cualquier cambio de puerto requiere actualizar el cliente. Esto es acoplamiento cliente-servicio, que se resolvera en la guia 7.2 con un API Gateway.
+- **Orquestacion vs Coreografia:** La opcion 4 del menu implementa orquestacion: el cliente coordina las llamadas a los 3 servicios. Una alternativa seria coreografia: cada servicio emite eventos y otros reaccionan, pero esto requiere un bus de eventos (RabbitMQ, Kafka).
+- **Proximo paso:** API Gateway (guia 7.2) introduce un unico punto de entrada que oculta los 3 puertos al cliente. El cliente solo conoce el Gateway, que internamente consulta los 3 microservicios y consolida la respuesta.
+
+### Preguntas de reflexion
+
+1. **?Que ventajas tiene dividir el sistema en 3 microservicios?**
+   - Despliegue independiente: cada servicio puede actualizarse sin afectar a los demas.
+   - Escalabilidad selectiva: si las resenas tienen mas carga, solo se escala ReviewService.
+   - Aislamiento de fallos: si RecommendationService falla, MovieService y ReviewService siguen funcionando.
+   - Equipos independientes: cada servicio puede ser mantenido por un equipo diferente.
+
+2. **?Que desventajas introduce esta arquitectura?**
+   - Mayor complejidad operativa: 3 servidores que iniciar y monitorear.
+   - Mayor latencia: el cliente hace 3 llamadas de red en vez de 1 (opcion 4).
+   - El cliente debe conocer la topologia completa (3 puertos).
+   - Se necesita manejo de errores para cada servicio individual.
+
+3. **?Como se compara con el enfoque monolitico de la guia 5.2?**
+   - En guia 5.2, todo el dominio (peliculas, resenas, recomendaciones) estaria en un solo `.proto` y un solo servidor. El cliente haria una sola llamada.
+   - En guia 6.2, cada subdominio es un servicio independiente. El cliente debe hacer 3 llamadas.
+   - La guia 5.2 es mas simple de operar pero menos escalable. La guia 6.2 es mas compleja pero mas flexible.
+
+### Como ejecutar
+
+```bash
+# Compilar desde la raiz
+mvn clean compile
+
+# Terminal 1 — MovieService
+mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide6_2.movie.MovieServiceServer"
+
+# Terminal 2 — ReviewService
+mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide6_2.review.ReviewServiceServer"
+
+# Terminal 3 — RecommendationService
+mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide6_2.recommendation.RecommendationServiceServer"
+
+# Terminal 4 — Cliente
+mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide6_2.MicroserviceClient"
 ```
 
 ---
@@ -2257,11 +2500,17 @@ mvn exec:java -Dexec.mainClass="edu.eci.arsw.guide6_2.MicroserviceClient"       
 
 **Paquete:** `src/edu/eci/arsw/excercise6_3/`
 
-**Estado:** :white_large_square: No implementado — pendiente.
+**Estado:** :ballot_box_with_check: Implementada.
 
 ### Descripcion
 
-Descomposicion del sistema de bienestar universitario en 4 microservicios, cada uno con una responsabilidad cohesiva.
+Descomposicion del sistema de bienestar universitario en 4 microservicios, cada uno con una responsabilidad cohesiva. Sigue el mismo patron de la Guia 6.2 pero aplicado al dominio de bienestar universitario, con 4 servicios en vez de 3.
+
+### Arquitectura
+
+Cada microservicio es un proceso Maven independiente dentro del mismo modulo. El `.proto` de cada servicio define su propio contrato con `java_package` unico para evitar conflictos entre mensajes con el mismo nombre (como `Empty`).
+
+El cliente (`WellnessClient`) mantiene 4 canales gRPC separados y un menu interactivo con 18 opciones (0-17) que cubren CRUD completo para los 4 servicios.
 
 ### Servicios
 
@@ -2272,14 +2521,264 @@ Descomposicion del sistema de bienestar universitario en 4 microservicios, cada 
 | GymService | Reservas de sesiones de gimnasio | 50063 |
 | RecreationService | Prestamo de recursos recreativos | 50064 |
 
-### Como ejecutar (cuando este implementado)
+### Archivos
+
+| Archivo | Ruta | Descripcion |
+|---------|------|-------------|
+| `pom.xml` | `excercise6_3/pom.xml` | Configuracion Maven (identico al de guide6_2) |
+| `appointment.proto` | `excercise6_3/src/main/proto/appointment.proto` | Define `AppointmentService` con 3 RPCs |
+| `medical.proto` | `excercise6_3/src/main/proto/medical.proto` | Define `MedicalService` con 2 RPCs |
+| `gym.proto` | `excercise6_3/src/main/proto/gym.proto` | Define `GymService` con 2 RPCs |
+| `recreation.proto` | `excercise6_3/src/main/proto/recreation.proto` | Define `RecreationService` con 2 RPCs |
+| `AppointmentServer.java` | `excercise6_3/src/main/java/.../appointment/AppointmentServer.java` | Servidor gRPC en puerto 50061 |
+| `MedicalServer.java` | `excercise6_3/src/main/java/.../medical/MedicalServer.java` | Servidor gRPC en puerto 50062 |
+| `GymServer.java` | `excercise6_3/src/main/java/.../gym/GymServer.java` | Servidor gRPC en puerto 50063 |
+| `RecreationServer.java` | `excercise6_3/src/main/java/.../recreation/RecreationServer.java` | Servidor gRPC en puerto 50064 |
+| `WellnessClient.java` | `excercise6_3/src/main/java/.../excercise6_3/WellnessClient.java` | Cliente interactivo con 4 canales |
+
+### Capacidades CRUD
+
+| Servicio | Crear | Leer | Actualizar | Eliminar |
+|----------|-------|------|------------|----------|
+| AppointmentService | `RequestAppointment` | `GetAppointments` | `UpdateAppointmentDate` | `CancelAppointment` (soft), `DeleteAppointment` (hard) |
+| MedicalService | `AddSpecialty` | `GetSpecialty`, `ListSpecialties` | — | `RemoveSpecialty` |
+| GymService | `ReserveSession` | `GetSessions`, `GetAllSessions` | — | `CancelSession` (soft) |
+| RecreationService | `AddResource` | `ListResources` | — | `ReturnResource` (toggle) |
+
+### Contratos (.proto)
+
+**appointment.proto** (`java_package = "edu.eci.arsw.excercise6_3.appointment"`):
+- 5 RPCs: `RequestAppointment`, `CancelAppointment`, `GetAppointments`, `DeleteAppointment`, `UpdateAppointmentDate`
+- Incluye las enumeraciones `ServiceType` y `Status`
+- Mensajes nuevos: `DeleteAppointmentRequest`, `DeleteAppointmentResponse`, `UpdateDateRequest`, `UpdateDateResponse`
+
+**medical.proto** (`java_package = "edu.eci.arsw.excercise6_3.medical"`):
+- `MedicalService` con 4 RPCs: `GetSpecialty`, `ListSpecialties`, `AddSpecialty`, `RemoveSpecialty`
+- `MedicalEmpty`: mensaje vacio para el listado (nombre unico para evitar conflictos con otros `.proto`)
+- Mensajes nuevos: `AddSpecialtyRequest`, `AddSpecialtyResponse`, `RemoveSpecialtyRequest`, `RemoveSpecialtyResponse`
+
+**gym.proto** (`java_package = "edu.eci.arsw.excercise6_3.gym"`):
+- `GymService` con 4 RPCs: `ReserveSession`, `GetSessions`, `CancelSession`, `GetAllSessions`
+- `GymEmpty`: mensaje vacio para listar todas las sesiones
+- Mensajes nuevos: `CancelSessionRequest`, `CancelSessionResponse`
+
+**recreation.proto** (`java_package = "edu.eci.arsw.excercise6_3.recreation"`):
+- `RecreationService` con 4 RPCs: `ReserveResource`, `ListResources`, `ReturnResource`, `AddResource`
+- `RecreationEmpty`: mensaje vacio para el listado (nombre unico para evitar conflictos)
+- Mensajes nuevos: `ReturnResourceRequest`, `ReturnResourceResponse`, `AddResourceRequest`, `AddResourceResponse`
+- Modela recursos recreativos con `id`, `name`, `available`
+
+### Conceptos clave
+
+1. **Nombres de mensajes unicos entre `.proto`:** Cuando se compilan multiples `.proto` juntos, los nombres de mensajes deben ser unicos globalmente (el espacio de nombres de protobuf es plano). Por eso se usa `MedicalEmpty`, `RecreationEmpty` y `GymEmpty` en vez de `Empty` en los tres.
+2. **Dominios separados:** A diferencia de exercise5_3 (que tenia un solo servicio con 3 RPCs), aqui cada dominio (citas, medicina, gimnasio, recreacion) es un servicio independiente con su propia base de datos en memoria.
+3. **CRUD completo:** Cada servicio fue extendido para soportar operaciones de crear, leer y eliminar. AppointmentService adicionalmente soporta actualizacion (reprogramar fecha) y dos tipos de eliminacion (soft cancel vs hard delete).
+4. **Patron de servidor identico:** Todos los servidores siguen el mismo patron: `ServerBuilder.forPort(PUERTO).addService(new Impl()).build().start()`. La unica diferencia son los datos y la logica de negocio.
+
+### Flujo detallado
+
+1. `mvn clean compile` compila los 4 `.proto` con los nuevos mensajes (11 adicionales) y genera las clases Java.
+2. Se inician 4 servidores en terminales separadas.
+3. El cliente `WellnessClient` crea 4 canales y 4 stubs, luego presenta un menu con 18 opciones (0-17).
+4. Dependiendo de la opcion, el cliente invoca el stub correspondiente: citas (ops 1-5), especialidades (ops 6-9), gimnasio (ops 10-13), recreacion (ops 14-17).
+
+### Detalle de implementacion paso a paso
+
+#### Paso 1 — Archivos `.proto`
+
+Cada archivo define su propio `java_package`:
+
+```protobuf
+// appointment.proto
+option java_package = "edu.eci.arsw.excercise6_3.appointment";
+
+// medical.proto
+option java_package = "edu.eci.arsw.excercise6_3.medical";
+
+// gym.proto
+option java_package = "edu.eci.arsw.excercise6_3.gym";
+
+// recreation.proto
+option java_package = "edu.eci.arsw.excercise6_3.recreation";
+```
+
+**Decision de diseno:** Los nombres de mensajes como `MedicalEmpty` y `RecreationEmpty` son unicos para evitar el error `"Empty" is already defined` de protoc. Aunque los paquetes Java son distintos, protobuf usa un espacio de nombres global para tipos de mensaje.
+
+#### Paso 2 — Servidores
+
+**AppointmentServer** (puerto 50061): Identico al `WellnessGrpcServer` del ejercicio 5.3, con los mismos 3 RPCs y la misma logica de `HashMap<String, Appointment>`.
+
+**MedicalServer** (puerto 50062): Almacena 3 especialidades medicas hardcodeadas (Medicina General, Psicologia, Odontologia). Ofrece `GetSpecialty` (buscar por codigo) y `ListSpecialties` (listar todas).
+
+**GymServer** (puerto 50063): Administra reservas de sesiones de gimnasio. Usa `UUID.randomUUID()` para generar IDs de sesion. Ofrece `ReserveSession` y `GetSessions`.
+
+**RecreationServer** (puerto 50064): Administra prestamo de recursos recreativos (balones, raquetas, juegos de mesa). Usa `available` booleano para controlar disponibilidad. Ofrece `ReserveResource` y `ListResources`.
+
+```java
+// RecreationServer — ejemplo de logica de reserva con control de disponibilidad
+public void reserveResource(ResourceRequest request,
+                             StreamObserver<ResourceResponse> responseObserver) {
+    RecreationResource resource = resources.get(request.getResourceId());
+    if (resource == null) {
+        responseObserver.onNext(ResourceResponse.newBuilder()
+                .setSuccess(false).setMessage("ERROR: recurso no encontrado").build());
+    } else if (!resource.getAvailable()) {
+        responseObserver.onNext(ResourceResponse.newBuilder()
+                .setSuccess(false).setMessage("ERROR: recurso ya reservado").build());
+    } else {
+        RecreationResource updated = resource.toBuilder().setAvailable(false).build();
+        resources.put(request.getResourceId(), updated);
+        responseObserver.onNext(ResourceResponse.newBuilder()
+                .setSuccess(true).setMessage("Recurso reservado exitosamente").build());
+    }
+    responseObserver.onCompleted();
+}
+```
+
+#### Paso 3 — Cliente (`WellnessClient.java`)
+
+El cliente mantiene 4 canales gRPC y un menu interactivo:
+
+```java
+ManagedChannel appointmentChannel = ...localhost:50061...;
+ManagedChannel medicalChannel = ...localhost:50062...;
+ManagedChannel gymChannel = ...localhost:50063...;
+ManagedChannel recreationChannel = ...localhost:50064...;
+```
+
+**Opciones del menu:**
+
+| Opcion | Accion | Servicio |
+|--------|--------|----------|
+| 1 | Solicitar cita medica | AppointmentService (50061) |
+| 2 | Consultar especialidad medica | MedicalService (50062) |
+| 3 | Reservar sesion de gimnasio | GymService (50063) |
+| 4 | Reservar recurso recreativo | RecreationService (50064) |
+| 5 | Salir | — |
+
+**Decisiones de diseno:** A diferencia del cliente de la guia 6.2, este cliente no tiene una opcion "consultar todo" porque los 4 servicios son semanticamente distintos (no hay una entidad unificadora como la pelicula). Cada opcion consulta un servicio diferente.
+
+#### Paso 4 — Ejecucion
+
+```bash
+# Compilar desde la raiz
+mvn clean compile
+
+# Terminal 1 — AppointmentService
+mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.appointment.AppointmentServer"
+
+# Terminal 2 — MedicalService
+mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.medical.MedicalServer"
+
+# Terminal 3 — GymService
+mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.gym.GymServer"
+
+# Terminal 4 — RecreationService
+mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.recreation.RecreationServer"
+
+# Terminal 5 — Cliente
+mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.WellnessClient"
+```
+
+**Prueba esperada:**
+
+```
+Terminal 1:
+Appointment Microservicio iniciado en puerto 50061
+
+Terminal 2:
+Medical Microservicio iniciado en puerto 50062
+
+Terminal 3:
+Gym Microservicio iniciado en puerto 50063
+
+Terminal 4:
+Recreation Microservicio iniciado en puerto 50064
+
+Terminal 5:
+=== Sistema de Bienestar (Microservicios) ===
+
+--- Solicitar cita medica ---
+Seleccione una opcion: 1
+ID del estudiante: S123
+Tipo de servicio (MEDICINE, PSYCHOLOGY, DENTISTRY): MEDICINE
+Fecha (YYYY-MM-DD): 2026-06-15
+Cita solicitada exitosamente
+  ID cita: a1b2c3d4 | Fecha: 2026-06-15 | Estado: REQUESTED
+
+--- Consultar especialidad medica ---
+Seleccione una opcion: 2
+Codigo de especialidad (MED01, MED02, MED03): MED01
+Especialidad: Medicina General
+Descripcion: Atencion medica primaria y prevencion
+Disponible: Si
+
+--- Reservar sesion de gimnasio ---
+Seleccione una opcion: 3
+ID del estudiante: S123
+Horario (ej: Lunes 10:00): Lunes 10:00
+Sesion reservada exitosamente
+  ID sesion: e5f6g7h8
+
+--- Reservar recurso recreativo ---
+Seleccione una opcion: 4
+ID del estudiante: S123
+ID del recurso (REC01, REC02, REC03): REC01
+Recurso reservado exitosamente
+```
+
+#### Paso 5 — Verificacion
 
 ```bash
 mvn clean compile
-mvn exec:java -Dexec.mainClass="edu.eci.arsw.excercise6_3.appointment.AppointmentServer"
-mvn exec:java -Dexec.mainClass="edu.eci.arsw.excercise6_3.medical.MedicalServer"
-mvn exec:java -Dexec.mainClass="edu.eci.arsw.excercise6_3.gym.GymServer"
-mvn exec:java -Dexec.mainClass="edu.eci.arsw.excercise6_3.recreation.RecreationServer"
+# BUILD SUCCESS — 5 modulos compilados
+```
+
+### Comparacion: Bienestar gRPC unico (Ejercicio 5.3) vs Microservicios (Ejercicio 6.3)
+
+| Aspecto | Ejercicio 5.3 (gRPC unico) | Ejercicio 6.3 (microservicios) |
+|---------|----------------------------|-------------------------------|
+| **Numero de procesos** | 2 (servidor + cliente) | 5 (4 servidores + 1 cliente) |
+| **Puertos** | 1 (50061) | 4 (50061-50064) |
+| **Contratos** | 1 `.proto` con 3 RPCs | 4 `.proto` con 2-3 RPCs cada uno |
+| **Canales cliente** | 1 canal | 4 canales |
+| **Responsabilidad** | Un solo servicio de bienestar | 4 servicios especializados |
+| **Datos** | Citas en un solo HashMap | Cada servicio con sus propios datos |
+
+### Preguntas de reflexion
+
+1. **?Por que se necesitan nombres de mensaje unicos entre los 4 `.proto`?**
+   - protobuf usa un espacio de nombres global para tipos de mensaje cuando se compilan varios `.proto` juntos. Si dos archivos definen `Empty`, protoc lanza error. La solucion es usar nombres descriptivos como `MedicalEmpty`, `RecreationEmpty` y `GymEmpty`.
+
+2. **?Que ventaja tiene separar AppointmentService de los demas servicios?**
+   - AppointmentService es el unico servicio con estado mutable completo (crear, cancelar, eliminar, reprogramar citas). Los otros servicios son principalmente consulta + reserva simple. Separarlos permite escalar AppointmentService independientemente si hay mucha demanda de citas.
+
+3. **?Como se compara este diseno con el ejercicio 5.3?**
+   - En 5.3, todo el dominio de bienestar estaba en un solo servidor con 3 RPCs. En 6.3, hay 4 servidores especializados con 17 RPCs en total (5+4+4+4). La ventaja es independencia de despliegue; la desventaja es que el cliente necesita 4 conexiones y gestiona mas operaciones.
+
+4. **?Que patron de eliminacion se uso en cada servicio y por que?**
+   - AppointmentService ofrece dos modos: `CancelAppointment` (soft delete, cambia Status a CANCELLED) y `DeleteAppointment` (hard delete, remueve del mapa). GymService solo soft delete via `CancelSession` (active=false). RecreationService usa toggle con `ReturnResource` (available=true). MedicalService usa hard delete directo con `RemoveSpecialty`. La decision depende del dominio: las citas medicas requieren auditoria (soft), los recursos recreativos necesitan retorno (toggle), las especialidades son datos maestros (hard).
+
+### Como ejecutar
+
+```bash
+# Compilar desde la raiz
+mvn clean compile
+
+# Terminal 1 — AppointmentService
+mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.appointment.AppointmentServer"
+
+# Terminal 2 — MedicalService
+mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.medical.MedicalServer"
+
+# Terminal 3 — GymService
+mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.gym.GymServer"
+
+# Terminal 4 — RecreationService
+mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.recreation.RecreationServer"
+
+# Terminal 5 — Cliente
+mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.WellnessClient"
 ```
 
 ---
@@ -2288,7 +2787,7 @@ mvn exec:java -Dexec.mainClass="edu.eci.arsw.excercise6_3.recreation.RecreationS
 
 **Paquete:** `src/edu/eci/arsw/guide7_2/`
 
-**Estado:** :white_large_square: No implementado — pendiente.
+**Estado:** :ballot_box_with_check: Implementada.
 
 ### Descripcion
 
@@ -2296,11 +2795,83 @@ API Gateway que centraliza el acceso a los microservicios de peliculas (MovieSer
 
 El Gateway recibe una solicitud unificada, consulta internamente los 3 servicios y consolida la respuesta. Esto resuelve el problema de acoplamiento cliente-servicios que surge en la guia 6.2.
 
-### Como ejecutar (cuando este implementado)
+### Arquitectura
+
+`MovieGateway` ejecuta un servidor HTTP (`com.sun.net.httpserver.HttpServer`) en el puerto 8082. Internamente crea 3 canales gRPC (uno a cada microservicio) y actua como cliente gRPC. El cliente solo necesita HTTP (navegador, curl) y desconoce completamente la topologia gRPC detras del Gateway.
+
+| Endpoint | Metodo | Descripcion | Delega a |
+|----------|--------|-------------|----------|
+| `/movie?id=X` | GET | Consultar informacion de pelicula | MovieService (50051) |
+| `/review?movieId=X` | GET | Consultar resena | ReviewService (50052) |
+| `/recommendation?movieId=X` | GET | Consultar recomendaciones | RecommendationService (50053) |
+| `/consolidated?id=X` | GET | Consultar los 3 servicios a la vez | Todos los microservicios |
+
+### Novedades respecto a Microservicios (Guia 6.2)
+
+| Aspecto | Guia 6.2 (sin Gateway) | Guia 7.2 (con Gateway) |
+|---------|----------------------|----------------------|
+| **Procesos** | 4 (3 servidores + cliente) | 4 (3 servidores + Gateway) |
+| **Puertos que conoce el cliente** | 3 (50051, 50052, 50053) | 1 (8082) |
+| **Protocolo del cliente** | gRPC (Java) | HTTP (cualquier lenguaje) |
+| **Descubrimiento** | Client-Side Discovery | Server-Side Discovery |
+| **Acoplamiento** | Cliente acoplado a topologia | Cliente desacoplado |
+
+### Archivos
+
+| Archivo | Descripcion |
+|---------|-------------|
+| `pom.xml` | Configuracion Maven con dependencia a `guide6_2-microservices` |
+| `MovieGateway.java` | Servidor HTTP (puerto 8082) + cliente gRPC para los 3 microservicios |
+
+### Conceptos clave
+
+1. **Inversion de descubrimiento:** En guia 6.2, el cliente descubria los servicios (Client-Side Discovery). En guia 7.2, el Gateway descubre los servicios y el cliente solo conoce el Gateway (Server-Side Discovery).
+2. **Gateway como adaptador de protocolo:** Los microservicios hablan gRPC, pero el Gateway expone HTTP. Cualquier cliente HTTP (curl, navegador, Postman) puede consumir los servicios sin necesidad de gRPC.
+3. **Punto unico de entrada:** Un solo puerto (8082) reemplaza 3 puertos. Esto simplifica el cliente drasticamente.
+4. **Dependencia Maven entre modulos:** `guide7_2` declara dependencia en `guide6_2-microservices` para reutilizar las clases generadas por protobuf. Maven reactor compila guide6_2 antes que guide7_2.
+
+### Flujo detallado
+
+1. `MovieGateway` inicia `HttpServer` en puerto 8082 y registra 4 contextos (`/movie`, `/review`, `/recommendation`, `/consolidated`).
+2. El cliente HTTP hace una solicitud (ej: `curl "http://localhost:8082/movie?id=1"`).
+3. `HttpServer` invoca el handler correspondiente.
+4. El handler extrae los parametros de la query string.
+5. El handler crea la solicitud gRPC y llama al stub del microservicio correspondiente.
+6. La respuesta gRPC se convierte a HTML y se envía como respuesta HTTP.
+
+### Preguntas de reflexion
+
+1. **?Que problema resuelve el Gateway respecto a la guia 6.2?**
+   - En guia 6.2, el cliente conocia 3 puertos (50051, 50052, 50053). Si algun puerto cambiaba, todos los clientes debian actualizarse. El Gateway oculta esta topologia: el cliente solo conoce el puerto 8082.
+
+2. **?Cual es el trade-off de anadir un Gateway?**
+   - **Pro:** Simplicidad del cliente (un puerto, un protocolo), enrutamiento centralizado, capacidad de anadir concerns transversales (logging, cache, rate-limiting).
+   - **Con:** Punto unico de falla, salto de red extra (latencia), complejidad operativa (un proceso mas que administrar).
+
+3. **?Como se compara con el patron usado en guia 6.2 (client-side discovery)?**
+   - Guia 6.2 usa Client-Side Discovery: el cliente consulta un registro de servicios (o tiene puertos hardcodeados) y llama a los servicios directamente. Guia 7.2 usa Server-Side Discovery: un Gateway es el unico punto de entrada y enruta las solicitudes a los servicios apropiados.
+
+### Como ejecutar
 
 ```bash
-javac -d bin src/edu/eci/arsw/guide7_2/*.java
-java -cp bin edu.eci.arsw.guide7_2.MovieGateway
+# Paso 1 — Instalar todos los artefactos (necesario para resolver dependencias del gateway)
+mvn install -DskipTests
+
+# Terminal 1 — MovieService
+mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass=edu.eci.arsw.guide6_2.movie.MovieServiceServer
+
+# Terminal 2 — ReviewService
+mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass=edu.eci.arsw.guide6_2.review.ReviewServiceServer
+
+# Terminal 3 — RecommendationService
+mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass=edu.eci.arsw.guide6_2.recommendation.RecommendationServiceServer
+
+# Terminal 4 — Gateway
+mvn exec:java -f src/edu/eci/arsw/guide7_2/pom.xml -Dexec.mainClass=edu.eci.arsw.guide7_2.MovieGateway
+
+# Pruebas con curl
+curl "http://localhost:8082/movie?id=1"
+curl "http://localhost:8082/consolidated?id=1"
 ```
 
 ---
@@ -2309,56 +2880,225 @@ java -cp bin edu.eci.arsw.guide7_2.MovieGateway
 
 **Paquete:** `src/edu/eci/arsw/excercise7_3/`
 
-**Estado:** :white_large_square: No implementado — pendiente.
+**Estado:** :ballot_box_with_check: Implementada.
 
 ### Descripcion
 
-Gateway para centralizar el acceso a los servicios de bienestar universitario: AppointmentService, MedicalService, GymService, RecreationService.
+Gateway para centralizar el acceso a los servicios de bienestar universitario: AppointmentService, MedicalService, GymService, RecreationService. Sigue el mismo patron de la Guia 7.2 pero aplicado a los 4 microservicios de bienestar.
 
-### Operaciones minimas
+### Arquitectura
 
-- `requestAppointment(studentId, serviceType)`
-- `getStudentWellnessSummary(studentId)`
-- `reserveGymSession(studentId, timeSlot)`
-- `reserveRecreationResource(studentId, resourceId)`
+`WellnessGateway` ejecuta un servidor HTTP en el puerto 8083 y crea internamente 4 canales gRPC (uno a cada microservicio de bienestar). El cliente usa HTTP y desconoce la topologia gRPC.
 
-### Como ejecutar (cuando este implementado)
+| Endpoint | Metodo | Descripcion | Delega a |
+|----------|--------|-------------|----------|
+| `/appointment?studentId=X&serviceType=Y&date=Z` | POST | Crear cita | AppointmentService (50061) |
+| `/wellness-summary?studentId=X` | GET | Consultar todos los datos de bienestar de un estudiante | Los 4 servicios |
+| `/gym/reserve?studentId=X&timeSlot=Y` | POST | Reservar sesion de gimnasio | GymService (50063) |
+| `/recreation/reserve?studentId=X&resourceId=Y` | POST | Reservar recurso recreativo | RecreationService (50064) |
+
+### Archivos
+
+| Archivo | Descripcion |
+|---------|-------------|
+| `pom.xml` | Configuracion Maven con dependencia a `excercise6_3-wellness-microservices` |
+| `WellnessGateway.java` | Servidor HTTP (puerto 8083) + cliente gRPC para los 4 microservicios |
+
+### Operaciones
+
+| Operacion | HTTP | Parametros | Accion del Gateway |
+|-----------|------|------------|-------------------|
+| `requestAppointment` | `POST /appointment` | studentId, serviceType, date | Llama `appointmentStub.requestAppointment()` |
+| `getStudentWellnessSummary` | `GET /wellness-summary` | studentId | Llama los 4 stubs y consolida en una pagina HTML |
+| `reserveGymSession` | `POST /gym/reserve` | studentId, timeSlot | Llama `gymStub.reserveSession()` |
+| `reserveRecreationResource` | `POST /recreation/reserve` | studentId, resourceId | Llama `recreationStub.reserveResource()` |
+
+### Conceptos clave
+
+1. **Mismo patron que Guia 7.2:** Front-end HTTP, back-end gRPC, un solo proceso en un solo puerto.
+2. **Endpoint consolidado:** `/wellness-summary` consulta los 4 servicios y construye una unica pagina HTML con secciones para citas, especialidades, sesiones de gimnasio y recursos recreativos.
+3. **Semantica de metodos HTTP:** POST para operaciones que cambian estado (crear cita, reservar), GET para consultas de solo lectura (resumen).
+4. **Manejo de errores:** Retorna 400 para parametros faltantes, 405 para metodo HTTP incorrecto, y mensajes de error HTML informativos.
+
+### Preguntas de reflexion
+
+1. **?Como mejora el Gateway la experiencia del cliente respecto al ejercicio 6.3?**
+   - En ejercicio 6.3, el cliente necesitaba 4 canales gRPC, 4 stubs, un cliente Java complejo y conocer 4 puertos. Con el Gateway, el cliente solo necesita HTTP y una URL. Cualquier lenguaje o herramienta (curl, navegador, Postman) puede interactuar con el sistema de bienestar.
+
+2. **?Cuales son las implicaciones de escalabilidad del endpoint wellness-summary?**
+   - `/wellness-summary` llama a los 4 servicios secuencialmente. Si un servicio es lento, toda la respuesta se retrasa. Esto podria mejorarse con llamadas paralelas (un hilo por servicio) pero anade complejidad. Para escenarios de baja carga, secuencial es mas simple y suficiente.
+
+3. **?Que sucede si uno de los microservicios backend esta caido?**
+   - El Gateway lanzara una `StatusRuntimeException` de gRPC. En la implementacion actual, esto propaga como error 500. Un Gateway de produccion anadiria reintentos, circuit breakers y degradacion gradual (retornar resultados parciales).
+
+### Como ejecutar
 
 ```bash
-javac -d bin src/edu/eci/arsw/excercise7_3/*.java
-java -cp bin edu.eci.arsw.excercise7_3.WellnessGateway
+# Paso 1 — Instalar todos los artefactos (necesario para resolver dependencias del gateway)
+mvn install -DskipTests
+
+# Terminal 1 — AppointmentService
+mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass=edu.eci.arsw.excercise6_3.appointment.AppointmentServer
+
+# Terminal 2 — MedicalService
+mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass=edu.eci.arsw.excercise6_3.medical.MedicalServer
+
+# Terminal 3 — GymService
+mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass=edu.eci.arsw.excercise6_3.gym.GymServer
+
+# Terminal 4 — RecreationService
+mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass=edu.eci.arsw.excercise6_3.recreation.RecreationServer
+
+# Terminal 5 — Gateway
+mvn exec:java -f src/edu/eci/arsw/excercise7_3/pom.xml -Dexec.mainClass=edu.eci.arsw.excercise7_3.WellnessGateway
+
+# Pruebas con curl
+curl -X POST "http://localhost:8083/appointment?studentId=S123&serviceType=MEDICINE&date=2026-06-15"
+curl "http://localhost:8083/wellness-summary?studentId=S123"
 ```
 
 ---
 
 ## Ejercicio 8 - ECICIENCIA
 
-**Paquete:** `src/edu/eci/arsw/excercise8/`
+**Paquete:** Modulo Maven en `src/edu/eci/arsw/excercise8/`
 
-**Estado:** :white_large_square: No implementado — pendiente.
+**Estado:** :white_check_mark: Implementado y funcional.
 
 ### Descripcion
 
-Ejercicio integrador final: disenar la arquitectura de una plataforma distribuida para la gestion del evento ECICIENCIA. Incluye registro de asistentes, consulta de agenda, reserva de talleres y control de aforo.
+Ejercicio integrador final: plataforma distribuida completamente implementada para la gestion del evento ECICIENCIA. Tres microservicios gRPC (AttendeeService, AgendaService, WorkshopService) y un API Gateway que expone endpoints HTTP.
 
-### Servicios propuestos
+### Arquitectura
 
-| Servicio | Puerto | Responsabilidad |
-|----------|--------|----------------|
-| AttendeeService | 8091 | Registro de asistentes |
-| AgendaService | 8092 | Consulta de agenda y aforo |
-| WorkshopService | 8093 | Reserva de talleres |
-| Gateway | — | Punto de entrada unificado |
+```
+Cliente / Navegador
+      |
+      v
+ECICIENCIA Gateway (:8090) — HTTP (JDK)
+      |
+      +--- gRPC → AttendeeService (:8091)
+      +--- gRPC → AgendaService    (:8092)
+      +--- gRPC → WorkshopService  (:8093)
+```
 
-### Como ejecutar (cuando este implementado)
+### 8.1 Contratos gRPC
+
+Archivo: `src/edu/eci/arsw/excercise8/src/main/proto/eciciencia.proto`
+
+Define 3 servicios con 10 RPCs total:
+
+| Servicio | RPCs | Puerto |
+|----------|------|--------|
+| AttendeeService | RegisterAttendee, GetAttendee, ListAttendees | 8091 |
+| AgendaService | GetActivitiesByTimeSlot, GetActivityDetails, CheckCapacity | 8092 |
+| WorkshopService | ReserveSpot, CancelReservation, GetAttendeeReservations, GetAvailableSpots | 8093 |
+
+### 8.2 Servidores Implementados
+
+**AttendeeServer** — Puerto 8091. Datos precargados (Carlos Perez ID=1, Maria Gomez ID=2). Los IDs nuevos se autoincrementan.
+
+**AgendaServer** — Puerto 8092. 4 actividades precargadas con titulo, ponente, ubicacion, horario, aforo maximo y contador de registrados.
+
+**WorkshopServer** — Puerto 8093. Reservas con logica de lista de espera: si el aforo esta lleno, la reserva entra en estado WAITING con posicion en cola. Cancelacion libera cupo y actualiza el contador.
+
+### 8.3 API Gateway
+
+**EcicienciaGateway** — Puerto 8090. Usa `com.sun.net.httpserver.HttpServer`. Stubs gRPC para los 3 servicios internos.
+
+| Metodo | Ruta | Parametros | Descripcion |
+|--------|------|-----------|-------------|
+| GET | `/attendee` | `id` | Obtener asistente por ID |
+| POST | `/attendee/register` | `name`, `email` | Registrar nuevo asistente |
+| GET | `/agenda` | `start`, `end` | Actividades por franja horaria |
+| GET | `/agenda/activity` | `id` | Detalle + aforo de actividad |
+| POST | `/workshop/reserve` | `attendeeId`, `activityId` | Reservar cupo |
+| POST | `/workshop/cancel` | `reservationId` | Cancelar reserva |
+| GET | `/workshop/attendee` | `id` | Reservas de un asistente |
+| GET | `/consolidated` | `id` | Info completa + reservas |
+
+### 8.4 Como compilar y ejecutar
 
 ```bash
-javac -d bin src/edu/eci/arsw/excercise8/**/*.java
-java -cp bin edu.eci.arsw.excercise8.attendee.AttendeeServer     # Terminal 1
-java -cp bin edu.eci.arsw.excercise8.agenda.AgendaServer         # Terminal 2
-java -cp bin edu.eci.arsw.excercise8.workshop.WorkshopServer     # Terminal 3
-java -cp bin edu.eci.arsw.excercise8.gateway.EcicienciaGateway    # Terminal 4
+# Desde la raiz: instalar dependencias primero
+mvn install -DskipTests
+
+# Terminal 1: AttendeeService (puerto 8091)
+mvn exec:java -pl src/edu/eci/arsw/excercise8 -Dexec.mainClass="edu.eci.arsw.excercise8.attendee.AttendeeServer"
+
+# Terminal 2: AgendaService (puerto 8092)
+mvn exec:java -pl src/edu/eci/arsw/excercise8 -Dexec.mainClass="edu.eci.arsw.excercise8.agenda.AgendaServer"
+
+# Terminal 3: WorkshopService (puerto 8093)
+mvn exec:java -pl src/edu/eci/arsw/excercise8 -Dexec.mainClass="edu.eci.arsw.excercise8.workshop.WorkshopServer"
+
+# Terminal 4: Gateway (puerto 8090)
+mvn exec:java -pl src/edu/eci/arsw/excercise8 -Dexec.mainClass="edu.eci.arsw.excercise8.gateway.EcicienciaGateway"
 ```
+
+> **Nota:** Usamos `-pl src/edu/eci/arsw/excercise8` (project list por ruta del modulo) desde la raiz. Esto evita los problemas de quoting en Windows que ocurren con `-f` y comillas simples. Si prefieres `-f`, usa comillas dobles:  
+> `mvn exec:java -f src/edu/eci/arsw/excercise8/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise8.attendee.AttendeeServer"`
+
+### 8.5 Pruebas con curl
+
+```powershell
+# 1. Registrar nuevo asistente
+curl -X POST "http://localhost:8090/attendee/register?name=Ana+Lopez&email=ana@mail.com"
+
+# 2. Consultar asistente
+curl "http://localhost:8090/attendee?id=1"
+
+# 3. Agenda en franja matutina (09:00 - 12:00)
+curl "http://localhost:8090/agenda?start=09:00&end=12:00"
+
+# 4. Detalle de actividad con aforo
+curl "http://localhost:8090/agenda/activity?id=2"
+
+# 5. Reservar cupo en taller
+curl -X POST "http://localhost:8090/workshop/reserve?attendeeId=1&activityId=2"
+
+# 6. Reservas del asistente
+curl "http://localhost:8090/workshop/attendee?id=1"
+
+# 7. Info consolidada
+curl "http://localhost:8090/consolidated?id=1"
+
+# 8. Cancelar reserva
+curl -X POST "http://localhost:8090/workshop/cancel?reservationId=2"
+```
+
+### 8.6 Salida esperada
+
+Todas las respuestas son HTML. Ejemplos:
+
+- Registro exitoso: `<h1>Asistente registrado</h1><p>ID: 3 | Nombre: Ana Lopez | Email: ana@mail.com</p>`
+- Reserva confirmada: `<h1>Reserva confirmada para actividad 2</h1><p>ID reserva: 2 | Estado: CONFIRMED</p>`
+- Aforo: `<p>Aforo: 18/20 (2 disponibles)</p>`
+- Error parametros: `<h1>Faltan parametros: attendeeId, activityId</h1>` (HTTP 400)
+
+### 8.7 Decisiones de Diseno
+
+- **Modulo Maven con protobuf plugin:** Sigue el mismo patron de guide5_2 y excercise5_3.
+- **gRPC para comunicacion interna:** Contratos formales detectan errores en compilacion.
+- **Gateway como adaptador:** Clientes externos usan HTTP; nunca necesitan protobuf.
+- **Lista de espera en WorkshopService:** Si el aforo esta lleno, la reserva entra en WAITING con posicion en cola.
+- **Estado en memoria:** Datos precargados para pruebas inmediatas. Consistente con el resto del taller.
+- **Nombres de mensajes unicos:** `RegisterRequest` (Attendee) vs `ReserveRequest` (Workshop) evitan colisiones.
+
+### 8.8 Reflexion sobre la Evolucion Arquitectonica
+
+El taller traza una progresion clara a traves de seis estilos, cada uno resolviendo un problema del anterior:
+
+1. **Sockets TCP** — Protocolo manual (`MOVIE:id`), solo Java. Aprendimos el cable, pero impractico.
+2. **HTTP** — Estructura estandar, cualquier navegador. Pero sin contratos formales.
+3. **RMI** — Llamadas remotas como locales. Solo JVM.
+4. **gRPC** — Contratos `.proto`, tipado fuerte, multilenguaje.
+5. **Microservicios** — Responsabilidades separadas. Cliente conoce demasiados puertos.
+6. **API Gateway** — Punto de entrada unico. Cliente simplificado.
+
+ECICIENCIA compone gRPC (estilo 4), microservicios (estilo 5) y Gateway (estilo 6). Los estilos inferiores no se usan directamente, pero entenderlos explica por que existen los superiores.
+
+**Leccion clave:** No hay estilo "mejor" absoluto. Cada decision es un intercambio entre control, simplicidad, interoperabilidad y acoplamiento.
 
 ---
 
@@ -2366,23 +3106,27 @@ java -cp bin edu.eci.arsw.excercise8.gateway.EcicienciaGateway    # Terminal 4
 
 | Componente | Tecnologia | Puerto |
 |-----------|------------|--------|
-| MovieServer TCP | Java Sockets | 35000 |
-| RoomServer TCP | Java Sockets | 36000 |
+| MovieServer (TCP) | Java Sockets | 35000 |
+| RoomServer (TCP) | Java Sockets | 36000 |
 | MovieHttpServer | com.sun.net.httpserver | 8080 |
 | RoomHttpServer | com.sun.net.httpserver | 8081 |
-| MovieService RMI | Java RMI | 23000 |
-| LaboratoryService RMI | Java RMI | 24000 |
-| MovieGrpcServer | gRPC | 50051 |
-| ReviewGrpcServer | gRPC | 50052 |
-| RecommendationGrpcServer | gRPC | 50053 |
-| BienestarGrpcServer | gRPC | 50060 |
-| AppointmentMicroservice | gRPC | 50061 |
-| MedicalMicroservice | gRPC | 50062 |
-| GymMicroservice | gRPC | 50063 |
-| RecreationMicroservice | gRPC | 50064 |
-| AttendeeService | HTTP (JDK) | 8091 |
-| AgendaService | HTTP (JDK) | 8092 |
-| WorkshopService | HTTP (JDK) | 8093 |
+| MovieGateway (Guia 7.2) | HTTP (JDK) | 8082 |
+| WellnessGateway (Ejercicio 7.3) | HTTP (JDK) | 8083 |
+| MovieService (RMI) | Java RMI | 23000 |
+| EquipmentService (RMI) | Java RMI | 24000 |
+| MovieGrpcServer (Guia 5.2) | gRPC | 50051 |
+| MovieService (Microservicio Guia 6.2) | gRPC | 50051 |
+| ReviewService (Microservicio Guia 6.2) | gRPC | 50052 |
+| RecommendationService (Microservicio Guia 6.2) | gRPC | 50053 |
+| WellnessGrpcServer (Ejercicio 5.3) | gRPC | 50061 |
+| AppointmentService (Microservicio Ejercicio 6.3) | gRPC | 50061 |
+| MedicalService (Microservicio Ejercicio 6.3) | gRPC | 50062 |
+| GymService (Microservicio Ejercicio 6.3) | gRPC | 50063 |
+| RecreationService (Microservicio Ejercicio 6.3) | gRPC | 50064 |
+| ECICIENCIA Gateway | HTTP (JDK) | 8090 |
+| AttendeeService (Ejercicio 8) | gRPC | 8091 |
+| AgendaService (Ejercicio 8) | gRPC | 8092 |
+| WorkshopService (Ejercicio 8) | gRPC | 8093 |
 
 ---
 

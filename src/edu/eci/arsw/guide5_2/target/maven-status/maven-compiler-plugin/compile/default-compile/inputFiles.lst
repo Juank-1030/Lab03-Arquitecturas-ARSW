@@ -1,8 +1,8 @@
-E:\ARSW\Laboratorios\Lab03\Lab03-Arquitecturas-ARSW\src\edu\eci\arsw\guide5_2\src\main\java\edu\eci\arsw\movie\MovieGrpcClient.java
-E:\ARSW\Laboratorios\Lab03\Lab03-Arquitecturas-ARSW\src\edu\eci\arsw\guide5_2\src\main\java\edu\eci\arsw\movie\MovieGrpcServer.java
-E:\ARSW\Laboratorios\Lab03\Lab03-Arquitecturas-ARSW\src\edu\eci\arsw\guide5_2\target\generated-sources\protobuf\grpc-java\edu\eci\arsw\movie\MovieServiceGrpc.java
-E:\ARSW\Laboratorios\Lab03\Lab03-Arquitecturas-ARSW\src\edu\eci\arsw\guide5_2\target\generated-sources\protobuf\java\edu\eci\arsw\movie\MovieProto.java
-E:\ARSW\Laboratorios\Lab03\Lab03-Arquitecturas-ARSW\src\edu\eci\arsw\guide5_2\target\generated-sources\protobuf\java\edu\eci\arsw\movie\MovieRequest.java
-E:\ARSW\Laboratorios\Lab03\Lab03-Arquitecturas-ARSW\src\edu\eci\arsw\guide5_2\target\generated-sources\protobuf\java\edu\eci\arsw\movie\MovieRequestOrBuilder.java
-E:\ARSW\Laboratorios\Lab03\Lab03-Arquitecturas-ARSW\src\edu\eci\arsw\guide5_2\target\generated-sources\protobuf\java\edu\eci\arsw\movie\MovieResponse.java
-E:\ARSW\Laboratorios\Lab03\Lab03-Arquitecturas-ARSW\src\edu\eci\arsw\guide5_2\target\generated-sources\protobuf\java\edu\eci\arsw\movie\MovieResponseOrBuilder.java
+E:\ARSW\Laboratorios\Lab03\Lab03-Arquitecturas-ARSW\src\edu\eci\arsw\guide5_2\src\main\java\edu\eci\arsw\guide5_2\MovieGrpcClient.java
+E:\ARSW\Laboratorios\Lab03\Lab03-Arquitecturas-ARSW\src\edu\eci\arsw\guide5_2\src\main\java\edu\eci\arsw\guide5_2\MovieGrpcServer.java
+E:\ARSW\Laboratorios\Lab03\Lab03-Arquitecturas-ARSW\src\edu\eci\arsw\guide5_2\target\generated-sources\protobuf\grpc-java\edu\eci\arsw\guide5_2\MovieServiceGrpc.java
+E:\ARSW\Laboratorios\Lab03\Lab03-Arquitecturas-ARSW\src\edu\eci\arsw\guide5_2\target\generated-sources\protobuf\java\edu\eci\arsw\guide5_2\MovieProto.java
+E:\ARSW\Laboratorios\Lab03\Lab03-Arquitecturas-ARSW\src\edu\eci\arsw\guide5_2\target\generated-sources\protobuf\java\edu\eci\arsw\guide5_2\MovieRequest.java
+E:\ARSW\Laboratorios\Lab03\Lab03-Arquitecturas-ARSW\src\edu\eci\arsw\guide5_2\target\generated-sources\protobuf\java\edu\eci\arsw\guide5_2\MovieRequestOrBuilder.java
+E:\ARSW\Laboratorios\Lab03\Lab03-Arquitecturas-ARSW\src\edu\eci\arsw\guide5_2\target\generated-sources\protobuf\java\edu\eci\arsw\guide5_2\MovieResponse.java
+E:\ARSW\Laboratorios\Lab03\Lab03-Arquitecturas-ARSW\src\edu\eci\arsw\guide5_2\target\generated-sources\protobuf\java\edu\eci\arsw\guide5_2\MovieResponseOrBuilder.java

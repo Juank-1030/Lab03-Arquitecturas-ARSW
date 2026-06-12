@@ -1,0 +1,20 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>edu.eci.arsw</groupId>
+    <artifactId>lab03-arquitecturas-arsw</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>src/edu/eci/arsw/guide5_2</module>
+        <module>src/edu/eci/arsw/excercise5_3</module>
+        <module>src/edu/eci/arsw/guide6_2</module>
+        <module>src/edu/eci/arsw/excercise6_3</module>
+        <module>src/edu/eci/arsw/guide7_2</module>
+        <module>src/edu/eci/arsw/excercise7_3</module>
+        <module>src/edu/eci/arsw/excercise8</module>
+    </modules>
+</project>

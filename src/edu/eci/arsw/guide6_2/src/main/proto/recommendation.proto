@@ -1,0 +1,18 @@
+syntax = "proto3";
+option java_multiple_files = true;
+option java_package = "edu.eci.arsw.guide6_2.recommendation";
+option java_outer_classname = "RecommendationProto";
+
+service RecommendationService {
+  rpc GetRecommendation (RecommendationRequest) returns (RecommendationResponse);
+}
+
+message RecommendationRequest {
+  int32 movieId = 1;
+}
+
+message RecommendationResponse {
+  int32 movieId = 1;
+  repeated int32 recommendedIds = 2;
+  bool found = 3;
+}

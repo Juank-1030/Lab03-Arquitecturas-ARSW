@@ -45,25 +45,37 @@ This document traces the progressive evolution of distributed communication mech
 
 | Term | Section | Description |
 |------|---------|-------------|
-| Socket TCP | [Guide 2.2](#3-guide-22---movieserver-tcp) | Bidirectional communication channel between two processes over a network |
-| ServerSocket | [Guide 2.2](#3-guide-22---movieserver-tcp) | JDK class that allows a server to listen for incoming connections on a port |
+| Socket TCP | [Guide 2.2](#3-guide-22---movieserver-tcp), [Exercise 2.3](#4-exercise-23---roomclient-tcp) | Bidirectional communication channel between two processes over a network |
+| ServerSocket | [Guide 2.2](#3-guide-22---movieserver-tcp), [Exercise 2.3](#4-exercise-23---roomclient-tcp) | JDK class that allows a server to listen for incoming connections on a port |
 | Application Protocol | [Guide 2.2](#3-guide-22---movieserver-tcp) | Format convention (e.g. `MOVIE:id`) agreed upon by client and server above TCP |
-| HTTP | [Guide 3.2](#5-guide-32---moviehttpserver) | Standard application protocol with method, path, headers, and body |
-| HttpServer | [Guide 3.2](#5-guide-32---moviehttpserver) | JDK built-in HTTP server (`com.sun.net.httpserver`) |
-| RMI | [Guide 4.2](#7-guide-42---movieservice-rmi) | Remote Method Invocation — invoke methods on objects in remote JVMs |
+| HTTP | [Guide 3.2](#5-guide-32---moviehttpserver), [Exercise 3.3](#6-exercise-33---roomhttpserver) | Standard application protocol with method, path, headers, and body |
+| HttpServer | [Guide 3.2](#5-guide-32---moviehttpserver), [Exercise 3.3](#6-exercise-33---roomhttpserver) | JDK built-in HTTP server (`com.sun.net.httpserver`) |
+| REST-like API | [Exercise 3.3](#6-exercise-33---roomhttpserver) | Lightweight HTTP-based API using path segments for resource identifiers |
+| HTTP Status Codes | [Exercise 3.3](#6-exercise-33---roomhttpserver) | Standard codes (200 OK, 201 Created, 404 Not Found, 500 Server Error) indicating response outcome |
+| RMI | [Guide 4.2](#7-guide-42---movieservice-rmi), [Exercise 4.3](#8-exercise-43---equipmentservice-rmi) | Remote Method Invocation — invoke methods on objects in remote JVMs |
 | Remote Interface | [Guide 4.2](#7-guide-42---movieservice-rmi) | Java interface extending `java.rmi.Remote` that defines the remote contract |
-| RMI Registry | [Guide 4.2](#7-guide-42---movieservice-rmi) | Naming service that associates logical names with remote object references |
-| gRPC | [Guide 5.2](#9-guide-52---movieservice-grpc) | Modern RPC framework using Protocol Buffers over HTTP/2 |
-| .proto File | [Guide 5.2](#9-guide-52---movieservice-grpc) | Language-neutral contract file defining services and message types |
-| Protocol Buffers | [Guide 5.2](#9-guide-52---movieservice-grpc) | Binary serialization format with schema-driven, strongly-typed messages |
-| Microservices | [Guide 6.2](#11-guide-62---movie-microservices) | Architectural style dividing a system into small, autonomous, cohesive services |
-| API Gateway | [Guide 7.2](#13-guide-72---moviegateway) | Single entry point that routes client requests to internal services |
+| RMI Registry | [Guide 4.2](#7-guide-42---movieservice-rmi), [Exercise 4.3](#8-exercise-43---equipmentservice-rmi) | Naming service that associates logical names with remote object references |
+| UnicastRemoteObject | [Guide 4.2](#7-guide-42---movieservice-rmi), [Exercise 4.3](#8-exercise-43---equipmentservice-rmi) | JDK class that exports a remote object and creates a TCP listener for incoming RMI calls |
+| gRPC | [Guide 5.2](#9-guide-52---movieservice-grpc), [Exercise 5.3](#10-exercise-53---wellnessservice-grpc) | Modern RPC framework using Protocol Buffers over HTTP/2 |
+| .proto File | [Guide 5.2](#9-guide-52---movieservice-grpc), [Exercise 5.3](#10-exercise-53---wellnessservice-grpc) | Language-neutral contract file defining services and message types |
+| Protocol Buffers | [Guide 5.2](#9-guide-52---movieservice-grpc), [Exercise 5.3](#10-exercise-53---wellnessservice-grpc) | Binary serialization format with schema-driven, strongly-typed messages |
+| StreamObserver | [Exercise 5.3](#10-exercise-53---wellnessservice-grpc) | gRPC async callback interface for receiving responses on the server side |
+| BlockingStub | [Exercise 5.3](#10-exercise-53---wellnessservice-grpc) | gRPC synchronous stub that blocks the calling thread until the response arrives |
+| Protobuf Enum | [Exercise 5.3](#10-exercise-53---wellnessservice-grpc) | Enum type defined in `.proto` files (e.g. `ServiceType`, `Status`) for constrained string values |
+| Microservices | [Guide 6.2](#11-guide-62---movie-microservices), [Exercise 6.3](#12-exercise-63---wellness-microservices) | Architectural style dividing a system into small, autonomous, cohesive services |
+| Client-side Discovery | [Guide 6.2](#11-guide-62---movie-microservices), [Exercise 6.3](#12-exercise-63---wellness-microservices) | Pattern where the client knows the address of each service and connects directly |
+| Unique Message Names | [Exercise 6.3](#12-exercise-63---wellness-microservices) | Avoiding protobuf global namespace collisions by using distinct message names across `.proto` files in the same module (e.g. `MedicalEmpty` / `RecreationEmpty`) |
+| API Gateway | [Guide 7.2](#13-guide-72---moviegateway), [Exercise 7.3](#14-exercise-73---wellnessgateway), [Exercise 8](#15-exercise-8---eciciencia) | Single entry point that routes client requests to internal services |
+| Server-Side Discovery | [Guide 7.2](#13-guide-72---moviegateway), [Exercise 7.3](#14-exercise-73---wellnessgateway) | Pattern where the gateway knows service locations and the client only knows the gateway |
+| Protocol Adapter | [Guide 7.2](#13-guide-72---moviegateway), [Exercise 7.3](#14-exercise-73---wellnessgateway) | Gateway that translates between client protocol (HTTP) and backend protocol (gRPC) |
 
 ---
 
 ## 3. Guide 2.2 - MovieServer TCP
 
 **Package:** `src/edu/eci/arsw/guide2_2/`
+
+**Status:** :ballot_box_with_check: Implemented.
 
 ### Problem Statement
 
@@ -87,8 +99,8 @@ The system consists of two processes communicating via a TCP socket. `MovieServe
 | Command | Response |
 |---------|----------|
 | `MOVIE:<id>` | `id,title,director,year` |
-| Non-existent ID | `ERROR: movie not found` |
-| Invalid format | `ERROR: invalid format. Use MOVIE:id` |
+| Non-existent ID | `ERROR: pelicula no encontrada` |
+| Invalid format | `ERROR: formato invalido. Use MOVIE:id` |
 
 ### How to Build and Run
 
@@ -177,7 +189,7 @@ public class MovieServer {
     public static void main(String[] args) throws Exception {
         MovieRepository repository = new MovieRepository();
         ServerSocket serverSocket = new ServerSocket(35000);
-        System.out.println("MovieServer TCP listening on port 35000...");
+        System.out.println("MovieServer TCP escuchando en puerto 35000...");
 
         while (true) {
             Socket clientSocket = serverSocket.accept();
@@ -195,14 +207,14 @@ public class MovieServer {
 
     private static String processRequest(String request, MovieRepository repository) {
         if (request == null || !request.startsWith("MOVIE:"))
-            return "ERROR: invalid format. Use MOVIE:id";
+            return "ERROR: formato invalido. Use MOVIE:id";
         try {
             int id = Integer.parseInt(request.split(":")[1]);
             Movie movie = repository.findById(id);
-            if (movie == null) return "ERROR: movie not found";
+            if (movie == null) return "ERROR: pelicula no encontrada";
             return movie.toText();
         } catch (Exception e) {
-            return "ERROR: invalid request";
+            return "ERROR: solicitud invalida";
         }
     }
 }
@@ -222,7 +234,7 @@ import java.util.Scanner;
 public class MovieClient {
     public static void main(String[] args) throws Exception {
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter movie ID: ");
+        System.out.print("Ingrese el ID de la pelicula: ");
         String id = scanner.nextLine();
 
         Socket socket = new Socket("127.0.0.1", 35000);
@@ -232,7 +244,7 @@ public class MovieClient {
 
         out.println("MOVIE:" + id);
         String response = in.readLine();
-        System.out.println("Server response: " + response);
+        System.out.println("Respuesta del servidor: " + response);
 
         in.close();
         out.close();
@@ -263,19 +275,19 @@ public class MovieClient {
 
 ```
 Terminal 1:
-MovieServer TCP listening on port 35000...
+MovieServer TCP escuchando en puerto 35000...
 
-Terminal 2 (existing movie):
-Enter movie ID: 1
-Server response: 1,Interstellar,Christopher Nolan,2014
+Terminal 2 (sesion 1 — pelicula existente):
+Ingrese el ID de la pelicula: 1
+Respuesta del servidor: 1,Interstellar,Christopher Nolan,2014
 
-Terminal 2 (non-existent ID):
-Enter movie ID: 5
-Server response: ERROR: movie not found
+Terminal 2 (sesion 2 — ID inexistente):
+Ingrese el ID de la pelicula: 5
+Respuesta del servidor: ERROR: pelicula no encontrada
 
-Terminal 2 (invalid input):
-Enter movie ID: abc
-Server response: ERROR: invalid request
+Terminal 2 (sesion 3 — entrada invalida):
+Ingrese el ID de la pelicula: abc
+Respuesta del servidor: ERROR: solicitud invalida
 ```
 
 ---
@@ -283,6 +295,8 @@ Server response: ERROR: invalid request
 ## 4. Exercise 2.3 - Room Management TCP
 
 **Package:** `src/edu/eci/arsw/excercise2_3/`
+
+**Status:** :ballot_box_with_check: Implemented.
 
 ### Problem Statement
 
@@ -415,9 +429,9 @@ while (true) {
 #### RoomClient.java (key section)
 
 ```java
-System.out.print("Enter command (CONSULTAR_SALON, RESERVAR_SALON, LIBERAR_SALON): ");
+System.out.print("Ingrese comando (CONSULTAR_SALON, RESERVAR_SALON, LIBERAR_SALON): ");
 String command = scanner.nextLine().trim();
-System.out.print("Enter room code (E301, E302, E303, E304): ");
+System.out.print("Ingrese codigo del salon (E301, E302, E303, E304): ");
 String code = scanner.nextLine().trim();
 
 Socket socket = new Socket("127.0.0.1", 36000);
@@ -428,9 +442,9 @@ BufferedReader in = new BufferedReader(
 String message = command + "," + code;
 out.println(message);
 String response = in.readLine();
-System.out.println("Server response: " + response);
+System.out.println("Respuesta del servidor: " + response);
 ```
-
+ 
 ### Design Decisions
 
 - **String key for rooms:** Room codes like `E301` are alphanumeric, so `Map<String, Room>` is used instead of `Map<Integer, Room>`.
@@ -460,13 +474,13 @@ System.out.println("Server response: " + response);
 
 ```
 Terminal 1:
-RoomServer TCP listening on port 36000...
+RoomServer TCP escuchando en puerto 36000...
 
 Terminal 2:
-=== Room Management System ===
-Enter command (CONSULTAR_SALON, RESERVAR_SALON, LIBERAR_SALON): CONSULTAR_SALON
-Enter room code (E301, E302, E303, E304): E303
-Server response: SALON_DISPONIBLE
+=== Sistema de Gestion de Salones ===
+Ingrese comando (CONSULTAR_SALON, RESERVAR_SALON, LIBERAR_SALON): CONSULTAR_SALON
+Ingrese codigo del salon (E301, E302, E303, E304): E303
+Respuesta del servidor: SALON_DISPONIBLE
 
 Complete sequence:
 CONSULTAR_SALON, E303  -> SALON_DISPONIBLE
@@ -488,6 +502,8 @@ LIBERAR_SALON, E303    -> LIBERACION_EXITOSA
 ## 5. Guide 3.2 - MovieHttpServer
 
 **Package:** `src/edu/eci/arsw/guide3_2/`
+
+**Status:** :ballot_box_with_check: Implemented.
 
 ### Problem Statement
 
@@ -513,7 +529,7 @@ The system replaces the custom TCP client with any standard HTTP client (browser
 | Path | `/movie` |
 | Parameter | `id=<number>` |
 | Success response | `200 OK` with HTML body |
-| Error response | `200 OK` with HTML body ("not found") |
+| Error response | `200 OK` with HTML body ("Pelicula no encontrada") |
 
 ### How to Build and Run
 
@@ -536,7 +552,7 @@ curl "http://localhost:8080/movie?id=1"
 6. `exchange.getRequestURI().getQuery()` extracts `"id=1"`.
 7. `extractId()` validates the `id=` prefix and extracts the numeric value. Returns `-1` if invalid.
 8. `repository.findById(id)` looks up the movie.
-9. The HTML response is built: success -> `"<html>...<h1>" + movie.toText() + "</h1>..."`, error -> `"<html>...<h1>Movie not found</h1>..."`.
+9. The HTML response is built: success -> `"<html>...<h1>" + movie.toText() + "</h1>..."`, error -> `"<html>...<h1>Pelicula no encontrada</h1>..."`.
 10. `exchange.sendResponseHeaders(200, response.getBytes().length)` sends status code 200 and `Content-Length`.
 11. `exchange.getResponseBody()` returns the `OutputStream` for writing the body.
 12. The response is written, the stream is closed, and the response completes.
@@ -561,7 +577,7 @@ public class MovieHttpServer {
         server.createContext("/movie", new MovieHandler(repository));
         server.setExecutor(null);
         server.start();
-        System.out.println("MovieHttpServer listening at http://localhost:8080/movie?id=1");
+        System.out.println("MovieHttpServer escuchando en http://localhost:8080/movie?id=1");
     }
 
     static class MovieHandler implements HttpHandler {
@@ -579,7 +595,7 @@ public class MovieHttpServer {
                 Movie movie = repository.findById(id);
                 String response;
                 if (movie == null) {
-                    response = "<html><body><h1>Movie not found</h1></body></html>";
+                    response = "<html><body><h1>Pelicula no encontrada</h1></body></html>";
                 } else {
                     response = "<html><body><h1>" + movie.toText() + "</h1></body></html>";
                 }
@@ -639,7 +655,7 @@ curl "http://localhost:8080/movie?id=1"
 # <html><body><h1>1,Interstellar,Christopher Nolan,2014</h1></body></html>
 
 curl "http://localhost:8080/movie?id=999"
-# <html><body><h1>Movie not found</h1></body></html>
+# <html><body><h1>Pelicula no encontrada</h1></body></html>
 
 curl "http://localhost:8080/"
 # 404 Not Found (default HttpServer response)
@@ -650,6 +666,8 @@ curl "http://localhost:8080/"
 ## 6. Exercise 3.3 - Room Management HTTP
 
 **Package:** `src/edu/eci/arsw/excercise3_3/`
+
+**Status:** :ballot_box_with_check: Implemented.
 
 ### Problem Statement
 
@@ -722,7 +740,7 @@ public class RoomHttpServer {
         server.createContext("/rooms", new RoomsHandler());
         server.setExecutor(null);
         server.start();
-        System.out.println("RoomHttpServer listening at http://localhost:8081/rooms");
+        System.out.println("RoomHttpServer escuchando en http://localhost:8081/rooms");
     }
 
     static class RoomsHandler implements HttpHandler {
@@ -749,7 +767,7 @@ public class RoomHttpServer {
                 String code = extractId(query);
                 response = toHtml(code, repository.release(code));
             } else {
-                response = "<html><body><h1>404 - Route not found: "
+                response = "<html><body><h1>404 - Ruta no encontrada: "
                         + method + " " + path + "</h1></body></html>";
             }
 
@@ -770,7 +788,7 @@ public class RoomHttpServer {
 
         private String listAll() {
             StringBuilder sb = new StringBuilder();
-            sb.append("<html><body><h1>Available rooms:</h1><ul>");
+            sb.append("<html><body><h1>Salones disponibles:</h1><ul>");
             for (Room room : repository.findAll()) {
                 sb.append("<li>").append(room.getCode())
                   .append(" - ").append(room.toStatusText()).append("</li>");
@@ -843,7 +861,7 @@ public Collection<Room> findAll() {
 
 ```
 curl "http://localhost:8081/rooms"
-# <html><body><h1>Available rooms:</h1><ul><li>E301 - SALON_DISPONIBLE</li>...</ul></body></html>
+# <html><body><h1>Salones disponibles:</h1><ul><li>E301 - SALON_DISPONIBLE</li>...</ul></body></html>
 
 curl "http://localhost:8081/rooms?id=E303"
 # <html><body><h1>E303: SALON_DISPONIBLE</h1></body></html>
@@ -860,6 +878,8 @@ curl -X POST "http://localhost:8081/rooms/release?id=E303"
 ## 7. Guide 4.2 - MovieService RMI
 
 **Package:** `src/edu/eci/arsw/guide4_2/`
+
+**Status:** :ballot_box_with_check: Implemented.
 
 ### Problem Statement
 
@@ -1002,7 +1022,7 @@ public class MovieRmiServer {
         MovieService service = new MovieServiceImpl();
         Registry registry = LocateRegistry.createRegistry(23000);
         registry.rebind("movieService", service);
-        System.out.println("MovieService RMI published on port 23000...");
+        System.out.println("MovieService RMI publicado en puerto 23000...");
     }
 }
 ```
@@ -1021,13 +1041,13 @@ public class MovieRmiClient {
         Registry registry = LocateRegistry.getRegistry("127.0.0.1", 23000);
         MovieService service = (MovieService) registry.lookup("movieService");
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter movie ID (1-3): ");
+        System.out.print("Ingrese ID de pelicula (1-3): ");
         int id = scanner.nextInt();
         Movie movie = service.getMovie(id);
         if (movie != null) {
-            System.out.println("Movie received: " + movie);
+            System.out.println("Película recibida: " + movie);
         } else {
-            System.out.println("Movie not found");
+            System.out.println("Película no encontrada");
         }
     }
 }
@@ -1068,14 +1088,14 @@ public class MovieRmiClient {
 
 ```
 Terminal 1:
-MovieService RMI published on port 23000...
+MovieService RMI publicado en puerto 23000...
 
 Terminal 2:
-Enter movie ID (1-3): 1
-Movie received: 1 - Interstellar (2014) - Christopher Nolan
+Ingrese ID de pelicula (1-3): 1
+Película recibida: 1 - Interstellar (2014) - Christopher Nolan
 
-Enter movie ID (1-3): 5
-Movie not found
+Ingrese ID de pelicula (1-3): 5
+Película no encontrada
 ```
 
 ---
@@ -1083,6 +1103,8 @@ Movie not found
 ## 8. Exercise 4.3 - Lab Inventory RMI
 
 **Package:** `src/edu/eci/arsw/excercise4_3/`
+
+**Status:** :ballot_box_with_check: Implemented.
 
 ### Problem Statement
 
@@ -1206,7 +1228,7 @@ public class EquipmentServiceImpl extends UnicastRemoteObject implements Equipme
     @Override
     public String consultarEquipo(String codigo) {
         Equipment eq = equipment.get(codigo);
-        if (eq == null) return "ERROR: equipment not found";
+        if (eq == null) return "ERROR: equipo no encontrado";
         return eq.toString();
     }
 
@@ -1243,46 +1265,46 @@ public class EquipmentRmiClient {
         Registry registry = LocateRegistry.getRegistry("127.0.0.1", 24000);
         EquipmentService service = (EquipmentService) registry.lookup("equipmentService");
         Scanner scanner = new Scanner(System.in);
-        System.out.println("=== Laboratory Inventory System ===");
+        System.out.println("=== Sistema de Inventario de Laboratorios ===");
 
         while (true) {
-            System.out.println("\nAvailable operations:");
-            System.out.println("  1. List all equipment");
-            System.out.println("  2. Query equipment");
-            System.out.println("  3. Reserve equipment");
-            System.out.println("  4. Release equipment");
-            System.out.println("  5. Exit");
-            System.out.print("Select an option: ");
+            System.out.println("\nOperaciones disponibles:");
+            System.out.println("  1. Listar todos los equipos");
+            System.out.println("  2. Consultar un equipo");
+            System.out.println("  3. Reservar un equipo");
+            System.out.println("  4. Liberar un equipo");
+            System.out.println("  5. Salir");
+            System.out.print("Seleccione una opcion: ");
             String option = scanner.nextLine().trim();
 
             switch (option) {
                 case "1":
                     List<String> equipos = service.consultarEquipos();
-                    System.out.println("Available equipment:");
+                    System.out.println("Equipos disponibles:");
                     for (String eq : equipos) System.out.println("  " + eq);
                     break;
                 case "2":
-                    System.out.print("Enter equipment code: ");
+                    System.out.print("Ingrese codigo del equipo: ");
                     String codeConsult = scanner.nextLine().trim();
-                    System.out.println("Result: " + service.consultarEquipo(codeConsult));
+                    System.out.println("Resultado: " + service.consultarEquipo(codeConsult));
                     break;
                 case "3":
-                    System.out.print("Enter equipment code: ");
+                    System.out.print("Ingrese codigo del equipo: ");
                     String codeReserve = scanner.nextLine().trim();
                     boolean reserved = service.reservarEquipo(codeReserve);
-                    System.out.println(reserved ? "RESERVA_EXITOSA" : "ERROR: could not reserve (not exists or already reserved)");
+                    System.out.println(reserved ? "RESERVA_EXITOSA" : "ERROR: no se pudo reservar (no existe o ya reservado)");
                     break;
                 case "4":
-                    System.out.print("Enter equipment code: ");
+                    System.out.print("Ingrese codigo del equipo: ");
                     String codeRelease = scanner.nextLine().trim();
                     boolean released = service.liberarEquipo(codeRelease);
-                    System.out.println(released ? "LIBERACION_EXITOSA" : "ERROR: could not release (not exists or already available)");
+                    System.out.println(released ? "LIBERACION_EXITOSA" : "ERROR: no se pudo liberar (no existe o ya disponible)");
                     break;
                 case "5":
-                    System.out.println("Exiting...");
+                    System.out.println("Saliendo...");
                     return;
                 default:
-                    System.out.println("Invalid option. Use 1-5.");
+                    System.out.println("Opcion invalida. Use 1-5.");
             }
         }
     }
@@ -1308,24 +1330,24 @@ public class EquipmentRmiClient {
 
 ```
 Terminal 1:
-EquipmentService RMI published on port 24000...
+EquipmentService RMI publicado en puerto 24000...
 
 Terminal 2:
-=== Laboratory Inventory System ===
+=== Sistema de Inventario de Laboratorios ===
 
-Available operations:
-  1. List all equipment
-  2. Query equipment
-  3. Reserve equipment
-  4. Release equipment
-  5. Exit
-Select an option: 1
-Available equipment:
-  CEN001 - Centrifuge Eppendorf (Biology Lab) - AVAILABLE
-  MIC001 - Microscope Olympus (Biology Lab) - AVAILABLE
-  OSC001 - Oscilloscope Tektronix (Electronics Lab) - AVAILABLE
-  LAP002 - Laptop HP Spectre (Computer Lab) - AVAILABLE
-  LAP001 - Laptop Dell XPS 15 (Computer Lab) - AVAILABLE
+Operaciones disponibles:
+  1. Listar todos los equipos
+  2. Consultar un equipo
+  3. Reservar un equipo
+  4. Liberar un equipo
+  5. Salir
+Seleccione una opcion: 1
+Equipos disponibles:
+  CEN001 - Centrifuga Eppendorf (Lab de Biologia) - DISPONIBLE
+  MIC001 - Microscopio Olympus (Lab de Biologia) - DISPONIBLE
+  OSC001 - Osciloscopio Tektronix (Lab de Electronica) - DISPONIBLE
+  LAP002 - Laptop HP Spectre (Lab de Computacion) - DISPONIBLE
+  LAP001 - Laptop Dell XPS 15 (Lab de Computacion) - DISPONIBLE
 ```
 
 ### Reflection Questions
@@ -1354,6 +1376,8 @@ Available equipment:
 
 **Package:** `src/edu/eci/arsw/guide5_2/` (Maven project)
 
+**Status:** :ballot_box_with_check: Implemented.
+
 ### Problem Statement
 
 Implement a movie query service using gRPC with Protocol Buffers. The contract is defined in a language-neutral `.proto` file, enabling clients in any language.
@@ -1378,7 +1402,7 @@ gRPC introduces a fundamental change: the contract is defined in a `.proto` file
 ```protobuf
 syntax = "proto3";
 option java_multiple_files = true;
-option java_package = "edu.eci.arsw.movie";
+option java_package = "edu.eci.arsw.guide5_2";
 option java_outer_classname = "MovieProto";
 
 service MovieService {
@@ -1405,10 +1429,10 @@ message MovieResponse {
 mvn clean compile -f src/edu/eci/arsw/guide5_2/pom.xml
 
 # Terminal 1 — server
-mvn exec:java -f src/edu/eci/arsw/guide5_2/pom.xml -Dexec.mainClass="edu.eci.arsw.movie.MovieGrpcServer"
+mvn exec:java -f src/edu/eci/arsw/guide5_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide5_2.MovieGrpcServer"
 
 # Terminal 2 — client
-mvn exec:java -f src/edu/eci/arsw/guide5_2/pom.xml -Dexec.mainClass="edu.eci.arsw.movie.MovieGrpcClient"
+mvn exec:java -f src/edu/eci/arsw/guide5_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide5_2.MovieGrpcClient"
 ```
 
 ### Execution Flow
@@ -1418,7 +1442,7 @@ mvn exec:java -f src/edu/eci/arsw/guide5_2/pom.xml -Dexec.mainClass="edu.eci.ars
 3. The server waits for gRPC connections on port 50051.
 4. `MovieGrpcClient.main()` creates a `ManagedChannel` to `localhost:50051` with `usePlaintext()`.
 5. From the channel, it creates a `MovieServiceBlockingStub`.
-6. The client builds a `MovieRequest` via `MovieRequest.newBuilder().setId(2).build()`, invokes `stub.getMovie(request)`.
+6. The client builds a `MovieRequest` via `MovieRequest.newBuilder().setId(1).build()`, invokes `stub.getMovie(request)`.
 7. gRPC serializes `MovieRequest` to binary protobuf, sends it as HTTP/2 frames, the server deserializes, executes `getMovie()`, serializes `MovieResponse`, and returns it.
 8. The client deserializes the response and accesses fields via generated getters.
 
@@ -1427,7 +1451,7 @@ mvn exec:java -f src/edu/eci/arsw/guide5_2/pom.xml -Dexec.mainClass="edu.eci.ars
 #### MovieGrpcServer.java
 
 ```java
-package edu.eci.arsw.movie;
+package edu.eci.arsw.guide5_2;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -1441,7 +1465,7 @@ public class MovieGrpcServer {
                 .addService(new MovieServiceImpl())
                 .build();
         server.start();
-        System.out.println("Movie gRPC Server started on port 50051");
+        System.out.println("Movie gRPC Server iniciado en puerto 50051");
         server.awaitTermination();
     }
 
@@ -1478,7 +1502,7 @@ public class MovieGrpcServer {
 #### MovieGrpcClient.java
 
 ```java
-package edu.eci.arsw.movie;
+package edu.eci.arsw.guide5_2;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -1497,11 +1521,11 @@ public class MovieGrpcClient {
         MovieResponse response = stub.getMovie(request);
 
         if (response.getFound()) {
-            System.out.println("Movie: " + response.getTitle()
+            System.out.println("Película: " + response.getTitle()
                     + " - " + response.getDirector()
                     + " - " + response.getYear());
         } else {
-            System.out.println("Movie not found");
+            System.out.println("Película no encontrada");
         }
         channel.shutdown();
     }
@@ -1545,15 +1569,10 @@ public class MovieGrpcClient {
 
 ```
 Terminal 1:
-Movie gRPC Server started on port 50051
+Movie gRPC Server iniciado en puerto 50051
 
-Terminal 2 (existing movie):
-Enter movie ID (1-3): 1
-Movie: Interstellar - Christopher Nolan - 2014
-
-Terminal 2 (non-existent ID):
-Enter movie ID (1-3): 5
-Movie not found
+Terminal 2:
+Película: Interstellar - Christopher Nolan - 2014
 ```
 
 ---
@@ -1561,6 +1580,8 @@ Movie not found
 ## 10. Exercise 5.3 - University Wellness gRPC
 
 **Package:** `src/edu/eci/arsw/excercise5_3/` (Maven project)
+
+**Status:** :ballot_box_with_check: Implemented.
 
 ### Problem Statement
 
@@ -1586,7 +1607,7 @@ The `.proto` defines three main entities (`Student`, `Appointment`, `ServiceType
 ```protobuf
 syntax = "proto3";
 option java_multiple_files = true;
-option java_package = "edu.eci.arsw.wellness";
+option java_package = "edu.eci.arsw.excercise5_3";
 option java_outer_classname = "AppointmentProto";
 
 enum ServiceType {
@@ -1658,10 +1679,10 @@ service AppointmentService {
 mvn clean compile -f src/edu/eci/arsw/excercise5_3/pom.xml
 
 # Terminal 1 — server
-mvn exec:java -f src/edu/eci/arsw/excercise5_3/pom.xml -Dexec.mainClass="edu.eci.arsw.wellness.WellnessGrpcServer"
+mvn exec:java -f src/edu/eci/arsw/excercise5_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise5_3.WellnessGrpcServer"
 
 # Terminal 2 — client
-mvn exec:java -f src/edu/eci/arsw/excercise5_3/pom.xml -Dexec.mainClass="edu.eci.arsw.wellness.WellnessGrpcClient"
+mvn exec:java -f src/edu/eci/arsw/excercise5_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise5_3.WellnessGrpcClient"
 ```
 
 ### Execution Flow
@@ -1679,7 +1700,7 @@ mvn exec:java -f src/edu/eci/arsw/excercise5_3/pom.xml -Dexec.mainClass="edu.eci
 #### WellnessGrpcServer.java (AppointmentServiceImpl)
 
 ```java
-package edu.eci.arsw.wellness;
+package edu.eci.arsw.excercise5_3;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -1694,7 +1715,7 @@ public class WellnessGrpcServer {
                 .addService(new AppointmentServiceImpl())
                 .build();
         server.start();
-        System.out.println("Wellness gRPC Server started on port 50061");
+        System.out.println("Wellness gRPC Server iniciado en puerto 50061");
         server.awaitTermination();
     }
 
@@ -1716,7 +1737,7 @@ public class WellnessGrpcServer {
 
             AppointmentResponse response = AppointmentResponse.newBuilder()
                     .setSuccess(true)
-                    .setMessage("Appointment requested successfully")
+                    .setMessage("Cita solicitada exitosamente")
                     .setAppointment(appointment)
                     .build();
             responseObserver.onNext(response);
@@ -1731,19 +1752,19 @@ public class WellnessGrpcServer {
             if (existing == null) {
                 response = CancelResponse.newBuilder()
                         .setSuccess(false)
-                        .setMessage("ERROR: appointment not found")
+                        .setMessage("ERROR: cita no encontrada")
                         .build();
             } else if (existing.getStatus() == Status.CANCELLED) {
                 response = CancelResponse.newBuilder()
                         .setSuccess(false)
-                        .setMessage("ERROR: appointment already cancelled")
+                        .setMessage("ERROR: la cita ya fue cancelada")
                         .build();
             } else {
                 Appointment updated = existing.toBuilder().setStatus(Status.CANCELLED).build();
                 appointments.put(request.getAppointmentId(), updated);
                 response = CancelResponse.newBuilder()
                         .setSuccess(true)
-                        .setMessage("Appointment cancelled successfully")
+                        .setMessage("Cita cancelada exitosamente")
                         .build();
             }
             responseObserver.onNext(response);
@@ -1769,7 +1790,7 @@ public class WellnessGrpcServer {
 #### WellnessGrpcClient.java (interactive menu)
 
 ```java
-package edu.eci.arsw.wellness;
+package edu.eci.arsw.excercise5_3;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -1786,31 +1807,32 @@ public class WellnessGrpcClient {
                 AppointmentServiceGrpc.newBlockingStub(channel);
 
         Scanner scanner = new Scanner(System.in);
-        System.out.println("=== University Wellness System ===");
+        System.out.println("=== Sistema de Bienestar Universitario ===");
 
         while (true) {
-            System.out.println("\nAvailable operations:");
-            System.out.println("  1. Request appointment");
-            System.out.println("  2. Cancel appointment");
-            System.out.println("  3. Query student appointments");
-            System.out.println("  4. Exit");
-            System.out.print("Select an option: ");
+            System.out.println();
+            System.out.println("Operaciones disponibles:");
+            System.out.println("  1. Solicitar cita");
+            System.out.println("  2. Cancelar cita");
+            System.out.println("  3. Consultar citas de un estudiante");
+            System.out.println("  4. Salir");
+            System.out.print("Seleccione una opcion: ");
             String option = scanner.nextLine().trim();
 
             switch (option) {
                 case "1":
-                    System.out.print("Student ID: ");
+                    System.out.print("ID del estudiante: ");
                     String studentId = scanner.nextLine().trim();
-                    System.out.print("Service type (MEDICINE, PSYCHOLOGY, DENTISTRY): ");
+                    System.out.print("Tipo de servicio (MEDICINE, PSYCHOLOGY, DENTISTRY): ");
                     String serviceTypeStr = scanner.nextLine().trim().toUpperCase();
                     ServiceType serviceType;
                     try {
                         serviceType = ServiceType.valueOf(serviceTypeStr);
                     } catch (IllegalArgumentException e) {
-                        System.out.println("ERROR: invalid service type");
+                        System.out.println("ERROR: tipo de servicio invalido");
                         break;
                     }
-                    System.out.print("Date (YYYY-MM-DD): ");
+                    System.out.print("Fecha (YYYY-MM-DD): ");
                     String date = scanner.nextLine().trim();
 
                     AppointmentRequest request = AppointmentRequest.newBuilder()
@@ -1822,16 +1844,16 @@ public class WellnessGrpcClient {
                     if (response.getSuccess()) {
                         System.out.println(response.getMessage());
                         Appointment a = response.getAppointment();
-                        System.out.println("  ID: " + a.getId()
-                                + " | Date: " + a.getDate()
-                                + " | Status: " + a.getStatus());
+                        System.out.println("  ID cita: " + a.getId()
+                                + " | Fecha: " + a.getDate()
+                                + " | Estado: " + a.getStatus());
                     } else {
                         System.out.println(response.getMessage());
                     }
                     break;
 
                 case "2":
-                    System.out.print("Appointment ID to cancel: ");
+                    System.out.print("ID de la cita a cancelar: ");
                     String appointmentId = scanner.nextLine().trim();
                     CancelRequest cancelReq = CancelRequest.newBuilder()
                             .setAppointmentId(appointmentId)
@@ -1841,16 +1863,16 @@ public class WellnessGrpcClient {
                     break;
 
                 case "3":
-                    System.out.print("Student ID: ");
+                    System.out.print("ID del estudiante: ");
                     String consultStudentId = scanner.nextLine().trim();
                     StudentRequest studentReq = StudentRequest.newBuilder()
                             .setStudentId(consultStudentId)
                             .build();
                     AppointmentList list = stub.getAppointments(studentReq);
                     if (list.getAppointmentsCount() == 0) {
-                        System.out.println("No appointments found for student " + consultStudentId);
+                        System.out.println("No se encontraron citas para el estudiante " + consultStudentId);
                     } else {
-                        System.out.println("Appointments for " + consultStudentId + ":");
+                        System.out.println("Citas de " + consultStudentId + ":");
                         for (Appointment a : list.getAppointmentsList()) {
                             System.out.println("  " + a.getId()
                                     + " | " + a.getServiceType()
@@ -1861,12 +1883,12 @@ public class WellnessGrpcClient {
                     break;
 
                 case "4":
-                    System.out.println("Exiting...");
+                    System.out.println("Saliendo...");
                     channel.shutdown();
                     return;
 
                 default:
-                    System.out.println("Invalid option. Use 1-4.");
+                    System.out.println("Opcion invalida. Use 1-4.");
             }
         }
     }
@@ -1894,34 +1916,34 @@ public class WellnessGrpcClient {
 
 ```
 Terminal 1:
-Wellness gRPC Server started on port 50061
+Wellness gRPC Server iniciado en puerto 50061
 
 Terminal 2:
-=== University Wellness System ===
+=== Sistema de Bienestar Universitario ===
 
---- Request appointment ---
-Select an option: 1
-Student ID: S123
-Service type (MEDICINE, PSYCHOLOGY, DENTISTRY): MEDICINE
-Date (YYYY-MM-DD): 2026-06-15
-Appointment requested successfully
-  ID: 62c333d4 | Date: 2026-06-15 | Status: REQUESTED
+--- Solicitar cita ---
+Seleccione una opcion: 1
+ID del estudiante: S123
+Tipo de servicio (MEDICINE, PSYCHOLOGY, DENTISTRY): MEDICINE
+Fecha (YYYY-MM-DD): 2026-06-15
+Cita solicitada exitosamente
+  ID cita: 62c333d4 | Fecha: 2026-06-15 | Estado: REQUESTED
 
---- Query student appointments ---
-Select an option: 3
-Student ID: S123
-Appointments for S123:
+--- Consultar citas ---
+Seleccione una opcion: 3
+ID del estudiante: S123
+Citas de S123:
   62c333d4 | MEDICINE | 2026-06-15 | REQUESTED
 
---- Cancel appointment ---
-Select an option: 2
-Appointment ID to cancel: 62c333d4
-Appointment cancelled successfully
+--- Cancelar cita ---
+Seleccione una opcion: 2
+ID de la cita a cancelar: 62c333d4
+Cita cancelada exitosamente
 
---- Verify cancellation ---
-Select an option: 3
-Student ID: S123
-Appointments for S123:
+--- Verificar cancelacion ---
+Seleccione una opcion: 3
+ID del estudiante: S123
+Citas de S123:
   62c333d4 | MEDICINE | 2026-06-15 | CANCELLED
 ```
 
@@ -1953,13 +1975,13 @@ Appointments for S123:
 
 **Package:** `src/edu/eci/arsw/guide6_2/`
 
-**Status:** Not yet implemented.
+**Status:** :ballot_box_with_check: Implemented.
 
 ### Description
 
-This section will decompose the movie system into 3 independent microservices, each in its own gRPC port. The goal is to demonstrate separation of concerns and independent deployability.
+Decomposition of the movie system into 3 independent microservices, each in its own gRPC port. Unlike Guide 5.2 (single gRPC server with the entire domain), each service here is an independent process with its own `.proto`, its own `Server`, and its own port. The client must know and connect to all 3 ports individually.
 
-### Proposed Services
+### Services
 
 | Service | Responsibility | Port |
 |---------|----------------|------|
@@ -1967,19 +1989,205 @@ This section will decompose the movie system into 3 independent microservices, e
 | ReviewService | Query movie reviews | 50052 |
 | RecommendationService | Suggest related movies | 50053 |
 
-### How to Build and Run (when implemented)
+### Architecture
 
-```bash
-mvn clean compile
-mvn exec:java -Dexec.mainClass="edu.eci.arsw.guide6_2.movie.MovieServiceServer"              # Terminal 1
-mvn exec:java -Dexec.mainClass="edu.eci.arsw.guide6_2.review.ReviewServiceServer"            # Terminal 2
-mvn exec:java -Dexec.mainClass="edu.eci.arsw.guide6_2.recommendation.RecommendationServiceServer" # Terminal 3
-mvn exec:java -Dexec.mainClass="edu.eci.arsw.guide6_2.MicroserviceClient"                    # Terminal 4
+Each microservice is an independent Maven process within the same module (same `pom.xml`). They share the same `groupId` but each has its own `.proto` with a unique `java_package`, generating classes in separate packages and avoiding name conflicts.
+
+The client (`MicroserviceClient`) maintains 3 separate gRPC channels, one to each service, and an interactive menu to query each service individually or all at once.
+
+### Components
+
+| File | Description |
+|------|-------------|
+| `movie.proto` | `MovieService` with `GetMovie` RPC |
+| `review.proto` | `ReviewService` with `GetReview` RPC |
+| `recommendation.proto` | `RecommendationService` with `GetRecommendation` RPC |
+| `MovieServiceServer.java` | gRPC server on port 50051 |
+| `ReviewServiceServer.java` | gRPC server on port 50052 |
+| `RecommendationServiceServer.java` | gRPC server on port 50053 |
+| `MicroserviceClient.java` | Interactive client with 3 channels |
+
+### gRPC Contracts (.proto)
+
+Each `.proto` defines a single service with a single RPC, isolated in its own package:
+
+| Proto | java_package | RPC |
+|-------|-------------|-----|
+| `movie.proto` | `edu.eci.arsw.guide6_2.movie` | `GetMovie(MovieRequest) → MovieResponse` |
+| `review.proto` | `edu.eci.arsw.guide6_2.review` | `GetReview(ReviewRequest) → ReviewResponse` |
+| `recommendation.proto` | `edu.eci.arsw.guide6_2.recommendation` | `GetRecommendation(RecommendationRequest) → RecommendationResponse` |
+
+### Design Decisions
+
+- **One `.proto` per service:** Each service has its own contract file with a unique `java_package`, preventing generated class name collisions (e.g., `MovieRequest` vs `ReviewRequest`).
+- **Separate server processes:** Each microservice runs in its own JVM. This enables independent deployment, scaling, and failure isolation.
+- **Client-side orchestration:** The `MicroserviceClient` acts as an aggregator (option 4 queries all 3 services). This is the Client-Side Discovery pattern. The downside is that the client knows all 3 ports.
+- **Hardcoded data:** Each server pre-loads its own data in memory (movies, reviews, recommendations), following the same pattern as previous guides to keep focus on architecture.
+
+### Implementation (representative files)
+
+**movie.proto** — contract for MovieService:
+```protobuf
+syntax = "proto3";
+option java_multiple_files = true;
+option java_package = "edu.eci.arsw.guide6_2.movie";
+option java_outer_classname = "MovieProto";
+
+service MovieService {
+  rpc GetMovie (MovieRequest) returns (MovieResponse);
+}
+
+message MovieRequest {
+  int32 id = 1;
+}
+
+message MovieResponse {
+  int32 id = 1;
+  string title = 2;
+  string director = 3;
+  int32 year = 4;
+  bool found = 5;
+}
 ```
 
-See [PLAN.md](PLAN.md#guia-62---microservicios-peliculas) for full details.
+**MovieServiceServer.java** — gRPC server for MovieService:
+```java
+package edu.eci.arsw.guide6_2.movie;
 
-> **Note:** This section is a placeholder. The implementation is pending.
+import io.grpc.Server;
+import io.grpc.ServerBuilder;
+import io.grpc.stub.StreamObserver;
+import java.util.HashMap;
+import java.util.Map;
+
+public class MovieServiceServer {
+    public static void main(String[] args) throws Exception {
+        Server server = ServerBuilder.forPort(50051)
+                .addService(new MovieServiceImpl()).build();
+        server.start();
+        System.out.println("MovieService Microservicio iniciado en puerto 50051");
+        server.awaitTermination();
+    }
+
+    static class MovieServiceImpl extends MovieServiceGrpc.MovieServiceImplBase {
+        private Map<Integer, MovieResponse> movies = new HashMap<>();
+
+        public MovieServiceImpl() {
+            movies.put(1, MovieResponse.newBuilder().setId(1)
+                    .setTitle("Interstellar").setDirector("Christopher Nolan")
+                    .setYear(2014).setFound(true).build());
+            movies.put(2, MovieResponse.newBuilder().setId(2)
+                    .setTitle("Inception").setDirector("Christopher Nolan")
+                    .setYear(2010).setFound(true).build());
+            movies.put(3, MovieResponse.newBuilder().setId(3)
+                    .setTitle("The Matrix").setDirector("The Wachowskis")
+                    .setYear(1999).setFound(true).build());
+        }
+
+        @Override
+        public void getMovie(MovieRequest request,
+                              StreamObserver<MovieResponse> responseObserver) {
+            MovieResponse response = movies.getOrDefault(request.getId(),
+                    MovieResponse.newBuilder().setId(request.getId()).setFound(false).build());
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        }
+    }
+}
+```
+
+### How to Build and Run
+
+```bash
+# Compile from root
+mvn clean compile
+
+# Terminal 1 — MovieService
+mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide6_2.movie.MovieServiceServer"
+
+# Terminal 2 — ReviewService
+mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide6_2.review.ReviewServiceServer"
+
+# Terminal 3 — RecommendationService
+mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide6_2.recommendation.RecommendationServiceServer"
+
+# Terminal 4 — Client
+mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass="edu.eci.arsw.guide6_2.MicroserviceClient"
+```
+
+Servers must be started before the client; otherwise the client receives `StatusRuntimeException` with code `UNAVAILABLE`.
+
+### Expected Output
+
+```
+Terminal 1:
+MovieService Microservicio iniciado en puerto 50051
+
+Terminal 2:
+ReviewService Microservicio iniciado en puerto 50052
+
+Terminal 3:
+RecommendationService Microservicio iniciado en puerto 50053
+
+Terminal 4:
+=== Movie Microservices Client ===
+
+--- Query movie ---
+Select option: 1
+Movie ID (1-3): 1
+Movie: Interstellar - Christopher Nolan - 2014
+
+--- Query review ---
+Select option: 2
+Movie ID (1-3): 1
+Review by Roger Ebert: 5/5 - Una obra maestra de la ciencia ficcion
+
+--- Query all ---
+Select option: 4
+Movie ID (1-3): 1
+
+=== Full results for movie 1 ===
+Movie: Interstellar - Christopher Nolan - 2014
+Review: Roger Ebert - 5/5 - Una obra maestra de la ciencia ficcion
+Recommendations: [2, 3]
+```
+
+### Key Architectural Lessons
+
+1. **Separation of concerns:** Each microservice owns a single responsibility (movie data, reviews, recommendations). This follows the Single Responsibility Principle at the architectural level.
+2. **Client knows too much:** The client must know that MovieService is on 50051, ReviewService on 50052, and RecommendationService on 50053. Any port change requires updating the client — this is client-to-service coupling.
+3. **Operational complexity:** 4 processes instead of 2 (Guide 5.2). All 3 servers must be started before the client.
+4. **Orchestration vs Choreography:** Option 4 implements orchestration (the client coordinates calls). An alternative would be choreography via event bus.
+
+### Comparison: Single gRPC (Guide 5.2) vs Microservices (Guide 6.2)
+
+| Aspect | Guide 5.2 (Single gRPC) | Guide 6.2 (Microservices) |
+|--------|------------------------|---------------------------|
+| Processes | 2 (server + client) | 4 (3 servers + client) |
+| Ports | 1 (50051) | 3 (50051, 50052, 50053) |
+| Contracts | 1 `.proto` with 1 RPC | 3 `.proto` with 1 RPC each |
+| Client channels | 1 channel | 3 channels |
+| Deployability | Single JAR | Independent processes |
+| Fault isolation | Low (whole server fails) | High (per-service failure) |
+
+### Reflection Questions
+
+1. **Advantages of splitting the system into 3 microservices?**
+   - Independent deployment: each service can be updated without affecting the others.
+   - Selective scalability: if reviews have higher load, only ReviewService is scaled.
+   - Fault isolation: if RecommendationService fails, MovieService and ReviewService keep working.
+   - Independent teams: each service can be maintained by a different team.
+
+2. **Disadvantages introduced by this architecture?**
+   - Higher operational complexity: 3 servers to start and monitor.
+   - Higher latency: the client makes 3 network calls instead of 1 (option 4).
+   - The client must know the full topology (3 ports).
+   - Error handling needed for each individual service.
+
+3. **How does it compare to the monolithic approach of Guide 5.2?**
+   - In Guide 5.2, the entire domain (movies, reviews, recommendations) was in a single `.proto` and a single server. The client made one call.
+   - In Guide 6.2, each subdomain is an independent service. The client must make 3 calls.
+   - Guide 5.2 is simpler to operate but less scalable. Guide 6.2 is more complex but more flexible.
 
 ---
 
@@ -1987,13 +2195,13 @@ See [PLAN.md](PLAN.md#guia-62---microservicios-peliculas) for full details.
 
 **Package:** `src/edu/eci/arsw/excercise6_3/`
 
-**Status:** Not yet implemented.
+**Status:** :ballot_box_with_check: Implemented.
 
 ### Description
 
-This section will decompose the university wellness system into 4 microservices, each with a cohesive responsibility, following the same pattern as Guide 6.2.
+Decomposition of the university wellness system into 4 microservices, each with a cohesive responsibility, following the same pattern as Guide 6.2 but applied to the wellness domain.
 
-### Proposed Services
+### Services
 
 | Service | Responsibility | Port |
 |---------|----------------|------|
@@ -2002,19 +2210,260 @@ This section will decompose the university wellness system into 4 microservices,
 | GymService | Gym session reservations | 50063 |
 | RecreationService | Recreational resource loans | 50064 |
 
-### How to Build and Run (when implemented)
+### Architecture
 
-```bash
-mvn clean compile
-mvn exec:java -Dexec.mainClass="edu.eci.arsw.excercise6_3.appointment.AppointmentServer"
-mvn exec:java -Dexec.mainClass="edu.eci.arsw.excercise6_3.medical.MedicalServer"
-mvn exec:java -Dexec.mainClass="edu.eci.arsw.excercise6_3.gym.GymServer"
-mvn exec:java -Dexec.mainClass="edu.eci.arsw.excercise6_3.recreation.RecreationServer"
+Each microservice is an independent Maven process within the same module. Each `.proto` defines its own contract with a unique `java_package` to avoid conflicts between identically-named messages (e.g., `MedicalEmpty` vs `RecreationEmpty`).
+
+The client (`WellnessClient`) maintains 4 separate gRPC channels and an interactive menu with 18 operations covering full CRUD for each service.
+
+> **Diagrams:** PlantUML sources at `docs/diagrams/exercise6_3_architecture.puml` and `docs/diagrams/exercise6_3_crud_flow.puml`.
+
+### Components
+
+| File | Description |
+|------|-------------|
+| `appointment.proto` | `AppointmentService` with 5 RPCs: create (request), cancel (soft delete), list, delete (hard), update date |
+| `medical.proto` | `MedicalService` with 4 RPCs: `GetSpecialty`, `ListSpecialties`, `AddSpecialty`, `RemoveSpecialty` |
+| `gym.proto` | `GymService` with 4 RPCs: `ReserveSession`, `GetSessions`, `CancelSession`, `GetAllSessions` |
+| `recreation.proto` | `RecreationService` with 4 RPCs: `ReserveResource`, `ListResources`, `ReturnResource`, `AddResource` |
+| `AppointmentServer.java` | gRPC server on port 50061 |
+| `MedicalServer.java` | gRPC server on port 50062 |
+| `GymServer.java` | gRPC server on port 50063 |
+| `RecreationServer.java` | gRPC server on port 50064 |
+| `WellnessClient.java` | Interactive client with 4 channels and 18 menu options |
+
+### RPC Summary per Service
+
+| Service | Create | Read | Update | Delete |
+|---------|--------|------|--------|--------|
+| AppointmentService | `RequestAppointment` | `GetAppointments` | `UpdateAppointmentDate` | `CancelAppointment` (soft), `DeleteAppointment` (hard) |
+| MedicalService | `AddSpecialty` | `GetSpecialty`, `ListSpecialties` | — | `RemoveSpecialty` |
+| GymService | `ReserveSession` | `GetSessions`, `GetAllSessions` | — | `CancelSession` (soft) |
+| RecreationService | `AddResource` | `ListResources` | — | `ReturnResource` (toggle) |
+
+### Design Decisions
+
+- **Unique message names across `.proto` files:** Protobuf uses a global namespace for message types when multiple `.proto` files are compiled together. `MedicalEmpty` and `RecreationEmpty` are used instead of `Empty` in both to avoid "already defined" errors. Similarly, `GymEmpty` was added for `GetAllSessions`.
+- **Separated domains:** Unlike Exercise 5.3 (one service with 3 RPCs), here each domain is an independent service with its own contract and in-memory data.
+- **Availability control in RecreationService:** Uses a boolean `available` flag and `toBuilder().setAvailable(false)` to mark resources as reserved, demonstrating protobuf's immutability pattern. `ReturnResource` toggles `available` back to true.
+- **Full CRUD capability:** Each service supports create and read operations; AppointmentService additionally supports update (reprogram date) and two-tier delete (soft cancel vs hard delete), while GymService and RecreationService support soft release patterns.
+
+### Implementation (representative files)
+
+**appointment.proto** — contract for AppointmentService:
+```protobuf
+syntax = "proto3";
+option java_multiple_files = true;
+option java_package = "edu.eci.arsw.excercise6_3.appointment";
+option java_outer_classname = "AppointmentServiceProto";
+
+enum ServiceType {
+  MEDICINE = 0; PSYCHOLOGY = 1; DENTISTRY = 2;
+}
+enum Status {
+  REQUESTED = 0; CANCELLED = 1; ATTENDED = 2;
+}
+
+service AppointmentService {
+  rpc RequestAppointment (AppointmentRequest) returns (AppointmentResponse);
+  rpc CancelAppointment (CancelRequest) returns (CancelResponse);
+  rpc GetAppointments (StudentRequest) returns (AppointmentList);
+  rpc DeleteAppointment (DeleteAppointmentRequest) returns (DeleteAppointmentResponse);
+  rpc UpdateAppointmentDate (UpdateDateRequest) returns (UpdateDateResponse);
+}
+// ... messages omitted for brevity (see PLAN.md for full contracts)
 ```
 
-See [PLAN.md](PLAN.md#ejercicio-63---microservicios-bienestar) for full details.
+**AppointmentServer.java** — gRPC server with full CRUD:
+```java
+package edu.eci.arsw.excercise6_3.appointment;
 
-> **Note:** This section is a placeholder. The implementation is pending.
+import io.grpc.Server;
+import io.grpc.ServerBuilder;
+import io.grpc.stub.StreamObserver;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+public class AppointmentServer {
+    public static void main(String[] args) throws Exception {
+        Server server = ServerBuilder.forPort(50061)
+                .addService(new AppointmentServiceImpl()).build();
+        server.start();
+        System.out.println("Appointment Microservicio iniciado en puerto 50061");
+        server.awaitTermination();
+    }
+
+    static class AppointmentServiceImpl extends AppointmentServiceGrpc.AppointmentServiceImplBase {
+        private Map<String, Appointment> appointments = new HashMap<>();
+
+        @Override
+        public void requestAppointment(AppointmentRequest request,
+                                        StreamObserver<AppointmentResponse> responseObserver) {
+            String id = UUID.randomUUID().toString().substring(0, 8);
+            Appointment appointment = Appointment.newBuilder()
+                    .setId(id).setStudentId(request.getStudentId())
+                    .setServiceType(request.getServiceType())
+                    .setDate(request.getDate()).setStatus(Status.REQUESTED).build();
+            appointments.put(id, appointment);
+            responseObserver.onNext(AppointmentResponse.newBuilder()
+                    .setSuccess(true).setMessage("Cita solicitada exitosamente")
+                    .setAppointment(appointment).build());
+            responseObserver.onCompleted();
+        }
+
+        @Override
+        public void cancelAppointment(CancelRequest request,
+                                        StreamObserver<CancelResponse> responseObserver) {
+            Appointment existing = appointments.get(request.getAppointmentId());
+            if (existing == null || existing.getStatus() == Status.CANCELLED) {
+                responseObserver.onNext(CancelResponse.newBuilder()
+                        .setSuccess(false).setMessage("ERROR: cita no encontrada o ya cancelada").build());
+            } else {
+                appointments.put(request.getAppointmentId(),
+                        existing.toBuilder().setStatus(Status.CANCELLED).build());
+                responseObserver.onNext(CancelResponse.newBuilder()
+                        .setSuccess(true).setMessage("Cita cancelada exitosamente").build());
+            }
+            responseObserver.onCompleted();
+        }
+
+        @Override
+        public void deleteAppointment(DeleteAppointmentRequest request,
+                                       StreamObserver<DeleteAppointmentResponse> responseObserver) {
+            if (appointments.remove(request.getAppointmentId()) != null) {
+                responseObserver.onNext(DeleteAppointmentResponse.newBuilder()
+                        .setSuccess(true).setMessage("Cita eliminada permanentemente").build());
+            } else {
+                responseObserver.onNext(DeleteAppointmentResponse.newBuilder()
+                        .setSuccess(false).setMessage("ERROR: cita no encontrada").build());
+            }
+            responseObserver.onCompleted();
+        }
+
+        @Override
+        public void updateAppointmentDate(UpdateDateRequest request,
+                                           StreamObserver<UpdateDateResponse> responseObserver) {
+            Appointment existing = appointments.get(request.getAppointmentId());
+            if (existing == null) {
+                responseObserver.onNext(UpdateDateResponse.newBuilder()
+                        .setSuccess(false).setMessage("ERROR: cita no encontrada").build());
+            } else {
+                Appointment updated = existing.toBuilder().setDate(request.getNewDate()).build();
+                appointments.put(request.getAppointmentId(), updated);
+                responseObserver.onNext(UpdateDateResponse.newBuilder()
+                        .setSuccess(true).setMessage("Cita reprogramada exitosamente")
+                        .setAppointment(updated).build());
+            }
+            responseObserver.onCompleted();
+        }
+        // getAppointments and other RPCs omitted for brevity
+    }
+}
+```
+
+### How to Build and Run
+
+```bash
+# Compile from root
+mvn clean compile
+
+# Terminal 1 — AppointmentService
+mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.appointment.AppointmentServer"
+
+# Terminal 2 — MedicalService
+mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.medical.MedicalServer"
+
+# Terminal 3 — GymService
+mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.gym.GymServer"
+
+# Terminal 4 — RecreationService
+mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.recreation.RecreationServer"
+
+# Terminal 5 — Client
+mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass="edu.eci.arsw.excercise6_3.WellnessClient"
+```
+
+### Expected Output
+
+```
+Terminal 1:
+Appointment Microservicio iniciado en puerto 50061
+
+Terminal 2:
+Medical Microservicio iniciado en puerto 50062
+
+Terminal 3:
+Gym Microservicio iniciado en puerto 50063
+
+Terminal 4:
+Recreation Microservicio iniciado en puerto 50064
+
+Terminal 5:
+=== Sistema de Bienestar (Microservicios) ===
+
+--- Menu Principal ---
+Citas:
+  1. Solicitar cita
+  2. Cancelar cita
+  3. Listar citas por estudiante
+  4. Eliminar cita (permanente)
+  5. Reprogramar cita
+Especialidades Medicas:
+  6. Consultar especialidad
+  7. Listar especialidades
+  8. Agregar especialidad
+  9. Eliminar especialidad
+Gimnasio:
+  10. Reservar sesion
+  11. Consultar sesiones por estudiante
+  12. Cancelar sesion
+  13. Listar todas las sesiones
+Recreacion:
+  14. Reservar recurso
+  15. Listar recursos
+  16. Devolver recurso
+  17. Agregar recurso
+  0. Salir
+Seleccione una opcion: 1
+ID del estudiante: S123
+Tipo de servicio (MEDICINE, PSYCHOLOGY, DENTISTRY): MEDICINE
+Fecha (YYYY-MM-DD): 2026-06-15
+Cita solicitada exitosamente
+  ID cita: a1b2c3d4 | Fecha: 2026-06-15 | Estado: REQUESTED
+
+--- Query medical specialty ---
+Seleccione una opcion: 6
+Codigo de especialidad: MED01
+Especialidad: Medicina General
+Descripcion: Atencion medica primaria y prevencion
+Disponible: Si
+
+--- List specialties ---
+Seleccione una opcion: 7
+Especialidades disponibles:
+  MED01 - Medicina General (Disponible)
+  MED02 - Psicologia (Disponible)
+  MED03 - Odontologia (Disponible)
+
+--- Add specialty ---
+Seleccione una opcion: 8
+Codigo de especialidad: MED04
+Nombre: Fisioterapia
+Descripcion: Rehabilitacion fisica y terapia deportiva
+Especialidad agregada exitosamente
+```
+
+### Reflection Questions
+
+1. **Why are unique message names needed across the 4 .proto files?**
+   - Protobuf uses a global namespace for message types when multiple `.proto` files are compiled together. If two files define `Empty`, protoc throws an error. The solution is descriptive names like `MedicalEmpty` and `RecreationEmpty`.
+
+2. **What advantage does separating AppointmentService from the other services provide?**
+   - AppointmentService is the only service with mutable state (create/cancel appointments). The other services are primarily query + simple reservation. Separating them allows AppointmentService to be scaled independently if there is high appointment demand.
+
+3. **How does this design compare to Exercise 5.3?**
+   - In 5.3, the entire wellness domain was in a single server with 3 RPCs. In 6.3, there are 4 specialized servers. The advantage is deployment independence; the disadvantage is that the client needs 4 connections.
 
 ---
 
@@ -2022,7 +2471,7 @@ See [PLAN.md](PLAN.md#ejercicio-63---microservicios-bienestar) for full details.
 
 **Package:** `src/edu/eci/arsw/guide7_2/`
 
-**Status:** Not yet implemented.
+**Status:** :ballot_box_with_check: Implemented.
 
 ### Description
 
@@ -2030,16 +2479,173 @@ An API Gateway that centralizes access to the movie microservices (MovieService,
 
 The Gateway receives a unified request, internally queries the 3 services, and consolidates the response. This solves the client-to-services coupling problem that arises in Guide 6.2.
 
-### How to Build and Run (when implemented)
+### Architecture
 
-```bash
-javac -d bin src/edu/eci/arsw/guide7_2/*.java
-java -cp bin edu.eci.arsw.guide7_2.MovieGateway
+`MovieGateway` runs an HTTP server (`com.sun.net.httpserver.HttpServer`) on port 8082. Internally, it creates 3 gRPC channels (one to each microservice) and acts as a gRPC client. The client only needs HTTP (browser, curl) and is completely unaware of the gRPC topology behind the Gateway.
+
+| Endpoint | Method | Description | Delegates to |
+|----------|--------|-------------|--------------|
+| `/movie?id=X` | GET | Query movie info | MovieService (50051) |
+| `/review?movieId=X` | GET | Query review | ReviewService (50052) |
+| `/recommendation?movieId=X` | GET | Query recommendations | RecommendationService (50053) |
+| `/consolidated?id=X` | GET | Query all 3 services at once | All 3 microservices |
+
+### Components
+
+| File | Description |
+|------|-------------|
+| `MovieGateway.java` | HTTP server (port 8082) + gRPC client for all 3 microservices |
+
+### Design Decisions
+
+- **Single process, single port:** Unlike Guide 6.2 (4 processes, 3 ports), the Gateway is a single process on a single port (8082). The client only knows `localhost:8082`.
+- **Client-side Discovery → Server-side Routing:** Guide 6.2 required the client to know all 3 ports. The Gateway inverts this: it knows the 3 ports, and the client only knows the Gateway.
+- **HTML responses:** Uses HTML (same as Guide 3.2) so the Gateway can be tested with any browser or curl.
+- **Clean error handling:** Returns `400 Bad Request` for missing parameters and meaningful HTML error messages.
+
+### Implementation
+
+**MovieGateway.java** — HTTP server + gRPC client:
+```java
+package edu.eci.arsw.guide7_2;
+
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
+import edu.eci.arsw.guide6_2.movie.*;
+import edu.eci.arsw.guide6_2.review.*;
+import edu.eci.arsw.guide6_2.recommendation.*;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+
+public class MovieGateway {
+    private static final int GATEWAY_PORT = 8082;
+
+    private final MovieServiceGrpc.MovieServiceBlockingStub movieStub;
+    private final ReviewServiceGrpc.ReviewServiceBlockingStub reviewStub;
+    private final RecommendationServiceGrpc.RecommendationServiceBlockingStub recStub;
+
+    public MovieGateway() {
+        ManagedChannel movieCh = ManagedChannelBuilder.forAddress("localhost", 50051).usePlaintext().build();
+        ManagedChannel reviewCh = ManagedChannelBuilder.forAddress("localhost", 50052).usePlaintext().build();
+        ManagedChannel recCh = ManagedChannelBuilder.forAddress("localhost", 50053).usePlaintext().build();
+        movieStub = MovieServiceGrpc.newBlockingStub(movieCh);
+        reviewStub = ReviewServiceGrpc.newBlockingStub(reviewCh);
+        recStub = RecommendationServiceGrpc.newBlockingStub(recCh);
+    }
+
+    public static void main(String[] args) throws Exception {
+        MovieGateway gw = new MovieGateway();
+        HttpServer server = HttpServer.create(new InetSocketAddress(GATEWAY_PORT), 0);
+        server.createContext("/movie", gw::handleMovie);
+        server.createContext("/review", gw::handleReview);
+        server.createContext("/recommendation", gw::handleRecommendation);
+        server.createContext("/consolidated", gw::handleConsolidated);
+        server.setExecutor(null);
+        server.start();
+        System.out.println("MovieGateway HTTP iniciado en puerto " + GATEWAY_PORT);
+    }
+
+    private void handleMovie(HttpExchange ex) throws IOException {
+        int id = extractId(ex.getRequestURI());
+        if (id < 0) { send(ex, "<h1>ERROR: parametro invalido</h1>"); return; }
+        MovieResponse m = movieStub.getMovie(MovieRequest.newBuilder().setId(id).build());
+        if (m.getFound())
+            send(ex, "<h1>" + m.getTitle() + "</h1><p>" + m.getDirector() + " (" + m.getYear() + ")</p>");
+        else
+            send(ex, "<h1>Pelicula no encontrada</h1>");
+    }
+
+    private void handleConsolidated(HttpExchange ex) throws IOException {
+        int id = extractId(ex.getRequestURI());
+        if (id < 0) { send(ex, "<h1>ERROR: parametro invalido</h1>"); return; }
+        MovieResponse m = movieStub.getMovie(MovieRequest.newBuilder().setId(id).build());
+        ReviewResponse r = reviewStub.getReview(ReviewRequest.newBuilder().setMovieId(id).build());
+        RecommendationResponse rec = recStub.getRecommendation(
+                RecommendationRequest.newBuilder().setMovieId(id).build());
+        StringBuilder sb = new StringBuilder("<h1>Resultado consolidado para pelicula " + id + "</h1>");
+        if (m.getFound()) sb.append("<h2>Pelicula</h2><p>").append(m.getTitle()).append("</p>");
+        if (r.getFound()) sb.append("<h2>Resena</h2><p>").append(r.getReviewer()).append(": ")
+                .append(r.getRating()).append("/5 - ").append(r.getComment()).append("</p>");
+        if (rec.getFound()) { sb.append("<h2>Recomendaciones</h2><p>");
+            for (int rid : rec.getRecommendedIdsList()) sb.append(rid).append(" "); sb.append("</p>"); }
+        send(ex, sb.toString());
+    }
+    // review, recommendation handlers, extractId(), send() omitted for brevity
+}
 ```
 
-See [PLAN.md](PLAN.md#guia-72---moviegateway) for full details.
+### How to Build and Run
 
-> **Note:** This section is a placeholder. The implementation is pending.
+```bash
+# Step 1 — Install all artifacts (needed for gateway dependency resolution)
+mvn install -DskipTests
+
+# Terminal 1 — MovieService
+mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass=edu.eci.arsw.guide6_2.movie.MovieServiceServer
+
+# Terminal 2 — ReviewService
+mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass=edu.eci.arsw.guide6_2.review.ReviewServiceServer
+
+# Terminal 3 — RecommendationService
+mvn exec:java -f src/edu/eci/arsw/guide6_2/pom.xml -Dexec.mainClass=edu.eci.arsw.guide6_2.recommendation.RecommendationServiceServer
+
+# Terminal 4 — Gateway
+mvn exec:java -f src/edu/eci/arsw/guide7_2/pom.xml -Dexec.mainClass=edu.eci.arsw.guide7_2.MovieGateway
+
+# Test with curl
+curl "http://localhost:8082/movie?id=1"
+curl "http://localhost:8082/consolidated?id=1"
+```
+
+### Expected Output
+
+```
+Terminal 4:
+MovieGateway HTTP iniciado en puerto 8082
+
+curl "http://localhost:8082/movie?id=1"
+# <html><body><h1>Interstellar</h1><p>Director: Christopher Nolan</p><p>Anio: 2014</p></body></html>
+
+curl "http://localhost:8082/consolidated?id=1"
+# <html><body><h1>Resultado consolidado para pelicula 1</h1>
+#   <h2>Pelicula</h2><p>Interstellar - Christopher Nolan (2014)</p>
+#   <h2>Resena</h2><p>Roger Ebert: 5/5 - Una obra maestra de la ciencia ficcion</p>
+#   <h2>Recomendaciones</h2><p>2 3</p></body></html>
+```
+
+### Comparison: Microservices (Guide 6.2) vs Gateway (Guide 7.2)
+
+| Aspect | Guide 6.2 (Client-Side Discovery) | Guide 7.2 (Server-Side Discovery) |
+|--------|-----------------------------------|------------------------------------|
+| Client protocol | gRPC (requires Java + stubs) | HTTP (browser, curl, any language) |
+| Ports client knows | 3 (50051, 50052, 50053) | 1 (8082) |
+| Processes to start | 4 (3 servers + client) | 4 (3 servers + Gateway) |
+| Client complexity | High (4 channels, 4 stubs) | Low (single HTTP URL) |
+| Coupling | Client coupled to topology | Client decoupled from topology |
+| Routing | Client-side (client decides) | Server-side (Gateway decides) |
+| Single point of failure | No (services are independent) | Yes (Gateway can become a bottleneck) |
+
+### Key Architectural Lessons
+
+1. **Protocol adaptation:** The Gateway acts as a protocol adapter — it receives HTTP and forwards gRPC. This allows non-gRPC clients to consume gRPC services.
+2. **Topology hiding:** The client no longer needs to know about individual microservice ports. This is the fundamental benefit of the Gateway pattern: it inverts the discovery responsibility.
+3. **Gateway as a simplification layer:** `/consolidated` is a single endpoint that internally calls 3 services. The Gateway provides a simplified API tailored to client needs, not a mirror of the internal architecture.
+4. **Operational trade-off:** Adding the Gateway adds one more process to manage and one more network hop, but dramatically simplifies the client. For systems with many clients, this trade-off is almost always worth it.
+
+### Reflection Questions
+
+1. **What problem does the Gateway solve compared to Guide 6.2?**
+   - In Guide 6.2, the client knew 3 ports (50051, 50052, 50053). If any port changed, every client had to be updated. The Gateway hides this topology: the client only knows port 8082. If a microservice moves, only the Gateway is updated.
+
+2. **What is the trade-off of adding a Gateway?**
+   - **Pro:** Client simplicity (one port, one protocol), centralized routing, ability to add cross-cutting concerns (logging, caching, rate-limiting).
+   - **Con:** Single point of failure, extra network hop (latency), operational complexity (one more process to manage).
+
+3. **How does this compare to the pattern used in Guide 6.2 (client-side discovery)?**
+   - Guide 6.2 uses Client-Side Discovery: the client queries a service registry (or has hardcoded ports) and calls services directly. Guide 7.2 uses Server-Side Discovery: a Gateway is the single entry point and routes requests to the appropriate services.
 
 ---
 
@@ -2047,64 +2653,587 @@ See [PLAN.md](PLAN.md#guia-72---moviegateway) for full details.
 
 **Package:** `src/edu/eci/arsw/excercise7_3/`
 
-**Status:** Not yet implemented.
+**Status:** :ballot_box_with_check: Implemented.
 
 ### Description
 
-Gateway to centralize access to the university wellness services: AppointmentService, MedicalService, GymService, RecreationService.
+Gateway to centralize access to the university wellness services: AppointmentService, MedicalService, GymService, RecreationService. Follows the same pattern as Guide 7.2 but applied to the 4 wellness microservices.
 
-### Minimum Operations
+### Architecture
 
-- `requestAppointment(studentId, serviceType)`
-- `getStudentWellnessSummary(studentId)`
-- `reserveGymSession(studentId, timeSlot)`
-- `reserveRecreationResource(studentId, resourceId)`
+`WellnessGateway` runs an HTTP server on port 8083 and internally creates 4 gRPC channels (one to each wellness microservice). The client uses HTTP (browser, curl) and is unaware of the gRPC topology.
 
-### How to Build and Run (when implemented)
+| Endpoint | Method | Description | Delegates to |
+|----------|--------|-------------|--------------|
+| `/appointment?studentId=X&serviceType=Y&date=Z` | POST | Create appointment | AppointmentService (50061) |
+| `/wellness-summary?studentId=X` | GET | Query all wellness data for a student | All 4 services |
+| `/gym/reserve?studentId=X&timeSlot=Y` | POST | Reserve gym session | GymService (50063) |
+| `/recreation/reserve?studentId=X&resourceId=Y` | POST | Reserve recreation resource | RecreationService (50064) |
 
-```bash
-javac -d bin src/edu/eci/arsw/excercise7_3/*.java
-java -cp bin edu.eci.arsw.excercise7_3.WellnessGateway
+### Components
+
+| File | Description |
+|------|-------------|
+| `WellnessGateway.java` | HTTP server (port 8083) + gRPC client for all 4 microservices |
+
+### Operations
+
+| Operation | HTTP | Parameters | Gateway Action |
+|-----------|------|------------|----------------|
+| `requestAppointment` | `POST /appointment` | studentId, serviceType, date | Calls `appointmentStub.requestAppointment()` |
+| `getStudentWellnessSummary` | `GET /wellness-summary` | studentId | Calls all 4 stubs, consolidates into one HTML page |
+| `reserveGymSession` | `POST /gym/reserve` | studentId, timeSlot | Calls `gymStub.reserveSession()` |
+| `reserveRecreationResource` | `POST /recreation/reserve` | studentId, resourceId | Calls `recreationStub.reserveResource()` |
+
+### Design Decisions
+
+- **Same pattern as Guide 7.2:** HTTP front-end, gRPC back-end, single process on a single port.
+- **Consolidated endpoint:** `/wellness-summary` queries all 4 services and builds a single HTML page with sections for appointments, specialties, gym sessions, and recreation resources.
+- **HTTP method semantics:** POST for state-changing operations (create appointment, reserve), GET for read-only queries (summary).
+- **Error handling:** Returns 400 for missing parameters, 405 for wrong HTTP method, and meaningful HTML error messages.
+
+### Implementation
+
+**WellnessGateway.java** — HTTP server + gRPC client for 4 services:
+```java
+package edu.eci.arsw.excercise7_3;
+
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
+import edu.eci.arsw.excercise6_3.appointment.*;
+import edu.eci.arsw.excercise6_3.gym.*;
+import edu.eci.arsw.excercise6_3.medical.*;
+import edu.eci.arsw.excercise6_3.recreation.*;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+
+public class WellnessGateway {
+    private static final int PORT = 8083;
+
+    private final AppointmentServiceGrpc.AppointmentServiceBlockingStub aptStub;
+    private final MedicalServiceGrpc.MedicalServiceBlockingStub medStub;
+    private final GymServiceGrpc.GymServiceBlockingStub gymStub;
+    private final RecreationServiceGrpc.RecreationServiceBlockingStub recStub;
+
+    public WellnessGateway() {
+        aptStub = AppointmentServiceGrpc.newBlockingStub(
+                ManagedChannelBuilder.forAddress("localhost", 50061).usePlaintext().build());
+        medStub = MedicalServiceGrpc.newBlockingStub(
+                ManagedChannelBuilder.forAddress("localhost", 50062).usePlaintext().build());
+        gymStub = GymServiceGrpc.newBlockingStub(
+                ManagedChannelBuilder.forAddress("localhost", 50063).usePlaintext().build());
+        recStub = RecreationServiceGrpc.newBlockingStub(
+                ManagedChannelBuilder.forAddress("localhost", 50064).usePlaintext().build());
+    }
+
+    public static void main(String[] args) throws Exception {
+        WellnessGateway gw = new WellnessGateway();
+        HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
+        server.createContext("/appointment", gw::handleAppointment);
+        server.createContext("/wellness-summary", gw::handleSummary);
+        server.createContext("/gym/reserve", gw::handleGym);
+        server.createContext("/recreation/reserve", gw::handleRecreation);
+        server.setExecutor(null);
+        server.start();
+        System.out.println("WellnessGateway HTTP iniciado en puerto " + PORT);
+    }
+
+    private void handleAppointment(HttpExchange ex) throws IOException {
+        if (!"POST".equalsIgnoreCase(ex.getRequestMethod())) { send(ex, 405, "Use POST"); return; }
+        String sid = getParam(ex.getRequestURI().getQuery(), "studentId");
+        String st = getParam(ex.getRequestURI().getQuery(), "serviceType");
+        String dt = getParam(ex.getRequestURI().getQuery(), "date");
+        if (sid == null || st == null || dt == null) { send(ex, 400, "Faltan parametros"); return; }
+        AppointmentResponse r = aptStub.requestAppointment(AppointmentRequest.newBuilder()
+                .setStudentId(sid).setServiceType(ServiceType.valueOf(st.toUpperCase())).setDate(dt).build());
+        send(ex, 200, r.getSuccess() ? "Cita creada: " + r.getAppointment().getId() : r.getMessage());
+    }
+
+    private void handleSummary(HttpExchange ex) throws IOException {
+        String sid = getParam(ex.getRequestURI().getQuery(), "studentId");
+        if (sid == null) { send(ex, 400, "Falta studentId"); return; }
+        StringBuilder sb = new StringBuilder("<h1>Resumen de " + sid + "</h1>");
+        sb.append("<h2>Citas</h2>");
+        for (Appointment a : aptStub.getAppointments(
+                StudentRequest.newBuilder().setStudentId(sid).build()).getAppointmentsList())
+            sb.append("<p>").append(a.getId()).append(" | ").append(a.getDate()).append("</p>");
+        sb.append("<h2>Sesiones</h2>");
+        for (GymSession s : gymStub.getSessions(
+                StudentSessionsRequest.newBuilder().setStudentId(sid).build()).getSessionsList())
+            sb.append("<p>").append(s.getId()).append(" | ").append(s.getTimeSlot()).append("</p>");
+        send(ex, 200, sb.toString());
+    }
+    // handleGym, handleRecreation, getParam(), send() omitted for brevity
+}
 ```
 
-See [PLAN.md](PLAN.md#ejercicio-73---wellnessgateway) for full details.
+### How to Build and Run
 
-> **Note:** This section is a placeholder. The implementation is pending.
+```bash
+# Step 1 — Install all artifacts (needed for gateway dependency resolution)
+mvn install -DskipTests
+
+# Terminal 1 — AppointmentService
+mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass=edu.eci.arsw.excercise6_3.appointment.AppointmentServer
+
+# Terminal 2 — MedicalService
+mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass=edu.eci.arsw.excercise6_3.medical.MedicalServer
+
+# Terminal 3 — GymService
+mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass=edu.eci.arsw.excercise6_3.gym.GymServer
+
+# Terminal 4 — RecreationService
+mvn exec:java -f src/edu/eci/arsw/excercise6_3/pom.xml -Dexec.mainClass=edu.eci.arsw.excercise6_3.recreation.RecreationServer
+
+# Terminal 5 — Gateway
+mvn exec:java -f src/edu/eci/arsw/excercise7_3/pom.xml -Dexec.mainClass=edu.eci.arsw.excercise7_3.WellnessGateway
+
+# Test with curl
+curl -X POST "http://localhost:8083/appointment?studentId=S123&serviceType=MEDICINE&date=2026-06-15"
+curl "http://localhost:8083/wellness-summary?studentId=S123"
+```
+
+### Expected Output
+
+```
+Terminal 5:
+WellnessGateway HTTP iniciado en puerto 8083
+
+curl -X POST "http://localhost:8083/appointment?studentId=S123&serviceType=MEDICINE&date=2026-06-15"
+# <html><body><h1>Cita solicitada exitosamente</h1>
+#   <p>ID cita: a1b2c3d4 | Fecha: 2026-06-15 | Estado: REQUESTED</p></body></html>
+
+curl "http://localhost:8083/wellness-summary?studentId=S123"
+# <html><body><h1>Resumen de Bienestar para S123</h1>
+#   <h2>Citas</h2><p>a1b2c3d4 | MEDICINE | 2026-06-15 | REQUESTED</p>
+#   <h2>Especialidades Medicas</h2><p>MED01 - Medicina General (Disponible)</p>...
+#   <h2>Sesiones de Gimnasio</h2><p>No hay sesiones registradas.</p>
+#   <h2>Recursos Recreativos</h2><p>REC01 - Balones de futbol (Disponible)</p>...
+# </body></html>
+```
+
+### Comparison: Exercise 6.3 vs Exercise 7.3
+
+| Aspect | Exercise 6.3 (Client-Side Discovery) | Exercise 7.3 (Server-Side Discovery) |
+|--------|---------------------------------------|--------------------------------------|
+| Client knowledge | 4 ports, 4 gRPC stubs | 1 HTTP URL (port 8083) |
+| Client type | Java-only (gRPC) | Any HTTP client |
+| Startup | 5 terminals (4 servers + client) | 5 terminals (4 servers + Gateway) |
+| API granularity | 18 menu options | 4 well-defined HTTP endpoints |
+| Error handling | Per-service console messages | HTTP status codes (400, 405, 500) |
+
+### Key Architectural Lessons
+
+1. **Gateway as domain facade:** The WellnessGateway exposes only 4 endpoints instead of the full 18 gRPC operations. This facade pattern simplifies the client API by exposing only the operations that external consumers need.
+2. **Sequential vs parallel aggregation:** The `/wellness-summary` endpoint calls 4 services sequentially. This is simple but slow. A performance optimization would be parallel calls using `CompletableFuture` or a thread pool.
+3. **HTTP status codes:** Unlike the gRPC client (which uses exceptions), the Gateway returns proper HTTP status codes (400 for bad request, 405 for wrong method, 500 for server errors with meaningful HTML messages).
+4. **Unified error experience:** All errors are returned as HTML, providing a consistent user experience regardless of which backend service failed.
+
+### Reflection Questions
+
+1. **How does the Gateway improve the client experience compared to Exercise 6.3?**
+   - In Exercise 6.3, the client needed 4 gRPC channels, 4 stubs, a complex Java client, and knowledge of 4 ports. With the Gateway, the client only needs HTTP and one URL. Any language or tool (curl, browser, Postman) can interact with the wellness system.
+
+2. **What are the scalability implications of the wellness-summary endpoint?**
+   - `/wellness-summary` calls all 4 services sequentially. If one service is slow, the entire response is delayed. This could be improved with parallel calls (one thread per service) but adds complexity. For low-load scenarios, sequential is simpler and sufficient.
+
+3. **What happens if one of the backend microservices is down?**
+   - The Gateway will throw a `StatusRuntimeException` from gRPC. In the current implementation, this propagates as a 500 error. A production Gateway would add retry logic, circuit breakers, and graceful degradation (returning partial results).
 
 ---
 
 ## 15. Exercise 8 - ECICIENCIA
 
-**Package:** `src/edu/eci/arsw/excercise8/`
+**Package:** `Maven module at src/edu/eci/arsw/excercise8/`
 
-**Status:** Not yet implemented.
+**Status:** Implemented. Running code available.
 
 ### Description
 
-Integrative final exercise: design the architecture of a distributed platform for managing the ECICIENCIA event. Includes attendee registration, schedule consultation, workshop reservations, and capacity control.
+Integrative final exercise: fully implemented distributed platform for managing the ECICIENCIA event. Three gRPC microservices (AttendeeService, AgendaService, WorkshopService) and an API Gateway exposing HTTP endpoints.
 
-### Proposed Services
+### Architecture
 
-| Service | Port | Responsibility |
-|---------|------|----------------|
-| AttendeeService | 8091 | Attendee registration |
-| AgendaService | 8092 | Schedule and capacity consultation |
-| WorkshopService | 8093 | Workshop reservations |
-| Gateway | — | Unified entry point |
-
-### How to Build and Run (when implemented)
-
-```bash
-javac -d bin src/edu/eci/arsw/excercise8/**/*.java
-java -cp bin edu.eci.arsw.excercise8.attendee.AttendeeServer   # Terminal 1
-java -cp bin edu.eci.arsw.excercise8.agenda.AgendaServer       # Terminal 2
-java -cp bin edu.eci.arsw.excercise8.workshop.WorkshopServer   # Terminal 3
-java -cp bin edu.eci.arsw.excercise8.gateway.EcicienciaGateway  # Terminal 4
+```
+Client / Browser
+      |
+      v
+ECICIENCIA Gateway (:8090) — HTTP (JDK)
+      |
+      +--- gRPC → AttendeeService (:8091)
+      +--- gRPC → AgendaService    (:8092)
+      +--- gRPC → WorkshopService  (:8093)
 ```
 
-See [PLAN.md](PLAN.md#ejercicio-8---eciciencia) for full details.
+### Components
 
-> **Note:** This section is a placeholder. The implementation is pending.
+**AttendeeServer.java** — gRPC server on port 8091. Manages attendee registration and lookup. Preloaded with 2 attendees (Carlos Perez, Maria Gomez). Exposes 3 RPCs: `RegisterAttendee`, `GetAttendee`, `ListAttendees`.
+
+```java
+static class AttendeeServiceImpl extends AttendeeServiceGrpc.AttendeeServiceImplBase {
+    private final Map<Integer, AttendeeResponse> attendees = new HashMap<>();
+    private final AtomicInteger idCounter = new AtomicInteger(1);
+
+    public AttendeeServiceImpl() {
+        attendees.put(1, AttendeeResponse.newBuilder()
+                .setAttendeeId(1).setName("Carlos Perez")
+                .setEmail("carlos@mail.com").setFound(true).build());
+        attendees.put(2, AttendeeResponse.newBuilder()
+                .setAttendeeId(2).setName("Maria Gomez")
+                .setEmail("maria@mail.com").setFound(true).build());
+        idCounter.set(3);
+    }
+
+    @Override
+    public void registerAttendee(RegisterRequest request,
+            StreamObserver<AttendeeResponse> responseObserver) {
+        int id = idCounter.getAndIncrement();
+        AttendeeResponse response = AttendeeResponse.newBuilder()
+                .setAttendeeId(id).setName(request.getName())
+                .setEmail(request.getEmail()).setFound(true).build();
+        attendees.put(id, response);
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+    // getAttendee, listAttendees follow the same pattern
+}
+```
+
+**AgendaServer.java** — gRPC server on port 8092. Manages the event schedule. Preloaded with 4 activities (ML talk, Arduino workshop, Cybersecurity talk, Robotics workshop). Exposes 3 RPCs: `GetActivitiesByTimeSlot`, `GetActivityDetails`, `CheckCapacity`.
+
+```java
+static class AgendaServiceImpl extends AgendaServiceGrpc.AgendaServiceImplBase {
+    private final Map<Integer, ActivityResponse> activities = new HashMap<>();
+    // Preloaded activities with speaker, location, capacity
+    @Override
+    public void getActivitiesByTimeSlot(TimeSlotRequest request,
+            StreamObserver<ActivityList> responseObserver) {
+        ActivityList.Builder builder = ActivityList.newBuilder();
+        for (ActivityResponse a : activities.values()) {
+            if (a.getStartTime().compareTo(request.getStartTime()) >= 0
+                    && a.getEndTime().compareTo(request.getEndTime()) <= 0) {
+                builder.addActivities(a);
+            }
+        }
+        responseObserver.onNext(builder.build());
+        responseObserver.onCompleted();
+    }
+    // getActivityDetails, checkCapacity follow the same pattern
+}
+```
+
+**WorkshopServer.java** — gRPC server on port 8093. Manages reservations, waiting lists, and capacity. Exposes 4 RPCs: `ReserveSpot`, `CancelReservation`, `GetAttendeeReservations`, `GetAvailableSpots`. Implements waiting list logic: if an activity is full, the reservation enters WAITING status with a queue position.
+
+```java
+static class WorkshopServiceImpl extends WorkshopServiceGrpc.WorkshopServiceImplBase {
+    private final Map<Integer, ReserveResponse> reservations = new HashMap<>();
+    private final Map<Integer, Integer> activityCount = new HashMap<>();
+    private final Map<Integer, Integer> activityCapacity = new HashMap<>();
+
+    @Override
+    public void reserveSpot(ReserveRequest request,
+            StreamObserver<ReserveResponse> responseObserver) {
+        int currentCount = activityCount.getOrDefault(request.getActivityId(), 0);
+        int maxCap = activityCapacity.getOrDefault(request.getActivityId(), 0);
+        String status;
+        int queuePos;
+        if (currentCount < maxCap) {
+            status = "CONFIRMED";
+            queuePos = 0;
+            activityCount.put(request.getActivityId(), currentCount + 1);
+        } else {
+            status = "WAITING";
+            queuePos = currentCount - maxCap + 1;
+        }
+        ReserveResponse response = ReserveResponse.newBuilder()
+                .setReservationId(rid).setAttendeeId(request.getAttendeeId())
+                .setActivityId(request.getActivityId()).setStatus(status)
+                .setPositionInQueue(queuePos).setSuccess(true).build();
+        reservations.put(rid, response);
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+    // cancelReservation, getAttendeeReservations, getAvailableSpots follow
+}
+```
+
+**EcicienciaGateway.java** — HTTP Gateway on port 8090. Uses `com.sun.net.httpserver.HttpServer` with 3 internal gRPC stubs. Exposes 8 HTTP endpoints:
+
+| Method | Path | Parameters | Description |
+|--------|------|-----------|-------------|
+| GET | `/attendee` | `id` | Get attendee by ID |
+| POST | `/attendee/register` | `name`, `email` | Register new attendee |
+| GET | `/agenda` | `start`, `end` | Activities by time slot |
+| GET | `/agenda/activity` | `id` | Activity details + capacity |
+| POST | `/workshop/reserve` | `attendeeId`, `activityId` | Reserve a spot |
+| POST | `/workshop/cancel` | `reservationId` | Cancel reservation |
+| GET | `/workshop/attendee` | `id` | Attendee's reservations |
+| GET | `/consolidated` | `id` | Full info + reservations |
+
+```java
+public class EcicienciaGateway {
+    private final AttendeeServiceGrpc.AttendeeServiceBlockingStub attendeeStub;
+    private final AgendaServiceGrpc.AgendaServiceBlockingStub agendaStub;
+    private final WorkshopServiceGrpc.WorkshopServiceBlockingStub workshopStub;
+
+    public static void main(String[] args) throws Exception {
+        EcicienciaGateway gateway = new EcicienciaGateway();
+        HttpServer server = HttpServer.create(new InetSocketAddress(8090), 0);
+        server.createContext("/attendee/register", gateway::handleRegister);
+        server.createContext("/attendee", gateway::handleGetAttendee);
+        server.createContext("/agenda/activity", gateway::handleActivityDetail);
+        server.createContext("/agenda", gateway::handleAgenda);
+        server.createContext("/workshop/reserve", gateway::handleReserve);
+        server.createContext("/workshop/cancel", gateway::handleCancel);
+        server.createContext("/workshop/attendee", gateway::handleAttendeeReservations);
+        server.createContext("/consolidated", gateway::handleConsolidated);
+        server.setExecutor(null);
+        server.start();
+    }
+    // Each handler extracts query params, calls the appropriate gRPC stub,
+    // and returns HTML
+}
+```
+
+### How to Build and Run
+
+#### 1. Compile
+
+```bash
+# From repository root (compiles proto, generates gRPC stubs, compiles Java)
+mvn compile -pl src/edu/eci/arsw/excercise8 -am
+```
+
+#### 2. Start the 4 processes (in order: 3 gRPC servers → Gateway)
+
+Open **4 separate terminals** (cmd.exe or PowerShell) from the repository root:
+
+```bash
+# Terminal 1: AttendeeService (gRPC, port 8091)
+mvn exec:java -pl src/edu/eci/arsw/excercise8 -Dexec.mainClass="edu.eci.arsw.excercise8.attendee.AttendeeServer"
+
+# Terminal 2: AgendaService (gRPC, port 8092)
+mvn exec:java -pl src/edu/eci/arsw/excercise8 -Dexec.mainClass="edu.eci.arsw.excercise8.agenda.AgendaServer"
+
+# Terminal 3: WorkshopService (gRPC, port 8093)
+mvn exec:java -pl src/edu/eci/arsw/excercise8 -Dexec.mainClass="edu.eci.arsw.excercise8.workshop.WorkshopServer"
+
+# Terminal 4: ECICIENCIA Gateway (HTTP, port 8090)
+mvn exec:java -pl src/edu/eci/arsw/excercise8 -Dexec.mainClass="edu.eci.arsw.excercise8.gateway.EcicienciaGateway"
+```
+
+> **Note:** Use `-pl src/edu/eci/arsw/excercise8` (project list by module path) from the root to avoid quoting issues on Windows. If you prefer `-f`, use:  
+> `mvn exec:java -f src/edu/eci/arsw/excercise8/pom.xml -Dexec.mainClass="..."`
+
+Wait for each terminal to show its "iniciado" message before starting the next one.
+
+#### 3. Test with curl
+
+All requests go to the Gateway on `http://localhost:8090`. Use a **5th terminal** for curl commands.
+
+```bash
+# ======================================================================
+# 1. REGISTER a new attendee (POST)
+# ======================================================================
+curl -X POST "http://localhost:8090/attendee/register?name=Ana+Lopez&email=ana@mail.com"
+
+# ======================================================================
+# 2. GET attendee by ID (GET)
+# ======================================================================
+curl "http://localhost:8090/attendee?id=1"
+
+# ======================================================================
+# 3. GET agenda by time slot (GET)
+# ======================================================================
+curl "http://localhost:8090/agenda?start=09:00&end=12:00"
+
+# ======================================================================
+# 4. GET activity details + capacity (GET)
+# ======================================================================
+curl "http://localhost:8090/agenda/activity?id=2"
+
+# ======================================================================
+# 5. RESERVE a spot (POST)
+# ======================================================================
+curl -X POST "http://localhost:8090/workshop/reserve?attendeeId=1&activityId=2"
+
+# ======================================================================
+# 6. GET attendee's reservations (GET)
+# ======================================================================
+curl "http://localhost:8090/workshop/attendee?id=1"
+
+# ======================================================================
+# 7. GET consolidated info (attendee + reservations) (GET)
+# ======================================================================
+curl "http://localhost:8090/consolidated?id=1"
+
+# ======================================================================
+# 8. CANCEL a reservation (POST)
+# ======================================================================
+curl -X POST "http://localhost:8090/workshop/cancel?reservationId=1"
+
+# ======================================================================
+# 9. ERROR CASES — parameters missing
+# ======================================================================
+curl "http://localhost:8090/attendee"                       # 400 — falta id
+curl -X POST "http://localhost:8090/attendee/register"      # 400 — faltan name y email
+curl "http://localhost:8090/agenda"                         # 400 — faltan start y end
+curl -X POST "http://localhost:8090/workshop/reserve"       # 400 — faltan attendeeId y activityId
+
+# ======================================================================
+# 10. ERROR CASES — non-numeric parameters
+# ======================================================================
+curl "http://localhost:8090/attendee?id=abc"                # 400 — id debe ser numerico
+
+# ======================================================================
+# 11. NOT FOUND cases
+# ======================================================================
+curl "http://localhost:8090/attendee?id=999"                # 404 — asistente no encontrado
+curl "http://localhost:8090/agenda/activity?id=99"          # 404 — actividad no encontrada
+curl "http://localhost:8090/consolidated?id=999"            # 404 — asistente no encontrado
+
+# ======================================================================
+# 12. WRONG HTTP method
+# ======================================================================
+curl "http://localhost:8090/attendee/register"              # 405 — GET no es POST
+```
+
+### Expected Output
+
+All responses are HTML. Key examples:
+
+| Request | Expected Response |
+|---------|-----------------|
+| `POST /attendee/register?name=Ana+Lopez&email=ana@mail.com` | `<h1>Asistente registrado</h1><p>ID: 3 \| Nombre: Ana Lopez \| Email: ana@mail.com</p>` |
+| `GET /attendee?id=1` | `<h1>Asistente</h1><p>ID: 1 \| Nombre: Carlos Perez \| Email: carlos@mail.com</p>` |
+| `GET /agenda?start=09:00&end=12:00` | 2 activities in list (ML talk + Arduino workshop) |
+| `GET /agenda/activity?id=2` | `<h1>Taller: Arduino Basico</h1>...<p>Aforo: 18/20 (2 disponibles)</p>` |
+| `POST /workshop/reserve?attendeeId=1&activityId=2` | `<h1>Reserva confirmada para actividad 2</h1><p>ID reserva: 2 \| Estado: CONFIRMED</p>` |
+| `GET /workshop/attendee?id=1` | Lists reservation for attendee 1 |
+| `GET /consolidated?id=1` | Full info + all reservations |
+| `POST /workshop/cancel?reservationId=1` | `<h1>Reserva cancelada exitosamente</h1>` |
+| Missing parameters | `<h1>Faltan parametros: ...</h1>` (HTTP 400) |
+| Wrong method (GET on POST endpoint) | `<h1>Use POST</h1>` (HTTP 405) |
+| Non-numeric id | `<h1>Error interno</h1>...parametro debe ser numerico...` (HTTP 500) |
+| Backend server down | `<h1>Servicio X no disponible</h1>...` (HTTP 500) |
+
+### Testing with a browser
+
+You can also open the GET endpoints directly in a browser:
+
+- `http://localhost:8090/attendee?id=1`
+- `http://localhost:8090/agenda?start=09:00&end=12:00`
+- `http://localhost:8090/agenda/activity?id=2`
+- `http://localhost:8090/workshop/attendee?id=1`
+- `http://localhost:8090/consolidated?id=1`
+
+(POST endpoints like register, reserve, and cancel require curl or Postman.)
+
+### Complete testing workflow (recommended order)
+
+```bash
+# 1. Register a new attendee
+curl -X POST "http://localhost:8090/attendee/register?name=Ana+Lopez&email=ana@mail.com"
+# → ID: 3
+
+# 2. Verify the attendee was created
+curl "http://localhost:8090/attendee?id=3"
+# → Ana Lopez
+
+# 3. Check available activities in the morning
+curl "http://localhost:8090/agenda?start=09:00&end=12:00"
+# → 2 activities: ML talk + Arduino workshop
+
+# 4. Check capacity of the Arduino workshop (activity 2)
+curl "http://localhost:8090/agenda/activity?id=2"
+# → Cupo: 18/20 (2 disponibles)
+
+# 5. Reserve a spot in the Arduino workshop
+curl -X POST "http://localhost:8090/workshop/reserve?attendeeId=3&activityId=2"
+# → CONFIRMED
+
+# 6. Verify the reservation
+curl "http://localhost:8090/workshop/attendee?id=3"
+# → Shows reservation for activity 2
+
+# 7. Get consolidated info for attendee 3
+curl "http://localhost:8090/consolidated?id=3"
+# → Attendee details + reservation list
+
+# 8. Cancel the reservation
+curl -X POST "http://localhost:8090/workshop/cancel?reservationId=1"
+# → Cancelada exitosamente
+
+# 9. Verify cancellation
+curl "http://localhost:8090/workshop/attendee?id=3"
+# → Shows CANCELLED status
+```
+
+### 15.1 Design Decisions
+
+- **gRPC over HTTP for internal services:** Formal contracts guarantee compile-time interface validation.
+- **Maven module with protobuf plugin:** Follows the same pattern as other gRPC modules (guide5_2, excercise5_3, etc.).
+- **Gateway as protocol adapter:** HTTP ↔ gRPC translation; external clients never need protobuf.
+- **Waiting list logic:** When capacity is reached, reservations enter WAITING status with a queue position — demonstrates real-world domain logic.
+- **In-memory state:** Consistent with workshop constraints. Preloaded data for immediate testing.
+- **Unique proto service names:** Prevents namespace collisions in generated Java code.
+
+### 15.2 Architecture Diagram
+
+A PlantUML diagram is available at `docs/diagrams/exercise8_architecture.puml`:
+
+```plantuml
+@startuml
+!define RECTANGLE class
+skinparam componentStyle rectangle
+actor "Client / Browser" as client
+rectangle "ECICIENCIA Gateway\n(:8090)" as gateway {
+  component [HTTP Server\ncom.sun.net.httpserver] as http
+  component [AttendeeStub\ngRPC] as atteStub
+  component [AgendaStub\ngRPC] as agenStub
+  component [WorkshopStub\ngRPC] as workStub
+}
+database "Attendee DB\n(in memory)" as atteDB
+database "Agenda DB\n(in memory)" as agenDB
+database "Reservation DB\n(in memory)" as workDB
+rectangle "AttendeeService\n(:8091)" as atteSvc { component [gRPC Server] as atteGrpc }
+rectangle "AgendaService\n(:8092)" as agenSvc { component [gRPC Server] as agenGrpc }
+rectangle "WorkshopService\n(:8093)" as workSvc { component [gRPC Server] as workGrpc }
+client --> gateway : HTTP
+http --> atteStub : route
+http --> agenStub : route
+http --> workStub : route
+atteStub --> atteSvc : gRPC
+agenStub --> agenSvc : gRPC
+workStub --> workSvc : gRPC
+atteSvc --> atteDB : read/write
+agenSvc --> agenDB : read/write
+workSvc --> workDB : read/write
+@enduml
+```
+
+### 15.3 Reflection on Architectural Evolution
+
+The workshop traces a clear progression across six architectural styles, each solving a specific problem created by the previous one:
+
+**1. TCP Sockets (Guide 2.2 → Exercise 2.3)** — Raw TCP required manual protocol design (`MOVIE:id`). The contract existed only in documentation. Every client had to be Java. Low-level control taught us what happens on the wire, but impractical beyond toy systems.
+
+**2. HTTP (Guide 3.2 → Exercise 3.3)** — Added structure (method, route, parameters, headers, body) and interoperability. Any browser or curl could interact. Trade-off: manual query parsing, no framework support. Good for simple APIs but lacks formal contract rigor.
+
+**3. Java RMI (Guide 4.2 → Exercise 4.3)** — Eliminated manual message parsing. Remote method calls look local. Fatal limitation: Java-only. Python or Node.js cannot consume RMI services.
+
+**4. gRPC (Guide 5.2 → Exercise 5.3)** — Combined HTTP interoperability with RMI invocation semantics. Formal `.proto` contracts, strong typing, efficient binary serialization. Cross-language clients finally practical.
+
+**5. Microservices (Guide 6.2 → Exercise 6.3)** — Split monoliths into cohesive services. Each owns its data and logic. New problem: clients know too many addresses and ports.
+
+**6. API Gateway (Guide 7.2 → Exercise 7.3 → Exercise 8)** — Hides internal topology behind a single HTTP entry point. Client sends one request to one URL; Gateway fans out, aggregates, and handles errors.
+
+**ECICIENCIA as composition:** The final exercise composes all lessons: gRPC contracts (style 4) for service boundaries, microservice decomposition (style 5) for domain separation, and an API Gateway (style 6) for unified access. The lower-level styles (TCP, HTTP without framework, RMI) are not used directly but understanding them is essential for recognizing why later styles exist — each one addresses a limitation of its predecessor.
+
+**Key lesson:** Architectural decisions are trade-offs, not absolute improvements. gRPC is not "better" than TCP in every dimension. Microservices improve autonomy but add network complexity. The Gateway simplifies the client but becomes a single point of failure. A good architect chooses the style matching the problem's constraints.
 
 ---
 
@@ -2116,10 +3245,20 @@ See [PLAN.md](PLAN.md#ejercicio-8---eciciencia) for full details.
 | RoomServer TCP | Java Sockets | 36000 |
 | MovieHttpServer | com.sun.net.httpserver | 8080 |
 | RoomHttpServer | com.sun.net.httpserver | 8081 |
+| MovieGateway (Guide 7.2) | HTTP (JDK) | 8082 |
+| WellnessGateway (Exercise 7.3) | HTTP (JDK) | 8083 |
 | MovieService RMI | Java RMI | 23000 |
 | EquipmentService RMI | Java RMI | 24000 |
-| MovieGrpcServer | gRPC | 50051 |
-| WellnessGrpcServer | gRPC | 50061 |
-| Movie Microservices (future) | gRPC | 50051-50053 |
-| Wellness Microservices (future) | gRPC | 50061-50064 |
-| ECICIENCIA services (future) | HTTP (JDK) | 8091-8093 |
+| MovieGrpcServer (Guide 5.2) | gRPC | 50051 |
+| MovieService (Microservice Guide 6.2) | gRPC | 50051 |
+| ReviewService (Microservice Guide 6.2) | gRPC | 50052 |
+| RecommendationService (Microservice Guide 6.2) | gRPC | 50053 |
+| WellnessGrpcServer (Exercise 5.3) | gRPC | 50061 |
+| AppointmentService (Microservice Exercise 6.3) | gRPC | 50061 |
+| MedicalService (Microservice Exercise 6.3) | gRPC | 50062 |
+| GymService (Microservice Exercise 6.3) | gRPC | 50063 |
+| RecreationService (Microservice Exercise 6.3) | gRPC | 50064 |
+| ECICIENCIA Gateway (Exercise 8) | HTTP (JDK) | 8090 |
+| AttendeeService (Exercise 8) | gRPC | 8091 |
+| AgendaService (Exercise 8) | gRPC | 8092 |
+| WorkshopService (Exercise 8) | gRPC | 8093 |

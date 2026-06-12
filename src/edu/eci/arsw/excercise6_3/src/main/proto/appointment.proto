@@ -1,0 +1,81 @@
+syntax = "proto3";
+option java_multiple_files = true;
+option java_package = "edu.eci.arsw.excercise6_3.appointment";
+option java_outer_classname = "AppointmentServiceProto";
+
+enum ServiceType {
+  MEDICINE = 0;
+  PSYCHOLOGY = 1;
+  DENTISTRY = 2;
+}
+
+enum Status {
+  REQUESTED = 0;
+  CANCELLED = 1;
+  ATTENDED = 2;
+}
+
+service AppointmentService {
+  rpc RequestAppointment (AppointmentRequest) returns (AppointmentResponse);
+  rpc CancelAppointment (CancelRequest) returns (CancelResponse);
+  rpc GetAppointments (StudentRequest) returns (AppointmentList);
+  rpc DeleteAppointment (DeleteAppointmentRequest) returns (DeleteAppointmentResponse);
+  rpc UpdateAppointmentDate (UpdateDateRequest) returns (UpdateDateResponse);
+}
+
+message DeleteAppointmentRequest {
+  string appointmentId = 1;
+}
+
+message DeleteAppointmentResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message UpdateDateRequest {
+  string appointmentId = 1;
+  string newDate = 2;
+}
+
+message UpdateDateResponse {
+  bool success = 1;
+  string message = 2;
+  Appointment appointment = 3;
+}
+
+message AppointmentRequest {
+  string studentId = 1;
+  ServiceType serviceType = 2;
+  string date = 3;
+}
+
+message AppointmentResponse {
+  bool success = 1;
+  string message = 2;
+  Appointment appointment = 3;
+}
+
+message CancelRequest {
+  string appointmentId = 1;
+}
+
+message CancelResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message StudentRequest {
+  string studentId = 1;
+}
+
+message Appointment {
+  string id = 1;
+  string studentId = 2;
+  ServiceType serviceType = 3;
+  string date = 4;
+  Status status = 5;
+}
+
+message AppointmentList {
+  repeated Appointment appointments = 1;
+}

@@ -1,6 +1,6 @@
 syntax = "proto3";
 option java_multiple_files = true;
-option java_package = "edu.eci.arsw.wellness";
+option java_package = "edu.eci.arsw.excercise5_3";
 option java_outer_classname = "AppointmentProto";
 
 enum ServiceType {
@@ -13,12 +13,6 @@ enum Status {
   REQUESTED = 0;
   CANCELLED = 1;
   ATTENDED = 2;
-}
-
-message Student {
-  string id = 1;
-  string name = 2;
-  string institutionalEmail = 3;
 }
 
 message Appointment {

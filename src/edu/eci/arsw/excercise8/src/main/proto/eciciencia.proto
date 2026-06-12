@@ -1,0 +1,101 @@
+syntax = "proto3";
+option java_multiple_files = true;
+option java_package = "edu.eci.arsw.excercise8";
+option java_outer_classname = "EcicienciaProto";
+
+service AttendeeService {
+  rpc RegisterAttendee (RegisterRequest) returns (AttendeeResponse);
+  rpc GetAttendee (AttendeeIdRequest) returns (AttendeeResponse);
+  rpc ListAttendees (Empty) returns (AttendeeList);
+}
+
+message RegisterRequest {
+  string name = 1;
+  string email = 2;
+}
+
+message AttendeeIdRequest {
+  int32 attendee_id = 1;
+}
+
+message AttendeeResponse {
+  int32 attendee_id = 1;
+  string name = 2;
+  string email = 3;
+  bool found = 4;
+}
+
+message AttendeeList {
+  repeated AttendeeResponse attendees = 1;
+}
+
+service AgendaService {
+  rpc GetActivitiesByTimeSlot (TimeSlotRequest) returns (ActivityList);
+  rpc GetActivityDetails (ActivityRequest) returns (ActivityResponse);
+  rpc CheckCapacity (ActivityRequest) returns (CapacityResponse);
+}
+
+message TimeSlotRequest {
+  string start_time = 1;
+  string end_time = 2;
+}
+
+message ActivityRequest {
+  int32 activity_id = 1;
+}
+
+message ActivityResponse {
+  int32 activity_id = 1;
+  string title = 2;
+  string description = 3;
+  string speaker = 4;
+  string location = 5;
+  string start_time = 6;
+  string end_time = 7;
+  int32 max_capacity = 8;
+  int32 registered_count = 9;
+  bool found = 10;
+}
+
+message ActivityList {
+  repeated ActivityResponse activities = 1;
+}
+
+message CapacityResponse {
+  int32 activity_id = 1;
+  int32 max_capacity = 2;
+  int32 registered_count = 3;
+  int32 available_spots = 4;
+}
+
+service WorkshopService {
+  rpc ReserveSpot (ReserveRequest) returns (ReserveResponse);
+  rpc CancelReservation (CancelReserveRequest) returns (ReserveResponse);
+  rpc GetAttendeeReservations (AttendeeIdRequest) returns (ReservationList);
+  rpc GetAvailableSpots (ActivityRequest) returns (CapacityResponse);
+}
+
+message ReserveRequest {
+  int32 attendee_id = 1;
+  int32 activity_id = 2;
+}
+
+message CancelReserveRequest {
+  int32 reservation_id = 1;
+}
+
+message ReserveResponse {
+  int32 reservation_id = 1;
+  int32 attendee_id = 2;
+  int32 activity_id = 3;
+  string status = 4;
+  int32 position_in_queue = 5;
+  bool success = 6;
+  string message = 7;
+}
+
+message ReservationList {
+  repeated ReserveResponse reservations = 1;
+}
+
+message Empty {}

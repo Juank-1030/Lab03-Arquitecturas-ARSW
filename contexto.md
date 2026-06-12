@@ -542,7 +542,7 @@ Servidor gRPC <---- canal gRPC ----> Cliente gRPC
 movie-grpc/
  ├── pom.xml
  └── src/main/
-     ├── java/edu/eci/arsw/movie/
+      ├── java/edu/eci/arsw/guide5_2/
      └── proto/movie.proto
 ```
 
@@ -625,7 +625,7 @@ movie-grpc/
 ```protobuf
 syntax = "proto3";
 option java_multiple_files = true;
-option java_package = "edu.eci.arsw.movie";
+option java_package = "edu.eci.arsw.guide5_2";
 option java_outer_classname = "MovieProto";
 
 service MovieService {
@@ -656,7 +656,7 @@ Las clases generadas aparecen en `target/generated-sources`.
 **Paso 5 - Servidor gRPC**
 
 ```java
-package edu.eci.arsw.movie;
+package edu.eci.arsw.guide5_2;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -709,7 +709,7 @@ public class MovieGrpcServer {
 **Paso 6 - Cliente gRPC**
 
 ```java
-package edu.eci.arsw.movie;
+package edu.eci.arsw.guide5_2;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -743,9 +743,9 @@ public class MovieGrpcClient {
 
 ```bash
 mvn clean compile
-mvn exec:java -Dexec.mainClass="edu.eci.arsw.movie.MovieGrpcServer"
+mvn exec:java -Dexec.mainClass="edu.eci.arsw.guide5_2.MovieGrpcServer"
 # En otra terminal:
-mvn exec:java -Dexec.mainClass="edu.eci.arsw.movie.MovieGrpcClient"
+mvn exec:java -Dexec.mainClass="edu.eci.arsw.guide5_2.MovieGrpcClient"
 ```
 
 ### 5.3 Ejercicio Aplicado 4: Sistema de Bienestar Universitario con gRPC

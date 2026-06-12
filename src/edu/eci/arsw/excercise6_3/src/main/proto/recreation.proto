@@ -1,0 +1,52 @@
+syntax = "proto3";
+option java_multiple_files = true;
+option java_package = "edu.eci.arsw.excercise6_3.recreation";
+option java_outer_classname = "RecreationProto";
+
+service RecreationService {
+  rpc ReserveResource (ResourceRequest) returns (ResourceResponse);
+  rpc ListResources (RecreationEmpty) returns (ResourceList);
+  rpc ReturnResource (ReturnResourceRequest) returns (ReturnResourceResponse);
+  rpc AddResource (AddResourceRequest) returns (AddResourceResponse);
+}
+
+message ReturnResourceRequest {
+  string resourceId = 1;
+}
+
+message ReturnResourceResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message AddResourceRequest {
+  string id = 1;
+  string name = 2;
+}
+
+message AddResourceResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message RecreationEmpty {}
+
+message ResourceRequest {
+  string studentId = 1;
+  string resourceId = 2;
+}
+
+message ResourceResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message RecreationResource {
+  string id = 1;
+  string name = 2;
+  bool available = 3;
+}
+
+message ResourceList {
+  repeated RecreationResource resources = 1;
+}

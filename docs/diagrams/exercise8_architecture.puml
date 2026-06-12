@@ -1,0 +1,44 @@
+@startuml
+!define RECTANGLE class
+
+skinparam componentStyle rectangle
+
+title ECICIENCIA Platform — Architecture Diagram
+
+actor "Client / Browser" as client
+
+rectangle "ECICIENCIA Gateway\n(:8090)" as gateway {
+  component [HTTP Server\ncom.sun.net.httpserver] as http
+  component [AttendeeStub\ngRPC] as atteStub
+  component [AgendaStub\ngRPC] as agenStub
+  component [WorkshopStub\ngRPC] as workStub
+}
+
+database "Attendee DB\n(in memory)" as atteDB
+database "Agenda DB\n(in memory)" as agenDB
+database "Reservation DB\n(in memory)" as workDB
+
+rectangle "AttendeeService\n(:8091)" as atteSvc {
+  component [gRPC Server] as atteGrpc
+}
+
+rectangle "AgendaService\n(:8092)" as agenSvc {
+  component [gRPC Server] as agenGrpc
+}
+
+rectangle "WorkshopService\n(:8093)" as workSvc {
+  component [gRPC Server] as workGrpc
+}
+
+client --> gateway : HTTP
+http --> atteStub : route
+http --> agenStub : route
+http --> workStub : route
+atteStub --> atteSvc : gRPC
+agenStub --> agenSvc : gRPC
+workStub --> workSvc : gRPC
+atteSvc --> atteDB : read/write
+agenSvc --> agenDB : read/write
+workSvc --> workDB : read/write
+
+@enduml

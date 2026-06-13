@@ -546,6 +546,12 @@ LIBERAR_SALON, E303    -> LIBERACION_EXITOSA
 
 ![Exercise 2.3 - Room TCP](Images/Evidencias/Ejercicios/ejercicio2_3.png)
 
+### Architecture Diagram
+
+![Exercise 2.3 Architecture](Images/Diagramas/Ejercicios/ejercicio2_3.png)
+
+**Why this shape:** `RoomClient` requires the TCP socket to send commands (`CONSULTAR_SALON`, `RESERVAR_SALON`, `LIBERAR_SALON`) as text over TCP. `RoomServer` provides TCP :36000, parses the command, and delegates to `RoomRepository`. The repository encapsulates the 4 rooms (`Room` model) and exposes `consult()`, `reserve()`, `release()`. This is the simplest client-server style: one port, one protocol, manual text parsing.
+
 ## 5. Guide 3.2 - MovieHttpServer
 
 **Package:** `src/edu/eci/arsw/guide3_2/`
@@ -931,6 +937,12 @@ curl -X POST "http://localhost:8081/rooms/release?id=E303"
 ![Exercise 3.3 - Room HTTP 1](Images/Evidencias/Ejercicios/ejercicio3_3_1.png)
 ![Exercise 3.3 - Room HTTP 2](Images/Evidencias/Ejercicios/ejercicio3_3_2.png)
 ![Exercise 3.3 - Room HTTP 3](Images/Evidencias/Ejercicios/ejercicio3_3_3.png)
+
+### Architecture Diagram
+
+![Exercise 3.3 Architecture](Images/Diagramas/Ejercicios/ejercicio3_3.png)
+
+**Why this shape:** `Browser` requires HTTP to make GET/POST requests. `RoomHttpServer` provides HTTP :8081 and routes based on method + path (`GET /rooms`, `POST /rooms/reserve`, `POST /rooms/release`). Compared to TCP (Exercise 2.3), HTTP adds standard request structure, status codes, and browser compatibility. The trade-off is a more complex handler that must parse methods, paths, and query parameters manually.
 
 ## 7. Guide 4.2 - MovieService RMI
 
@@ -1432,6 +1444,12 @@ Equipos disponibles:
 ---
 
 ![Exercise 4.3 - Lab Inventory RMI](Images/Evidencias/Ejercicios/ejercicio4_3.png)
+
+### Architecture Diagram
+
+![Exercise 4.3 Architecture](Images/Diagramas/Ejercicios/ejercicio4_3.png)
+
+**Why this shape:** `EquipmentRmiClient` requires the RMI Registry :24000 to look up `"equipmentService"`. `EquipmentRmiServer` provides the registry and binds the remote implementation. `EquipmentServiceImpl` implements the `EquipmentService` remote interface with an in-memory Map. The client calls `consultarEquipos()`, `reservarEquipo()`, `liberarEquipo()` as if they were local. RMI hides serialization and network transport, but locks the system into the JVM ecosystem.
 
 ## 9. Guide 5.2 - MovieService gRPC
 
@@ -2032,6 +2050,12 @@ Citas de S123:
 
 ![Exercise 5.3 - Wellness gRPC](Images/Evidencias/Ejercicios/ejercicio5_3.png)
 
+### Architecture Diagram
+
+![Exercise 5.3 Architecture](Images/Diagramas/Ejercicios/ejercicio5_3.png)
+
+**Why this shape:** `WellnessGrpcClient` requires gRPC :50061 to invoke `RequestAppointment`, `CancelAppointment`, and `GetAppointments`. `WellnessGrpcServer` provides the service with a contract defined in `appointment.proto` (3 RPCs, strongly-typed messages). Compared to RMI (Exercise 4.3), gRPC adds formal `.proto` contracts, multi-language support, and efficient binary serialization. The trade-off is the protobuf compilation step and Maven plugin configuration.
+
 ## 11. Guide 6.2 - Movie Microservices
 
 **Package:** `src/edu/eci/arsw/guide6_2/`
@@ -2063,8 +2087,8 @@ The client (`MicroserviceClient`) maintains 3 separate gRPC channels, one to eac
 | File | Description |
 |------|-------------|
 | `movie.proto` | `MovieService` with `GetMovie` RPC |
-| `review.proto` | `ReviewService` with `GetReview` RPC |
-| `recommendation.proto` | `RecommendationService` with `GetRecommendation` RPC |
+| `review.proto` | `ReviewService` with `GetReviews` RPC returning `ReviewList` (repeated `Review`) |
+| `recommendation.proto` | `RecommendationService` with `GetRecommendations` RPC returning `RecommendationList` (repeated string titles) |
 | `MovieServiceServer.java` | gRPC server on port 50051 |
 | `ReviewServiceServer.java` | gRPC server on port 50052 |
 | `RecommendationServiceServer.java` | gRPC server on port 50053 |
@@ -2077,8 +2101,8 @@ Each `.proto` defines a single service with a single RPC, isolated in its own pa
 | Proto | java_package | RPC |
 |-------|-------------|-----|
 | `movie.proto` | `edu.eci.arsw.guide6_2.movie` | `GetMovie(MovieRequest) → MovieResponse` |
-| `review.proto` | `edu.eci.arsw.guide6_2.review` | `GetReview(ReviewRequest) → ReviewResponse` |
-| `recommendation.proto` | `edu.eci.arsw.guide6_2.recommendation` | `GetRecommendation(RecommendationRequest) → RecommendationResponse` |
+| `review.proto` | `edu.eci.arsw.guide6_2.review` | `GetReviews(MovieIdRequest) → ReviewList` (repeated `Review`: reviewer, comment, rating) |
+| `recommendation.proto` | `edu.eci.arsw.guide6_2.recommendation` | `GetRecommendations(MovieIdRequest) → RecommendationList` (repeated string titles) |
 
 ### Design Decisions
 
@@ -2204,7 +2228,7 @@ Movie ID (1-3): 1
 === Full results for movie 1 ===
 Movie: Interstellar - Christopher Nolan - 2014
 Review: Roger Ebert - 5/5 - Una obra maestra de la ciencia ficcion
-Recommendations: [2, 3]
+Recommendations: Inception, The Matrix
 ```
 
 ### Key Architectural Lessons
@@ -2520,6 +2544,12 @@ Especialidad agregada exitosamente
 ![Exercise 6.3 - Wellness Microservices 1](Images/Evidencias/Ejercicios/ejercicio6_3_1.png)
 ![Exercise 6.3 - Wellness Microservices 2](Images/Evidencias/Ejercicios/ejercicio6_3_2.png)
 
+### Architecture Diagram
+
+![Exercise 6.3 Architecture](Images/Diagramas/Ejercicios/ejercicio6_3.png)
+
+**Why this shape:** The single gRPC server from Exercise 5.3 is split into 4 independent microservices, each with its own gRPC port and in-memory database. `WellnessClient` requires all 4 services (Appointment :50061, Medical :50062, Gym :50063, Recreation :50064) and orchestrates calls based on an 18-option menu. This improves domain separation and independent deployability, but the client now knows 4 ports — the topology coupling problem that motivates the Gateway pattern.
+
 ## 13. Guide 7.2 - MovieGateway
 
 **Package:** `src/edu/eci/arsw/guide7_2/`
@@ -2528,56 +2558,43 @@ Especialidad agregada exitosamente
 
 ### Description
 
-An API Gateway that centralizes access to the movie microservices (MovieService, ReviewService, RecommendationService). The client only knows the Gateway, not the individual ports of each service.
+A console-based API Gateway that centralizes access to the movie microservices (MovieService, ReviewService, RecommendationService). The client only knows the Gateway, not the individual ports of each service.
 
-The Gateway receives a unified request, internally queries the 3 services, and consolidates the response. This solves the client-to-services coupling problem that arises in Guide 6.2.
+The Gateway receives a movie ID via console input, internally queries the 3 services via gRPC, and consolidates the response into a single text output. This solves the client-to-services coupling problem that arises in Guide 6.2.
 
 ### Architecture
 
-`MovieGateway` runs an HTTP server (`com.sun.net.httpserver.HttpServer`) on port 8082. Internally, it creates 3 gRPC channels (one to each microservice) and acts as a gRPC client. The client only needs HTTP (browser, curl) and is completely unaware of the gRPC topology behind the Gateway.
+`MovieGateway` runs a console application that reads a movie ID from `Scanner(System.in)`. Internally, it creates 3 gRPC channels (one to each microservice) and acts as a gRPC client. The `printConsolidated` method queries all 3 services and outputs consolidated text to the console.
 
 > **Architecture diagram:** `docs/diagrams/guide7_2_architecture.puml`
-
-| Endpoint | Method | Description | Delegates to |
-|----------|--------|-------------|--------------|
-| `/movie?id=X` | GET | Query movie info | MovieService (50051) |
-| `/review?movieId=X` | GET | Query review | ReviewService (50052) |
-| `/recommendation?movieId=X` | GET | Query recommendations | RecommendationService (50053) |
-| `/consolidated?id=X` | GET | Query all 3 services at once | All 3 microservices |
 
 ### Components
 
 | File | Description |
 |------|-------------|
-| `MovieGateway.java` | HTTP server (port 8082) + gRPC client for all 3 microservices |
+| `MovieGateway.java` | Console-based Gateway with Scanner input + gRPC stubs for all 3 microservices |
 
 ### Design Decisions
 
-- **Single process, single port:** Unlike Guide 6.2 (4 processes, 3 ports), the Gateway is a single process on a single port (8082). The client only knows `localhost:8082`.
-- **Client-side Discovery → Server-side Routing:** Guide 6.2 required the client to know all 3 ports. The Gateway inverts this: it knows the 3 ports, and the client only knows the Gateway.
-- **HTML responses:** Uses HTML (same as Guide 3.2) so the Gateway can be tested with any browser or curl.
-- **Clean error handling:** Returns `400 Bad Request` for missing parameters and meaningful HTML error messages.
+- **Single process, single entry point:** Unlike Guide 6.2 (3 ports the client must know), the Gateway is a single process. The client only interacts with the Gateway via console.
+- **Client-side Discovery → Server-side Aggregation:** Guide 6.2 required the client to orchestrate calls to all 3 services. The Gateway aggregates internally and returns a consolidated result.
+- **Console-based (not HTTP):** Uses `Scanner` for input and `System.out` for output, keeping the interface minimal. No HTTP server is needed — the Gateway is a text-based aggregator.
+- **Consolidated output:** `printConsolidated()` calls all 3 microservices and prints a formatted block with the movie, its reviews, and recommendations.
 
 ### Implementation
 
-**MovieGateway.java** — HTTP server + gRPC client:
+**MovieGateway.java** — Console-based Gateway + gRPC client:
 ```java
 package edu.eci.arsw.guide7_2;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpServer;
 import edu.eci.arsw.guide6_2.movie.*;
 import edu.eci.arsw.guide6_2.review.*;
 import edu.eci.arsw.guide6_2.recommendation.*;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
+import java.util.Scanner;
 
 public class MovieGateway {
-    private static final int GATEWAY_PORT = 8082;
-
     private final MovieServiceGrpc.MovieServiceBlockingStub movieStub;
     private final ReviewServiceGrpc.ReviewServiceBlockingStub reviewStub;
     private final RecommendationServiceGrpc.RecommendationServiceBlockingStub recStub;
@@ -2591,44 +2608,37 @@ public class MovieGateway {
         recStub = RecommendationServiceGrpc.newBlockingStub(recCh);
     }
 
-    public static void main(String[] args) throws Exception {
+    public void printConsolidated(int movieId) {
+        MovieResponse movie = movieStub.getMovie(
+                MovieRequest.newBuilder().setId(movieId).build());
+        ReviewList reviews = reviewStub.getReviews(
+                MovieIdRequest.newBuilder().setMovieId(movieId).build());
+        RecommendationList recommendations = recStub.getRecommendations(
+                MovieIdRequest.newBuilder().setMovieId(movieId).build());
+
+        System.out.println("=== Consolidated Result ===");
+        if (movie.getFound()) {
+            System.out.println("Movie: " + movie.getTitle() + " - " +
+                    movie.getDirector() + " (" + movie.getYear() + ")");
+        }
+        System.out.println("Reviews:");
+        for (Review r : reviews.getReviewsList()) {
+            System.out.println("  " + r.getReviewer() + ": " + r.getRating() +
+                    "/5 - " + r.getComment());
+        }
+        System.out.println("Recommendations: " +
+                String.join(", ", recommendations.getTitlesList()));
+    }
+
+    public static void main(String[] args) {
         MovieGateway gw = new MovieGateway();
-        HttpServer server = HttpServer.create(new InetSocketAddress(GATEWAY_PORT), 0);
-        server.createContext("/movie", gw::handleMovie);
-        server.createContext("/review", gw::handleReview);
-        server.createContext("/recommendation", gw::handleRecommendation);
-        server.createContext("/consolidated", gw::handleConsolidated);
-        server.setExecutor(null);
-        server.start();
-        System.out.println("MovieGateway HTTP iniciado en puerto " + GATEWAY_PORT);
+        System.out.println("MovieGateway Console iniciado");
+        System.out.print("Ingrese ID de pelicula (1-3): ");
+        try (Scanner scanner = new Scanner(System.in)) {
+            int movieId = scanner.nextInt();
+            gw.printConsolidated(movieId);
+        }
     }
-
-    private void handleMovie(HttpExchange ex) throws IOException {
-        int id = extractId(ex.getRequestURI());
-        if (id < 0) { send(ex, "<h1>ERROR: parametro invalido</h1>"); return; }
-        MovieResponse m = movieStub.getMovie(MovieRequest.newBuilder().setId(id).build());
-        if (m.getFound())
-            send(ex, "<h1>" + m.getTitle() + "</h1><p>" + m.getDirector() + " (" + m.getYear() + ")</p>");
-        else
-            send(ex, "<h1>Pelicula no encontrada</h1>");
-    }
-
-    private void handleConsolidated(HttpExchange ex) throws IOException {
-        int id = extractId(ex.getRequestURI());
-        if (id < 0) { send(ex, "<h1>ERROR: parametro invalido</h1>"); return; }
-        MovieResponse m = movieStub.getMovie(MovieRequest.newBuilder().setId(id).build());
-        ReviewResponse r = reviewStub.getReview(ReviewRequest.newBuilder().setMovieId(id).build());
-        RecommendationResponse rec = recStub.getRecommendation(
-                RecommendationRequest.newBuilder().setMovieId(id).build());
-        StringBuilder sb = new StringBuilder("<h1>Resultado consolidado para pelicula " + id + "</h1>");
-        if (m.getFound()) sb.append("<h2>Pelicula</h2><p>").append(m.getTitle()).append("</p>");
-        if (r.getFound()) sb.append("<h2>Resena</h2><p>").append(r.getReviewer()).append(": ")
-                .append(r.getRating()).append("/5 - ").append(r.getComment()).append("</p>");
-        if (rec.getFound()) { sb.append("<h2>Recomendaciones</h2><p>");
-            for (int rid : rec.getRecommendedIdsList()) sb.append(rid).append(" "); sb.append("</p>"); }
-        send(ex, sb.toString());
-    }
-    // review, recommendation handlers, extractId(), send() omitted for brevity
 }
 ```
 
@@ -2641,58 +2651,53 @@ run.bat guide7_2 server1
 run.bat guide7_2 server2
 run.bat guide7_2 server3
 run.bat guide7_2 gateway
-
-# Test with curl
-curl "http://localhost:8082/movie?id=1"
-curl "http://localhost:8082/consolidated?id=1"
 ```
+
+All 3 microservice servers must be running before the Gateway starts.
 
 ### Expected Output
 
 ```
 Terminal 4:
-MovieGateway HTTP iniciado en puerto 8082
-
-curl "http://localhost:8082/movie?id=1"
-# <html><body><h1>Interstellar</h1><p>Director: Christopher Nolan</p><p>Anio: 2014</p></body></html>
-
-curl "http://localhost:8082/consolidated?id=1"
-# <html><body><h1>Resultado consolidado para pelicula 1</h1>
-#   <h2>Pelicula</h2><p>Interstellar - Christopher Nolan (2014)</p>
-#   <h2>Resena</h2><p>Roger Ebert: 5/5 - Una obra maestra de la ciencia ficcion</p>
-#   <h2>Recomendaciones</h2><p>2 3</p></body></html>
+MovieGateway Console iniciado
+Ingrese ID de pelicula (1-3): 1
+=== Consolidated Result ===
+Movie: Interstellar - Christopher Nolan (2014)
+Reviews:
+  Roger Ebert: 5/5 - Una obra maestra de la ciencia ficcion
+Recommendations: Inception, The Matrix
 ```
 
 ### Comparison: Microservices (Guide 6.2) vs Gateway (Guide 7.2)
 
 | Aspect | Guide 6.2 (Client-Side Discovery) | Guide 7.2 (Server-Side Discovery) |
 |--------|-----------------------------------|------------------------------------|
-| Client protocol | gRPC (requires Java + stubs) | HTTP (browser, curl, any language) |
-| Ports client knows | 3 (50051, 50052, 50053) | 1 (8082) |
+| Client interface | gRPC client (menu-driven) | Console-based Gateway (none) |
+| Ports client knows | 3 (50051, 50052, 50053) | 0 (Gateway hides them) |
 | Processes to start | 4 (3 servers + client) | 4 (3 servers + Gateway) |
-| Client complexity | High (4 channels, 4 stubs) | Low (single HTTP URL) |
+| Client complexity | High (3 channels, 3 stubs) | Low (single console input) |
 | Coupling | Client coupled to topology | Client decoupled from topology |
-| Routing | Client-side (client decides) | Server-side (Gateway decides) |
+| Orchestration | Client-side (client calls 3 services) | Server-side (Gateway calls 3 services) |
 | Single point of failure | No (services are independent) | Yes (Gateway can become a bottleneck) |
 
 ### Key Architectural Lessons
 
-1. **Protocol adaptation:** The Gateway acts as a protocol adapter — it receives HTTP and forwards gRPC. This allows non-gRPC clients to consume gRPC services.
+1. **Gateway as an aggregator:** The Gateway encapsulates the orchestration logic. The client provides a single movie ID and receives consolidated results — the Gateway handles the 3 internal gRPC calls.
 2. **Topology hiding:** The client no longer needs to know about individual microservice ports. This is the fundamental benefit of the Gateway pattern: it inverts the discovery responsibility.
-3. **Gateway as a simplification layer:** `/consolidated` is a single endpoint that internally calls 3 services. The Gateway provides a simplified API tailored to client needs, not a mirror of the internal architecture.
+3. **Protocol encapsulation:** Although the Gateway uses gRPC internally, it could be changed to any protocol without affecting the client's console interface.
 4. **Operational trade-off:** Adding the Gateway adds one more process to manage and one more network hop, but dramatically simplifies the client. For systems with many clients, this trade-off is almost always worth it.
 
 ### Reflection Questions
 
 1. **What problem does the Gateway solve compared to Guide 6.2?**
-   - In Guide 6.2, the client knew 3 ports (50051, 50052, 50053). If any port changed, every client had to be updated. The Gateway hides this topology: the client only knows port 8082. If a microservice moves, only the Gateway is updated.
+   - In Guide 6.2, the client knew 3 ports (50051, 50052, 50053) and had to orchestrate calls manually. The Gateway hides this topology and orchestration: the client just provides an ID and gets a consolidated result.
 
 2. **What is the trade-off of adding a Gateway?**
-   - **Pro:** Client simplicity (one port, one protocol), centralized routing, ability to add cross-cutting concerns (logging, caching, rate-limiting).
+   - **Pro:** Client simplicity (single console input), centralized orchestration, ability to add cross-cutting concerns (logging, caching).
    - **Con:** Single point of failure, extra network hop (latency), operational complexity (one more process to manage).
 
 3. **How does this compare to the pattern used in Guide 6.2 (client-side discovery)?**
-   - Guide 6.2 uses Client-Side Discovery: the client queries a service registry (or has hardcoded ports) and calls services directly. Guide 7.2 uses Server-Side Discovery: a Gateway is the single entry point and routes requests to the appropriate services.
+   - Guide 6.2 uses Client-Side Discovery: the client queries services directly. Guide 7.2 uses Server-Side Discovery: the Gateway is the single entry point and aggregates results from all 3 services.
 
 ---
 
@@ -2890,6 +2895,12 @@ curl "http://localhost:8083/wellness-summary?studentId=S123"
 ![Exercise 7.3 - WellnessGateway 1](Images/Evidencias/Ejercicios/ejercicio7_3_1.png)
 ![Exercise 7.3 - WellnessGateway 2](Images/Evidencias/Ejercicios/ejercicio7_3_2.png)
 
+### Architecture Diagram
+
+![Exercise 7.3 Architecture](Images/Diagramas/Ejercicios/ejercicio7_3.png)
+
+**Why this shape:** `WellnessGateway` provides HTTP :8083 to the browser and internally requires the same 4 gRPC services. The Gateway encapsulates stub creation, routing (`/appointment`, `/wellness-summary`, `/gym/reserve`, `/recreation/reserve`), and HTML response building. The client no longer knows the 4 gRPC ports — it only needs one HTTP URL. This solves the topology coupling problem of Exercise 6.3 but adds a single point of failure and an extra network hop.
+
 ## 15. Exercise 8 - ECICIENCIA
 
 **Package:** `Maven module at src/edu/eci/arsw/excercise8/`
@@ -2899,6 +2910,18 @@ curl "http://localhost:8083/wellness-summary?studentId=S123"
 ### Description
 
 Integrative final exercise: fully implemented distributed platform for managing the ECICIENCIA event. Three gRPC microservices (AttendeeService, AgendaService, WorkshopService) and an API Gateway exposing HTTP endpoints.
+
+### Architectural Style
+
+ECICIENCIA composes **three architectural styles** from the workshop:
+
+| Style | How it is applied | Why |
+|-------|-------------------|-----|
+| **gRPC** | 3 services with contracts defined in `eciciencia.proto` (10 RPCs). Communication between Gateway and microservices uses protobuf binary serialization over HTTP/2. | Formal contracts catch errors at compile time, strong typing, multi-language support, efficient binary protocol for internal service-to-service communication. |
+| **Microservices** | 3 independent processes (AttendeeService :8091, AgendaService :8092, WorkshopService :8093), each with its own in-memory database and single responsibility. | Domain separation: each service owns a cohesive subset of the platform (registration, schedule, reservations). Independent deployment and scalability. Fault isolation — a failure in WorkshopService does not affect AttendeeService. |
+| **API Gateway** | `EcicienciaGateway` (:8090) is the single HTTP entry point. It routes requests to the appropriate backend service via gRPC stubs, aggregates responses, and hides the internal topology from the client. | The client only knows one URL and one protocol (HTTP). Backend ports (8091, 8092, 8093) and the gRPC protocol are encapsulated behind the Gateway. This decouples the client from service topology. |
+
+The lower-level styles from the workshop (TCP Sockets, HTTP without framework, RMI) are not used directly, but understanding them is essential — each one addresses a limitation of its predecessor, and ECICIENCIA stands on the three most advanced styles.
 
 ### Architecture
 
@@ -3391,6 +3414,20 @@ The workshop traces a clear progression across six architectural styles, each so
 
 **Key lesson:** Architectural decisions are trade-offs, not absolute improvements. gRPC is not "better" than TCP in every dimension. Microservices improve autonomy but add network complexity. The Gateway simplifies the client but becomes a single point of failure. A good architect chooses the style matching the problem's constraints.
 
+### Architecture Diagram
+
+![Exercise 8 Architecture](Images/Diagramas/Ejercicios/ejercicio8.png)
+
+**Why this shape:** ECICIENCIA is the most complex architecture, combining three styles:
+
+1. **Gateway (HTTP :8090):** `EcicienciaGateway` provides HTTP to the browser and requires 3 backend services via gRPC stubs. Unlike Exercise 7.3, this Gateway exposes 8 endpoints with full error handling (400 for missing params, 404 for not found, 405 for wrong method, 500 for backend failures). The `/consolidated` endpoint aggregates data from all 3 services into a single HTML page — the ultimate client simplification.
+
+2. **gRPC services (3 independent contracts):** `AttendeeService` (:8091, 3 RPCs) manages registration with auto-incrementing IDs. `AgendaService` (:8092, 3 RPCs) handles the event schedule with time-slot filtering and capacity checks. `WorkshopService` (:8093, 4 RPCs) implements reservation logic with waiting lists — if capacity is full, the reservation enters `WAITING` status and is automatically promoted to `CONFIRMED` when a prior reservation is cancelled. All 10 RPCs are defined in a single `eciciencia.proto` file.
+
+3. **Microservices (domain separation):** Each service owns its own in-memory database (Attendees Map, Activities Map, Reservations Map) and runs as an independent process. This follows the same pattern as Exercise 6.3 but with richer business logic (waiting lists, capacity control, cascading cancellations).
+
+The diagram shows the full topology: Browser → HTTP → Gateway → gRPC → 3 services. Each arrow represents a protocol boundary: HTTP for external clients, gRPC for internal service communication. The stubs (`AttendeeStub`, `AgendaStub`, `WorkshopStub`) are internal to the Gateway and not directly accessible from outside, enforcing the Gateway's role as the single entry point.
+
 ---
 
 ## Diagram Index
@@ -3416,7 +3453,7 @@ All architecture diagrams are in `docs/diagrams/` as PlantUML (`.puml`) files. R
 
 ---
 
-![Exercise 8 - ECICIENCIA](Images/Evidencias/Ejercicios/ejercicio8_3_1.png)
+---
 
 ## Port Summary
 
@@ -3760,10 +3797,63 @@ run.bat exercise8 gateway
 ```
 *Expected:* "EcicienciaGateway started on port 8090"
 
-**Step 4 — Test via gateway (any terminal):**
+**Step 4 — Complete walkthrough: Register, Query, Reserve, Cancel**
+
+The ECICIENCIA gateway provides HTTP endpoints that delegate to the gRPC backend services. Below is a full CRUD cycle.
+
 ```bash
-curl "http://localhost:8090/attendees"
-curl "http://localhost:8090/agenda"
-curl "http://localhost:8090/workshops"
+# ── A. REGISTER a new attendee (CREATE) ──────────────────────────
+# POST to /attendee/register with name and email
+curl -X POST "http://localhost:8090/attendee/register?name=Ana+Martinez&email=ana%40mail.com"
 ```
-*Expected:* Gateway returns data aggregated from all 3 backend services.
+*Expected:* Returns HTML page confirming registration with assigned ID (e.g., ID 3).
+
+```bash
+# ── B. QUERY the attendee by ID (READ) ───────────────────────────
+curl "http://localhost:8090/attendee?id=3"
+```
+*Expected:* Shows Ana Martinez's details (name, email, ID).
+
+```bash
+# ── C. VIEW the agenda (READ) ────────────────────────────────────
+curl "http://localhost:8090/agenda?start=08:00&end=18:00"
+```
+*Expected:* Lists all activities in the time range (Machine Learning, Arduino, Ciberseguridad, Robotica).
+
+```bash
+# ── D. VIEW activity details with capacity (READ) ────────────────
+curl "http://localhost:8090/agenda/activity?id=1"
+```
+*Expected:* Shows activity name, description, schedule, max capacity, registered count, and available spots.
+
+```bash
+# ── E. RESERVE a spot in an activity (CREATE) ────────────────────
+# POST to /workshop/reserve with attendee ID and activity ID
+curl -X POST "http://localhost:8090/workshop/reserve?attendeeId=3&activityId=1"
+```
+*Expected:* Reservation confirmed. Returns reservation ID and status "CONFIRMED".
+
+```bash
+# ── F. QUERY attendee's reservations (READ) ──────────────────────
+curl "http://localhost:8090/workshop/attendee?id=3"
+```
+*Expected:* Shows the reservation(s) for Ana Martinez, including activity ID and status.
+
+```bash
+# ── G. CONSOLIDATED view (attendee + reservations) ───────────────
+curl "http://localhost:8090/consolidated?id=3"
+```
+*Expected:* Single page showing Ana Martinez's profile and all her reservations.
+
+```bash
+# ── H. CANCEL the reservation (DELETE) ───────────────────────────
+# POST to /workshop/cancel with the reservation ID
+curl -X POST "http://localhost:8090/workshop/cancel?reservationId=1"
+```
+*Expected:* Reservation status changed to "CANCELLED".
+
+```bash
+# ── I. VERIFY cancellation ───────────────────────────────────────
+curl "http://localhost:8090/workshop/attendee?id=3"
+```
+*Expected:* The reservation now shows status "CANCELLED".

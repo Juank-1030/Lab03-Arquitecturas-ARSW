@@ -21,10 +21,10 @@ public final class RecommendationProto {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_RecommendationRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_RecommendationResponse_descriptor;
+    internal_static_RecommendationList_descriptor;
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_RecommendationResponse_fieldAccessorTable;
+      internal_static_RecommendationList_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -35,13 +35,12 @@ public final class RecommendationProto {
   static {
     java.lang.String[] descriptorData = {
       "\n\024recommendation.proto\"(\n\025Recommendation" +
-      "Request\022\017\n\007movieId\030\001 \001(\005\"P\n\026Recommendati" +
-      "onResponse\022\017\n\007movieId\030\001 \001(\005\022\026\n\016recommend" +
-      "edIds\030\002 \003(\005\022\r\n\005found\030\003 \001(\0102]\n\025Recommenda" +
-      "tionService\022D\n\021GetRecommendation\022\026.Recom" +
-      "mendationRequest\032\027.RecommendationRespons" +
-      "eB=\n$edu.eci.arsw.guide6_2.recommendatio" +
-      "nB\023RecommendationProtoP\001b\006proto3"
+      "Request\022\017\n\007movieId\030\001 \001(\005\"$\n\022Recommendati" +
+      "onList\022\016\n\006titles\030\001 \003(\t2Z\n\025Recommendation" +
+      "Service\022A\n\022GetRecommendations\022\026.Recommen" +
+      "dationRequest\032\023.RecommendationListB=\n$ed" +
+      "u.eci.arsw.guide6_2.recommendationB\023Reco" +
+      "mmendationProtoP\001b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -53,12 +52,12 @@ public final class RecommendationProto {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_RecommendationRequest_descriptor,
         new java.lang.String[] { "MovieId", });
-    internal_static_RecommendationResponse_descriptor =
+    internal_static_RecommendationList_descriptor =
       getDescriptor().getMessageTypes().get(1);
-    internal_static_RecommendationResponse_fieldAccessorTable = new
+    internal_static_RecommendationList_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_RecommendationResponse_descriptor,
-        new java.lang.String[] { "MovieId", "RecommendedIds", "Found", });
+        internal_static_RecommendationList_descriptor,
+        new java.lang.String[] { "Titles", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

@@ -1,24 +1,57 @@
 @startuml
+skinparam componentStyle rectangle
+skinparam backgroundColor white
+skinparam defaultTextAlignment center
+
+skinparam component {
+  BackgroundColor #FFFEF0
+  BorderColor #888888
+  FontSize 13
+  FontStyle bold
+  ArrowColor #555555
+}
+
+skinparam interface {
+  BackgroundColor white
+  BorderColor #555555
+}
+
+skinparam arrow {
+  Color #555555
+  FontSize 11
+}
+
 title Exercise 4.3 - Lab Inventory RMI Architecture
 
-actor "User" as user
-participant "EquipmentRmiClient" as client
-participant "RMI Registry\n(:24000)" as registry
-participant "EquipmentServiceImpl" as server
-database "EquipmentRepository\n(in memory)" as repo
+' Subsistemas
+package "«subsystem» Client" {
+  component ":EquipmentRmiClient" as Client
+}
 
-user -> client : types command + equipment code
-client -> registry : lookup("equipmentService")
-registry --> client : remote stub
-client -> server : consultarEquipos()\nreservarEquipo(code)
-server -> repo : query/modify
-repo --> server : result
-server --> client : String / boolean
-client --> user : display result
+package "«subsystem» EquipmentServer" {
+  component ":EquipmentRmiServer" as Server
+  component ":EquipmentServiceImpl" as ServiceImpl
+  component ":EquipmentService\n(interface)" as ServiceInterface
+  component ":Equipment" as EquipModel
+}
 
-legend right
-  4 operations: list/consult/reserve/release
-  Java-only (RMI)
-endlegend
+' Provided interfaces
+interface "RMI Registry :24000\n(equipmentService)" as IRmi
+
+' Conexiones (ball = provee, socket = requiere)
+' Server provee RMI
+Server --( IRmi
+
+' Client requiere RMI
+Client -- IRmi
+
+' Server registra implementacion
+Server --> ServiceImpl : <<bind>>
+
+' ServiceImpl implementa interfaz remota
+ServiceImpl --> ServiceInterface : extends UnicastRemoteObject\nimplements EquipmentService
+
+' ServiceImpl contiene BD interna (Map)
+ServiceImpl --> EquipModel : <<in-memory map>>
 
 @enduml

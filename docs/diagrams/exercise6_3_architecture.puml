@@ -1,102 +1,76 @@
 @startuml
-!theme plain
+skinparam componentStyle rectangle
+skinparam backgroundColor white
+skinparam defaultTextAlignment center
+
+skinparam component {
+  BackgroundColor #FFFEF0
+  BorderColor #888888
+  FontSize 13
+  FontStyle bold
+  ArrowColor #555555
+}
+
+skinparam interface {
+  BackgroundColor white
+  BorderColor #555555
+}
+
+skinparam arrow {
+  Color #555555
+  FontSize 11
+}
 
 title Exercise 6.3 - Wellness Microservices Architecture
 
-skinparam component {
-  BackgroundColor White
-  BorderColor Black
-  FontSize 12
+' Subsistemas
+package "«subsystem» Client" {
+  component ":WellnessClient\n(menu 18 opciones)" as Client
 }
 
-skinparam database {
-  BackgroundColor LightYellow
-  BorderColor DarkGoldenRod
+package "«subsystem» AppointmentService" {
+  component ":AppointmentServiceImpl\n(5 RPCs)" as AppSvc
+  database ":Appointments Map" as AppDb
 }
 
-skinparam node {
-  BackgroundColor LightBlue
-  BorderColor Blue
+package "«subsystem» MedicalService" {
+  component ":MedicalServiceImpl\n(4 RPCs)" as MedSvc
+  database ":Specialties Map" as MedDb
 }
 
-package "WellnessClient (Portfolio)" as CLIENT {
-  [Appointment Stub] as CAS
-  [Medical Stub] as CMS
-  [Gym Stub] as CGS
-  [Recreation Stub] as CRS
+package "«subsystem» GymService" {
+  component ":GymServiceImpl\n(4 RPCs)" as GymSvc
+  database ":Sessions Map" as GymDb
 }
 
-node "AppointmentService\nPort 50061" as APPS {
-  database "Appointments\n(in-memory)" as DB_A
-  [AppointmentServiceImpl] as ASI
-  rectangle "RPCs:" as APPS_RPC {
-    together {
-      (RequestAppointment)
-      (CancelAppointment)
-      (GetAppointments)
-      (DeleteAppointment)
-      (UpdateAppointmentDate)
-    }
-  }
-  ASI --> DB_A
-  ASI --> APPS_RPC
+package "«subsystem» RecreationService" {
+  component ":RecreationServiceImpl\n(4 RPCs)" as RecSvc
+  database ":Resources Map" as RecDb
 }
 
-node "MedicalService\nPort 50062" as MEDS {
-  database "Specialties\n(in-memory)" as DB_M
-  [MedicalServiceImpl] as MSI
-  rectangle "RPCs:" as MEDS_RPC {
-    together {
-      (GetSpecialty)
-      (ListSpecialties)
-      (AddSpecialty)
-      (RemoveSpecialty)
-    }
-  }
-  MSI --> DB_M
-  MSI --> MEDS_RPC
-}
+' Provided interfaces
+interface "gRPC :50061\nAppointmentService" as IApp
+interface "gRPC :50062\nMedicalService" as IMed
+interface "gRPC :50063\nGymService" as IGym
+interface "gRPC :50064\nRecreationService" as IRec
 
-node "GymService\nPort 50063" as GYMS {
-  database "Sessions\n(in-memory)" as DB_G
-  [GymServiceImpl] as GSI
-  rectangle "RPCs:" as GYMS_RPC {
-    together {
-      (ReserveSession)
-      (GetSessions)
-      (CancelSession)
-      (GetAllSessions)
-    }
-  }
-  GSI --> DB_G
-  GSI --> GYMS_RPC
-}
+' Conexiones (ball = provee, socket = requiere)
+' Microservicios proveen gRPC
+AppSvc --( IApp
+MedSvc --( IMed
+GymSvc --( IGym
+RecSvc --( IRec
 
-node "RecreationService\nPort 50064" as RECS {
-  database "Resources\n(in-memory)" as DB_R
-  [RecreationServiceImpl] as RSI
-  rectangle "RPCs:" as RECS_RPC {
-    together {
-      (ReserveResource)
-      (ListResources)
-      (ReturnResource)
-      (AddResource)
-    }
-  }
-  RSI --> DB_R
-  RSI --> RECS_RPC
-}
+' Cliente requiere los 4 servicios
+Client -- IApp
+Client -- IMed
+Client -- IGym
+Client -- IRec
 
-CAS -down-> APPS : gRPC channel
-CMS -down-> MEDS : gRPC channel
-CGS -down-> GYMS : gRPC channel
-CRS -down-> RECS : gRPC channel
-
-legend right
-  Client-Side Discovery pattern
-  4 independent gRPC servers
-  Each with its own .proto contract
-  17 RPCs total (5+4+4+4)
-endlegend
+' Servidores usan sus BD
+AppSvc --> AppDb : <<use>>
+MedSvc --> MedDb : <<use>>
+GymSvc --> GymDb : <<use>>
+RecSvc --> RecDb : <<use>>
 
 @enduml

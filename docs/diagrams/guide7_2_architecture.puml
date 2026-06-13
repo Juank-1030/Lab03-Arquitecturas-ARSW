@@ -1,43 +1,75 @@
 @startuml
+skinparam componentStyle rectangle
+skinparam backgroundColor white
+skinparam defaultTextAlignment center
+
+skinparam component {
+  BackgroundColor #FFFEF0
+  BorderColor #888888
+  FontSize 13
+  FontStyle bold
+  ArrowColor #555555
+}
+
+skinparam interface {
+  BackgroundColor white
+  BorderColor #555555
+}
+
+skinparam arrow {
+  Color #555555
+  FontSize 11
+}
+
 title Guide 7.2 - MovieGateway Architecture
 
-actor "Client / curl" as client
-
-rectangle "API Gateway\n(:8082)" as gateway {
-  component [HTTP Server\ncom.sun.net.httpserver] as http
-  component [MovieStub\ngRPC] as movieStub
-  component [ReviewStub\ngRPC] as reviewStub
-  component [RecommendationStub\ngRPC] as recStub
-  http --> movieStub : route /movie
-  http --> movieStub : route /consolidated
-  http --> reviewStub : route /consolidated
-  http --> recStub : route /consolidated
+' Subsistemas
+package "«subsystem» MovieGateway" {
+  component ":MovieGateway\n(Console)" as Gateway
+  component ":MovieStub gRPC" as MovieStub
+  component ":ReviewStub gRPC" as ReviewStub
+  component ":RecStub gRPC" as RecStub
 }
 
-node "MovieService\n(:50051)" as movie {
-  [MovieServiceImpl] as movieSvc
+package "«subsystem» MovieService" {
+  component ":MovieServiceImpl" as MovieSvc
+  database ":Movies Map" as MovieDb
 }
 
-node "ReviewService\n(:50052)" as review {
-  [ReviewServiceImpl] as reviewSvc
+package "«subsystem» ReviewService" {
+  component ":ReviewServiceImpl" as ReviewSvc
+  database ":Reviews Map" as ReviewDb
 }
 
-node "RecommendationService\n(:50053)" as rec {
-  [RecommendationServiceImpl] as recSvc
+package "«subsystem» RecommendationService" {
+  component ":RecommendationServiceImpl" as RecSvc
+  database ":Recommendations Map" as RecDb
 }
 
-client --> gateway : HTTP GET /movie?id=1\nHTTP GET /consolidated?id=1
-movieStub --> movieSvc : gRPC
-reviewStub --> reviewSvc : gRPC
-recStub --> recSvc : gRPC
-movieSvc --> movieStub : MovieResponse
-reviewSvc --> reviewStub : ReviewList
-recSvc --> recStub : RecommendationList
+' Provided interfaces
+interface "gRPC :50051\nMovieService" as IMovie
+interface "gRPC :50052\nReviewService" as IReview
+interface "gRPC :50053\nRecommendationService" as IRec
 
-legend right
-  Server-Side Discovery
-  Single endpoint for client
-  Gateway aggregates responses
-endlegend
+' Conexiones (ball = provee, socket = requiere)
+' Microservicios proveen gRPC
+MovieSvc --( IMovie
+ReviewSvc --( IReview
+RecSvc --( IRec
+
+' Gateway requiere los 3 servicios via stubs
+MovieStub -- IMovie
+ReviewStub -- IReview
+RecStub -- IRec
+
+' Gateway usa stubs internamente
+Gateway --> MovieStub : <<use>>
+Gateway --> ReviewStub : <<use>>
+Gateway --> RecStub : <<use>>
+
+' Servidores usan sus BD
+MovieSvc --> MovieDb : <<use>>
+ReviewSvc --> ReviewDb : <<use>>
+RecSvc --> RecDb : <<use>>
 
 @enduml

@@ -672,6 +672,12 @@ run.bat exercise2_3 client
 
 ![Ejercicio 2.3 - Gestion Salones TCP](Images/Evidencias/Ejercicios/ejercicio2_3.png)
 
+### Diagrama de Arquitectura
+
+![Diagrama Ejercicio 2.3](Images/Diagramas/Ejercicios/ejercicio2_3.png)
+
+**Por que esta forma:** `RoomClient` requiere el socket TCP para enviar comandos de texto (`CONSULTAR_SALON`, `RESERVAR_SALON`, `LIBERAR_SALON`). `RoomServer` provee TCP :36000, analiza el comando y delega en `RoomRepository`, que encapsula los 4 salones (`Room`). Es el estilo cliente-servidor mas simple: un puerto, un protocolo, analisis manual de texto.
+
 ## Guia 3.2 - MovieHttpServer
 
 **Paquete:** `src/edu/eci/arsw/guide3_2/`
@@ -1176,6 +1182,12 @@ curl -X POST "http://localhost:8081/rooms/release?id=E303"
 ![Ejercicio 3.3 - Gestion Salones HTTP 1](Images/Evidencias/Ejercicios/ejercicio3_3_1.png)
 ![Ejercicio 3.3 - Gestion Salones HTTP 2](Images/Evidencias/Ejercicios/ejercicio3_3_2.png)
 ![Ejercicio 3.3 - Gestion Salones HTTP 3](Images/Evidencias/Ejercicios/ejercicio3_3_3.png)
+
+### Diagrama de Arquitectura
+
+![Diagrama Ejercicio 3.3](Images/Diagramas/Ejercicios/ejercicio3_3.png)
+
+**Por que esta forma:** `Browser` requiere HTTP para hacer solicitudes GET/POST. `RoomHttpServer` provee HTTP :8081 y enruta por metodo + ruta (`GET /rooms`, `POST /rooms/reserve`, `POST /rooms/release`). Frente a TCP (Ejercicio 2.3), HTTP anade estructura estandar, codigos de estado y compatibilidad con navegadores. El costo es un handler mas complejo que debe analizar metodos, rutas y parametros manualmente.
 
 ## Guia 4.2 - MovieService RMI
 
@@ -1751,6 +1763,12 @@ run.bat exercise4_3 client
 
 ![Ejercicio 4.3 - Inventario Laboratorios RMI](Images/Evidencias/Ejercicios/ejercicio4_3.png)
 
+### Diagrama de Arquitectura
+
+![Diagrama Ejercicio 4.3](Images/Diagramas/Ejercicios/ejercicio4_3.png)
+
+**Por que esta forma:** `EquipmentRmiClient` requiere el Registry RMI :24000 para buscar `"equipmentService"`. `EquipmentRmiServer` provee el registro y vincula la implementacion remota. `EquipmentServiceImpl` implementa la interfaz `EquipmentService` con un Map en memoria. El cliente invoca `consultarEquipos()`, `reservarEquipo()`, `liberarEquipo()` como si fueran locales. RMI oculta la serializacion y el transporte, pero bloquea el sistema al ecosistema JVM.
+
 ## Guia 5.2 - MovieService gRPC
 
 **Paquete:** `src/edu/eci/arsw/guide5_2/` (proyecto Maven independiente)
@@ -2289,6 +2307,12 @@ run.bat exercise5_3 client
 
 ![Ejercicio 5.3 - Bienestar Universitario gRPC](Images/Evidencias/Ejercicios/ejercicio5_3.png)
 
+### Diagrama de Arquitectura
+
+![Diagrama Ejercicio 5.3](Images/Diagramas/Ejercicios/ejercicio5_3.png)
+
+**Por que esta forma:** `WellnessGrpcClient` requiere gRPC :50061 para invocar `RequestAppointment`, `CancelAppointment` y `GetAppointments`. `WellnessGrpcServer` provee el servicio con contrato en `appointment.proto`. Frente a RMI (Ejercicio 4.3), gRPC anade contratos formales `.proto`, soporte multilenguaje y serializacion binaria eficiente. El costo es la compilacion de protobuf y la configuracion del plugin Maven.
+
 ## Guia 6.2 - Microservicios Peliculas
 
 **Paquete:** `src/edu/eci/arsw/guide6_2/`
@@ -2323,8 +2347,8 @@ El cliente (`MicroserviceClient`) mantiene 3 canales gRPC separados, uno hacia c
 |---------|------|-------------|
 | `pom.xml` | `guide6_2/pom.xml` | Configuracion Maven con dependencias gRPC (identico al de guide5_2) |
 | `movie.proto` | `guide6_2/src/main/proto/movie.proto` | Define `MovieService` con `GetMovie` (identico al de guide5_2) |
-| `review.proto` | `guide6_2/src/main/proto/review.proto` | Define `ReviewService` con `GetReview` |
-| `recommendation.proto` | `guide6_2/src/main/proto/recommendation.proto` | Define `RecommendationService` con `GetRecommendation` |
+| `review.proto` | `guide6_2/src/main/proto/review.proto` | Define `ReviewService` con `GetReviews` -> `ReviewList` (repeated `Review`) |
+| `recommendation.proto` | `guide6_2/src/main/proto/recommendation.proto` | Define `RecommendationService` con `GetRecommendations` -> `RecommendationList` (repeated string titles) |
 | `MovieServiceServer.java` | `guide6_2/src/main/java/.../movie/MovieServiceServer.java` | Servidor gRPC en puerto 50051 |
 | `ReviewServiceServer.java` | `guide6_2/src/main/java/.../review/ReviewServiceServer.java` | Servidor gRPC en puerto 50052 |
 | `RecommendationServiceServer.java` | `guide6_2/src/main/java/.../recommendation/RecommendationServiceServer.java` | Servidor gRPC en puerto 50053 |
@@ -2339,12 +2363,12 @@ Cada `.proto` define un unico servicio con un unico RPC, siguiendo el mismo patr
 - Mismos campos que guide5_2: `int32 id`, `string title`, `string director`, `int32 year`, `bool found`
 
 **review.proto** (`java_package = "edu.eci.arsw.guide6_2.review"`):
-- `ReviewService` / `GetReview(ReviewRequest) → ReviewResponse`
-- Campos: `int32 movieId`, `string reviewer`, `int32 rating`, `string comment`, `bool found`
+- `ReviewService` / `GetReviews(MovieIdRequest) → ReviewList`
+- `ReviewList` contiene `repeated Review` donde cada `Review` tiene: `string reviewer`, `int32 rating`, `string comment`
 
 **recommendation.proto** (`java_package = "edu.eci.arsw.guide6_2.recommendation"`):
-- `RecommendationService` / `GetRecommendation(RecommendationRequest) → RecommendationResponse`
-- Campos: `int32 movieId`, `repeated int32 recommendedIds`, `bool found`
+- `RecommendationService` / `GetRecommendations(MovieIdRequest) → RecommendationList`
+- `RecommendationList` contiene `repeated string titles` (titulos de peliculas recomendadas)
 
 ### Conceptos clave
 
@@ -2495,7 +2519,7 @@ ID de la pelicula (1-3): 1
 === Resultados completos para pelicula 1 ===
 Pelicula: Interstellar - Christopher Nolan - 2014
 Resena: Roger Ebert - 5/5 - Una obra maestra de la ciencia ficcion
-Recomendaciones: [2, 3]
+Recomendaciones: Inception, The Matrix
 
 --- Salir ---
 Seleccione una opcion: 5
@@ -2870,6 +2894,12 @@ run.bat exercise6_3 client
 ![Ejercicio 6.3 - Microservicios Bienestar 1](Images/Evidencias/Ejercicios/ejercicio6_3_1.png)
 ![Ejercicio 6.3 - Microservicios Bienestar 2](Images/Evidencias/Ejercicios/ejercicio6_3_2.png)
 
+### Diagrama de Arquitectura
+
+![Diagrama Ejercicio 6.3](Images/Diagramas/Ejercicios/ejercicio6_3.png)
+
+**Por que esta forma:** El servidor unico de gRPC del Ejercicio 5.3 se divide en 4 microservicios independientes, cada uno con su propio puerto gRPC y BD en memoria. `WellnessClient` requiere los 4 servicios y orquesta las llamadas segun un menu de 18 opciones. Mejora la separacion de dominios y el despliegue independiente, pero el cliente ahora conoce 4 puertos — el problema de acoplamiento que motiva el patron Gateway.
+
 ## Guia 7.2 - MovieGateway
 
 **Paquete:** `src/edu/eci/arsw/guide7_2/`
@@ -2878,29 +2908,24 @@ run.bat exercise6_3 client
 
 ### Descripcion
 
-API Gateway que centraliza el acceso a los microservicios de peliculas (MovieService, ReviewService, RecommendationService). El cliente solo conoce el Gateway, no los puertos individuales de cada servicio.
+Gateway de consola que centraliza el acceso a los microservicios de peliculas (MovieService, ReviewService, RecommendationService). El cliente solo conoce el Gateway, no los puertos individuales de cada servicio.
 
-El Gateway recibe una solicitud unificada, consulta internamente los 3 servicios y consolida la respuesta. Esto resuelve el problema de acoplamiento cliente-servicios que surge en la guia 6.2.
+El Gateway recibe un ID de pelicula por consola (`Scanner`), consulta internamente los 3 servicios via gRPC y consolida la respuesta en una sola salida de texto. Esto resuelve el problema de acoplamiento cliente-servicios que surge en la guia 6.2.
 
 ### Arquitectura
 
-`MovieGateway` ejecuta un servidor HTTP (`com.sun.net.httpserver.HttpServer`) en el puerto 8082. Internamente crea 3 canales gRPC (uno a cada microservicio) y actua como cliente gRPC. El cliente solo necesita HTTP (navegador, curl) y desconoce completamente la topologia gRPC detras del Gateway.
+`MovieGateway` ejecuta una aplicacion de consola que lee un ID de pelicula desde `Scanner(System.in)`. Internamente crea 3 canales gRPC (uno a cada microservicio) y actua como cliente gRPC. El metodo `printConsolidated` consulta los 3 servicios y produce una salida de texto consolidada en la consola.
 
-| Endpoint | Metodo | Descripcion | Delega a |
-|----------|--------|-------------|----------|
-| `/movie?id=X` | GET | Consultar informacion de pelicula | MovieService (50051) |
-| `/review?movieId=X` | GET | Consultar resena | ReviewService (50052) |
-| `/recommendation?movieId=X` | GET | Consultar recomendaciones | RecommendationService (50053) |
-| `/consolidated?id=X` | GET | Consultar los 3 servicios a la vez | Todos los microservicios |
+> **Diagrama de arquitectura:** `docs/diagrams/guide7_2_architecture.puml`
 
 ### Novedades respecto a Microservicios (Guia 6.2)
 
 | Aspecto | Guia 6.2 (sin Gateway) | Guia 7.2 (con Gateway) |
 |---------|----------------------|----------------------|
 | **Procesos** | 4 (3 servidores + cliente) | 4 (3 servidores + Gateway) |
-| **Puertos que conoce el cliente** | 3 (50051, 50052, 50053) | 1 (8082) |
-| **Protocolo del cliente** | gRPC (Java) | HTTP (cualquier lenguaje) |
-| **Descubrimiento** | Client-Side Discovery | Server-Side Discovery |
+| **Puertos que conoce el cliente** | 3 (50051, 50052, 50053) | 0 (Gateway los oculta) |
+| **Interfaz del cliente** | gRPC (menu interactivo Java) | Consola (Scanner + texto) |
+| **Orquestacion** | Lado del cliente (3 llamadas) | Lado del Gateway (1 metodo) |
 | **Acoplamiento** | Cliente acoplado a topologia | Cliente desacoplado |
 
 ### Archivos
@@ -2908,35 +2933,37 @@ El Gateway recibe una solicitud unificada, consulta internamente los 3 servicios
 | Archivo | Descripcion |
 |---------|-------------|
 | `pom.xml` | Configuracion Maven con dependencia a `guide6_2-microservices` |
-| `MovieGateway.java` | Servidor HTTP (puerto 8082) + cliente gRPC para los 3 microservicios |
+| `MovieGateway.java` | Gateway de consola (Scanner) + stubs gRPC para los 3 microservicios |
 
 ### Conceptos clave
 
-1. **Inversion de descubrimiento:** En guia 6.2, el cliente descubria los servicios (Client-Side Discovery). En guia 7.2, el Gateway descubre los servicios y el cliente solo conoce el Gateway (Server-Side Discovery).
-2. **Gateway como adaptador de protocolo:** Los microservicios hablan gRPC, pero el Gateway expone HTTP. Cualquier cliente HTTP (curl, navegador, Postman) puede consumir los servicios sin necesidad de gRPC.
-3. **Punto unico de entrada:** Un solo puerto (8082) reemplaza 3 puertos. Esto simplifica el cliente drasticamente.
+1. **Inversion de descubrimiento:** En guia 6.2, el cliente descubria los servicios y los llamaba directamente. En guia 7.2, el Gateway descubre los servicios y el cliente solo interactua con el Gateway.
+2. **Gateway como agregador:** El `printConsolidated()` orquesta las 3 llamadas gRPC internamente y presenta un unico bloque de texto. El cliente no necesita saber cuantos servicios existen ni como se llaman.
+3. **Sin puerto de red:** A diferencia de los Gateways HTTP tradicionales, este Gateway es una aplicacion de consola que no expone un puerto de red. La comunicacion con el usuario es via `System.in`/`System.out`.
 4. **Dependencia Maven entre modulos:** `guide7_2` declara dependencia en `guide6_2-microservices` para reutilizar las clases generadas por protobuf. Maven reactor compila guide6_2 antes que guide7_2.
 
 ### Flujo detallado
 
-1. `MovieGateway` inicia `HttpServer` en puerto 8082 y registra 4 contextos (`/movie`, `/review`, `/recommendation`, `/consolidated`).
-2. El cliente HTTP hace una solicitud (ej: `curl "http://localhost:8082/movie?id=1"`).
-3. `HttpServer` invoca el handler correspondiente.
-4. El handler extrae los parametros de la query string.
-5. El handler crea la solicitud gRPC y llama al stub del microservicio correspondiente.
-6. La respuesta gRPC se convierte a HTML y se envía como respuesta HTTP.
+1. `MovieGateway` inicia creando 3 canales gRPC hacia MovieService (50051), ReviewService (50052) y RecommendationService (50053).
+2. Solicita al usuario que ingrese un ID de pelicula por consola.
+3. Lee la entrada con `Scanner.nextInt()`.
+4. Invoca `printConsolidated(movieId)` que:
+   - Llama `movieStub.getMovie()` → obtiene datos de la pelicula.
+   - Llama `reviewStub.getReviews()` → obtiene lista de resenas.
+   - Llama `recStub.getRecommendations()` → obtiene lista de titulos recomendados.
+   - Imprime un bloque de texto con los resultados consolidados.
 
 ### Preguntas de reflexion
 
 1. **?Que problema resuelve el Gateway respecto a la guia 6.2?**
-   - En guia 6.2, el cliente conocia 3 puertos (50051, 50052, 50053). Si algun puerto cambiaba, todos los clientes debian actualizarse. El Gateway oculta esta topologia: el cliente solo conoce el puerto 8082.
+   - En guia 6.2, el cliente conocia 3 puertos (50051, 50052, 50053) y tenia que orquestar las llamadas manualmente. El Gateway oculta esta topologia y orquestacion: el cliente solo ingresa un ID y recibe el resultado consolidado.
 
 2. **?Cual es el trade-off de anadir un Gateway?**
-   - **Pro:** Simplicidad del cliente (un puerto, un protocolo), enrutamiento centralizado, capacidad de anadir concerns transversales (logging, cache, rate-limiting).
+   - **Pro:** Simplicidad del cliente (una sola entrada de consola), orquestacion centralizada, capacidad de anadir concerns transversales (logging, cache).
    - **Con:** Punto unico de falla, salto de red extra (latencia), complejidad operativa (un proceso mas que administrar).
 
 3. **?Como se compara con el patron usado en guia 6.2 (client-side discovery)?**
-   - Guia 6.2 usa Client-Side Discovery: el cliente consulta un registro de servicios (o tiene puertos hardcodeados) y llama a los servicios directamente. Guia 7.2 usa Server-Side Discovery: un Gateway es el unico punto de entrada y enruta las solicitudes a los servicios apropiados.
+   - Guia 6.2 usa Client-Side Discovery: el cliente llama a los servicios directamente. Guia 7.2 usa Server-Side Discovery: el Gateway es el unico punto de entrada y agrega los resultados de los 3 servicios.
 
 ### Como ejecutar
 
@@ -2957,9 +2984,8 @@ run.bat guide7_2 server3
 # Terminal 4 — Gateway
 run.bat guide7_2 gateway
 
-# Pruebas con curl
-curl "http://localhost:8082/movie?id=1"
-curl "http://localhost:8082/consolidated?id=1"
+# El gateway solicita el ID por consola
+# Ingrese ID de pelicula (1-3): 1
 ```
 
 ---
@@ -3056,6 +3082,12 @@ curl "http://localhost:8083/wellness-summary?studentId=S123"
 ![Ejercicio 7.3 - WellnessGateway 1](Images/Evidencias/Ejercicios/ejercicio7_3_1.png)
 ![Ejercicio 7.3 - WellnessGateway 2](Images/Evidencias/Ejercicios/ejercicio7_3_2.png)
 
+### Diagrama de Arquitectura
+
+![Diagrama Ejercicio 7.3](Images/Diagramas/Ejercicios/ejercicio7_3.png)
+
+**Por que esta forma:** `WellnessGateway` provee HTTP :8083 al navegador y requiere internamente los mismos 4 servicios gRPC. El Gateway encapsula la creacion de stubs, el enrutamiento (`/appointment`, `/wellness-summary`, `/gym/reserve`, `/recreation/reserve`) y la construccion de respuestas HTML. El cliente ya no conoce los 4 puertos gRPC — solo necesita una URL HTTP. Resuelve el acoplamiento del Ejercicio 6.3 pero anade un punto unico de falla y una latencia extra.
+
 ## Ejercicio 8 - ECICIENCIA
 
 **Paquete:** Modulo Maven en `src/edu/eci/arsw/excercise8/`
@@ -3065,6 +3097,18 @@ curl "http://localhost:8083/wellness-summary?studentId=S123"
 ### Descripcion
 
 Ejercicio integrador final: plataforma distribuida completamente implementada para la gestion del evento ECICIENCIA. Tres microservicios gRPC (AttendeeService, AgendaService, WorkshopService) y un API Gateway que expone endpoints HTTP.
+
+### Estilo Arquitectonico
+
+ECICIENCIA compone **tres estilos arquitectonicos** del taller:
+
+| Estilo | Como se aplica | Por que |
+|--------|---------------|---------|
+| **gRPC** | 3 servicios con contratos en `eciciencia.proto` (10 RPCs). Comunicacion entre Gateway y microservicios usa serializacion binaria protobuf sobre HTTP/2. | Contratos formales detectan errores en compilacion, tipado fuerte, soporte multilenguaje, protocolo binario eficiente para comunicacion interna entre servicios. |
+| **Microservicios** | 3 procesos independientes (AttendeeService :8091, AgendaService :8092, WorkshopService :8093), cada uno con su propia BD en memoria y responsabilidad unica. | Separacion de dominios: cada servicio es dueno de un subconjunto cohesivo de la plataforma (registro, agenda, reservas). Despliegue y escalabilidad independientes. Aislamiento de fallos — una caida en WorkshopService no afecta a AttendeeService. |
+| **API Gateway** | `EcicienciaGateway` (:8090) es el unico punto de entrada HTTP. Enruta solicitudes al backend via stubs gRPC, agrega respuestas y oculta la topologia interna al cliente. | El cliente solo conoce una URL y un protocolo (HTTP). Los puertos backend (8091, 8092, 8093) y el protocolo gRPC quedan encapsulados detras del Gateway. Esto desacopla al cliente de la topologia de servicios. |
+
+Los estilos inferiores del taller (Sockets TCP, HTTP sin framework, RMI) no se usan directamente, pero entenderlos es esencial — cada uno resuelve una limitacion del anterior, y ECICIENCIA se sostiene sobre los tres estilos mas avanzados.
 
 ### Arquitectura
 
@@ -3208,6 +3252,8 @@ ECICIENCIA compone gRPC (estilo 4), microservicios (estilo 5) y Gateway (estilo 
 
 ---
 
+---
+
 ## Puertos y tecnologias
 
 | Componente | Tecnologia | Puerto |
@@ -3269,6 +3315,20 @@ run.bat <directorio> client
 ---
 
 ![Ejercicio 8 - ECICIENCIA](Images/Evidencias/Ejercicios/ejercicio8_3_1.png)
+
+### Diagrama de Arquitectura
+
+![Diagrama Ejercicio 8](Images/Diagramas/Ejercicios/ejercicio8.png)
+
+**Por que esta forma:** ECICIENCIA es la arquitectura mas compleja del taller y combina tres estilos:
+
+1. **Gateway (HTTP :8090):** `EcicienciaGateway` provee HTTP al navegador y requiere 3 servicios backend via stubs gRPC. A diferencia del Ejercicio 7.3, este Gateway expone 8 endpoints con manejo completo de errores (400 para params faltantes, 404 para no encontrado, 405 para metodo incorrecto, 500 para fallos del backend). El endpoint `/consolidated` agrega datos de los 3 servicios en una sola pagina HTML — la maxima simplificacion para el cliente.
+
+2. **Servicios gRPC (3 contratos independientes):** `AttendeeService` (:8091, 3 RPCs) gestiona el registro con IDs autoincrementales. `AgendaService` (:8092, 3 RPCs) maneja la agenda con filtrado por franja horaria y control de aforo. `WorkshopService` (:8093, 4 RPCs) implementa reservas con lista de espera — si el aforo esta lleno, la reserva entra en estado `WAITING` y se promueve automaticamente a `CONFIRMED` cuando se cancela una reserva previa. Los 10 RPCs estan definidos en un unico `eciciencia.proto`.
+
+3. **Microservicios (separacion de dominios):** Cada servicio es dueno de su propia BD en memoria (Attendees Map, Activities Map, Reservations Map) y se ejecuta como proceso independiente. Sigue el mismo patron del Ejercicio 6.3 pero con logica de negocio mas rica (listas de espera, control de aforo, cancelaciones en cascada).
+
+El diagrama muestra la topologia completa: Browser → HTTP → Gateway → gRPC → 3 servicios. Cada flecha representa un limite de protocolo: HTTP para clientes externos, gRPC para comunicacion interna entre servicios. Los stubs (`AttendeeStub`, `AgendaStub`, `WorkshopStub`) son internos del Gateway y no accesibles desde fuera, lo que refuerza el rol del Gateway como unico punto de entrada.
 
 ## Guía de Pruebas Paso a Paso
 
@@ -3575,8 +3635,11 @@ run.bat exercise8 gateway
 
 **Paso 4 — Probar vía gateway:**
 ```bash
-curl "http://localhost:8090/attendees"
-curl "http://localhost:8090/agenda"
-curl "http://localhost:8090/workshops"
+curl -X POST "http://localhost:8090/attendee/register?name=Ana+Martinez&email=ana%40mail.com"
+curl "http://localhost:8090/attendee?id=3"
+curl "http://localhost:8090/agenda?start=08:00&end=18:00"
+curl -X POST "http://localhost:8090/workshop/reserve?attendeeId=3&activityId=1"
+curl -X POST "http://localhost:8090/workshop/cancel?reservationId=1"
+curl "http://localhost:8090/consolidated?id=3"
 ```
-*Esperado:* El gateway retorna datos agregados de los 3 servicios backend.
+*Esperado:* El gateway retorna datos agregados de los 3 servicios backend (asistentes, agenda, talleres).

@@ -21,10 +21,15 @@ public final class ReviewProto {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_ReviewRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_ReviewResponse_descriptor;
+    internal_static_Review_descriptor;
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_ReviewResponse_fieldAccessorTable;
+      internal_static_Review_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_ReviewList_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_ReviewList_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -35,12 +40,12 @@ public final class ReviewProto {
   static {
     java.lang.String[] descriptorData = {
       "\n\014review.proto\" \n\rReviewRequest\022\017\n\007movie" +
-      "Id\030\001 \001(\005\"c\n\016ReviewResponse\022\017\n\007movieId\030\001 " +
-      "\001(\005\022\020\n\010reviewer\030\002 \001(\t\022\016\n\006rating\030\003 \001(\005\022\017\n" +
-      "\007comment\030\004 \001(\t\022\r\n\005found\030\005 \001(\0102=\n\rReviewS" +
-      "ervice\022,\n\tGetReview\022\016.ReviewRequest\032\017.Re" +
-      "viewResponseB-\n\034edu.eci.arsw.guide6_2.re" +
-      "viewB\013ReviewProtoP\001b\006proto3"
+      "Id\030\001 \001(\005\"9\n\006Review\022\016\n\006author\030\001 \001(\t\022\017\n\007co" +
+      "mment\030\002 \001(\t\022\016\n\006rating\030\003 \001(\005\"&\n\nReviewLis" +
+      "t\022\030\n\007reviews\030\001 \003(\0132\007.Review2:\n\rReviewSer" +
+      "vice\022)\n\nGetReviews\022\016.ReviewRequest\032\013.Rev" +
+      "iewListB-\n\034edu.eci.arsw.guide6_2.reviewB" +
+      "\013ReviewProtoP\001b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -52,12 +57,18 @@ public final class ReviewProto {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_ReviewRequest_descriptor,
         new java.lang.String[] { "MovieId", });
-    internal_static_ReviewResponse_descriptor =
+    internal_static_Review_descriptor =
       getDescriptor().getMessageTypes().get(1);
-    internal_static_ReviewResponse_fieldAccessorTable = new
+    internal_static_Review_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_ReviewResponse_descriptor,
-        new java.lang.String[] { "MovieId", "Reviewer", "Rating", "Comment", "Found", });
+        internal_static_Review_descriptor,
+        new java.lang.String[] { "Author", "Comment", "Rating", });
+    internal_static_ReviewList_descriptor =
+      getDescriptor().getMessageTypes().get(2);
+    internal_static_ReviewList_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_ReviewList_descriptor,
+        new java.lang.String[] { "Reviews", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

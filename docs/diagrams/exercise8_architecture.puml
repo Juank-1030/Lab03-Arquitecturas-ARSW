@@ -1,44 +1,86 @@
 @startuml
-!define RECTANGLE class
-
 skinparam componentStyle rectangle
+skinparam backgroundColor white
+skinparam defaultTextAlignment center
 
-title ECICIENCIA Platform — Architecture Diagram
-
-actor "Client / Browser" as client
-
-rectangle "ECICIENCIA Gateway\n(:8090)" as gateway {
-  component [HTTP Server\ncom.sun.net.httpserver] as http
-  component [AttendeeStub\ngRPC] as atteStub
-  component [AgendaStub\ngRPC] as agenStub
-  component [WorkshopStub\ngRPC] as workStub
+skinparam component {
+  BackgroundColor #FFFEF0
+  BorderColor #888888
+  FontSize 13
+  FontStyle bold
+  ArrowColor #555555
 }
 
-database "Attendee DB\n(in memory)" as atteDB
-database "Agenda DB\n(in memory)" as agenDB
-database "Reservation DB\n(in memory)" as workDB
-
-rectangle "AttendeeService\n(:8091)" as atteSvc {
-  component [gRPC Server] as atteGrpc
+skinparam interface {
+  BackgroundColor white
+  BorderColor #555555
 }
 
-rectangle "AgendaService\n(:8092)" as agenSvc {
-  component [gRPC Server] as agenGrpc
+skinparam arrow {
+  Color #555555
+  FontSize 11
 }
 
-rectangle "WorkshopService\n(:8093)" as workSvc {
-  component [gRPC Server] as workGrpc
+title Exercise 8 - ECICIENCIA Platform Architecture
+
+' Subsistemas
+package "«subsystem» Client" {
+  component ":Browser / curl" as Browser
 }
 
-client --> gateway : HTTP
-http --> atteStub : route
-http --> agenStub : route
-http --> workStub : route
-atteStub --> atteSvc : gRPC
-agenStub --> agenSvc : gRPC
-workStub --> workSvc : gRPC
-atteSvc --> atteDB : read/write
-agenSvc --> agenDB : read/write
-workSvc --> workDB : read/write
+package "«subsystem» ECICIENCIA Gateway" {
+  component ":EcicienciaGateway\n(HTTP :8090)" as Gateway
+  component ":AttendeeStub" as AttStub
+  component ":AgendaStub" as AgStub
+  component ":WorkshopStub" as WkStub
+}
+
+package "«subsystem» AttendeeService" {
+  component ":AttendeeServiceImpl\n(3 RPCs)" as AttSvc
+  database ":Attendees Map" as AttDb
+}
+
+package "«subsystem» AgendaService" {
+  component ":AgendaServiceImpl\n(3 RPCs)" as AgSvc
+  database ":Activities Map" as AgDb
+}
+
+package "«subsystem» WorkshopService" {
+  component ":WorkshopServiceImpl\n(4 RPCs)" as WkSvc
+  database ":Reservations Map" as WkDb
+}
+
+' Provided interfaces
+interface "HTTP :8090" as IHttp
+interface "gRPC :8091\nAttendeeService" as IAtt
+interface "gRPC :8092\nAgendaService" as IAg
+interface "gRPC :8093\nWorkshopService" as IWk
+
+' Conexiones (ball = provee, socket = requiere)
+' Gateway provee HTTP
+Gateway --( IHttp
+
+' Browser requiere HTTP
+Browser -- IHttp
+
+' Microservicios proveen gRPC
+AttSvc --( IAtt
+AgSvc --( IAg
+WkSvc --( IWk
+
+' Gateway requiere los 3 servicios
+AttStub -- IAtt
+AgStub -- IAg
+WkStub -- IWk
+
+' Gateway usa stubs internamente
+Gateway --> AttStub : <<use>>
+Gateway --> AgStub : <<use>>
+Gateway --> WkStub : <<use>>
+
+' Servidores usan sus BD
+AttSvc --> AttDb : <<use>>
+AgSvc --> AgDb : <<use>>
+WkSvc --> WkDb : <<use>>
 
 @enduml

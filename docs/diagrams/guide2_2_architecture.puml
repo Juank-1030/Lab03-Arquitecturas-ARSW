@@ -1,25 +1,53 @@
 @startuml
+skinparam componentStyle rectangle
+skinparam backgroundColor white
+skinparam defaultTextAlignment center
+
+skinparam component {
+  BackgroundColor #FFFEF0
+  BorderColor #888888
+  FontSize 13
+  FontStyle bold
+  ArrowColor #555555
+}
+
+skinparam interface {
+  BackgroundColor white
+  BorderColor #555555
+}
+
+skinparam arrow {
+  Color #555555
+  FontSize 11
+}
+
 title Guide 2.2 - MovieServer TCP Architecture
 
-actor "User" as user
-participant "MovieClient" as client
-participant "TCP Socket\n(:35000)" as socket
-participant "MovieServer" as server
-database "MovieRepository\n(in memory)" as repo
+' Subsistemas
+package "«subsystem» Client" {
+  component ":MovieClient" as MovieClient
+}
 
-user -> client : types movie ID
-client -> socket : connect()\nMOVIE:1
-socket -> server : accept()\nreadLine()
-server -> repo : findById(1)
-repo --> server : Movie
-server --> socket : println()\n"1,Interstellar,..."
-socket --> client : readLine()
-client --> user : display result
+package "«subsystem» MovieServer" {
+  component ":MovieServer" as MovieServer
+  component ":MovieRepository" as MovieRepo
+  component ":Movie" as MovieModel
+}
 
-legend right
-  Protocol: MOVIE:id
-  Format: CSV text
-  Single-threaded
-endlegend
+' Provided interfaces
+interface "TCP :35000" as ITcp
+
+' Conexiones (ball = provee, socket = requiere)
+' MovieServer provee TCP socket
+MovieServer --( ITcp
+
+' MovieClient requiere TCP
+MovieClient -- ITcp
+
+' MovieServer usa repositorio
+MovieServer --> MovieRepo : <<use>>
+
+' Repositorio contiene modelo
+MovieRepo --> MovieModel : <<use>>
 
 @enduml

@@ -5,19 +5,19 @@
 package edu.eci.arsw.guide6_2.review;
 
 /**
- * Protobuf type {@code ReviewResponse}
+ * Protobuf type {@code Review}
  */
-public final class ReviewResponse extends
+public final class Review extends
     com.google.protobuf.GeneratedMessageV3 implements
-    // @@protoc_insertion_point(message_implements:ReviewResponse)
-    ReviewResponseOrBuilder {
+    // @@protoc_insertion_point(message_implements:Review)
+    ReviewOrBuilder {
 private static final long serialVersionUID = 0L;
-  // Use ReviewResponse.newBuilder() to construct.
-  private ReviewResponse(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+  // Use Review.newBuilder() to construct.
+  private Review(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
     super(builder);
   }
-  private ReviewResponse() {
-    reviewer_ = "";
+  private Review() {
+    author_ = "";
     comment_ = "";
   }
 
@@ -25,88 +25,66 @@ private static final long serialVersionUID = 0L;
   @SuppressWarnings({"unused"})
   protected java.lang.Object newInstance(
       UnusedPrivateParameter unused) {
-    return new ReviewResponse();
+    return new Review();
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
-    return edu.eci.arsw.guide6_2.review.ReviewProto.internal_static_ReviewResponse_descriptor;
+    return edu.eci.arsw.guide6_2.review.ReviewProto.internal_static_Review_descriptor;
   }
 
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return edu.eci.arsw.guide6_2.review.ReviewProto.internal_static_ReviewResponse_fieldAccessorTable
+    return edu.eci.arsw.guide6_2.review.ReviewProto.internal_static_Review_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
-            edu.eci.arsw.guide6_2.review.ReviewResponse.class, edu.eci.arsw.guide6_2.review.ReviewResponse.Builder.class);
+            edu.eci.arsw.guide6_2.review.Review.class, edu.eci.arsw.guide6_2.review.Review.Builder.class);
   }
 
-  public static final int MOVIEID_FIELD_NUMBER = 1;
-  private int movieId_ = 0;
-  /**
-   * <code>int32 movieId = 1;</code>
-   * @return The movieId.
-   */
-  @java.lang.Override
-  public int getMovieId() {
-    return movieId_;
-  }
-
-  public static final int REVIEWER_FIELD_NUMBER = 2;
+  public static final int AUTHOR_FIELD_NUMBER = 1;
   @SuppressWarnings("serial")
-  private volatile java.lang.Object reviewer_ = "";
+  private volatile java.lang.Object author_ = "";
   /**
-   * <code>string reviewer = 2;</code>
-   * @return The reviewer.
+   * <code>string author = 1;</code>
+   * @return The author.
    */
   @java.lang.Override
-  public java.lang.String getReviewer() {
-    java.lang.Object ref = reviewer_;
+  public java.lang.String getAuthor() {
+    java.lang.Object ref = author_;
     if (ref instanceof java.lang.String) {
       return (java.lang.String) ref;
     } else {
       com.google.protobuf.ByteString bs = 
           (com.google.protobuf.ByteString) ref;
       java.lang.String s = bs.toStringUtf8();
-      reviewer_ = s;
+      author_ = s;
       return s;
     }
   }
   /**
-   * <code>string reviewer = 2;</code>
-   * @return The bytes for reviewer.
+   * <code>string author = 1;</code>
+   * @return The bytes for author.
    */
   @java.lang.Override
   public com.google.protobuf.ByteString
-      getReviewerBytes() {
-    java.lang.Object ref = reviewer_;
+      getAuthorBytes() {
+    java.lang.Object ref = author_;
     if (ref instanceof java.lang.String) {
       com.google.protobuf.ByteString b = 
           com.google.protobuf.ByteString.copyFromUtf8(
               (java.lang.String) ref);
-      reviewer_ = b;
+      author_ = b;
       return b;
     } else {
       return (com.google.protobuf.ByteString) ref;
     }
   }
 
-  public static final int RATING_FIELD_NUMBER = 3;
-  private int rating_ = 0;
-  /**
-   * <code>int32 rating = 3;</code>
-   * @return The rating.
-   */
-  @java.lang.Override
-  public int getRating() {
-    return rating_;
-  }
-
-  public static final int COMMENT_FIELD_NUMBER = 4;
+  public static final int COMMENT_FIELD_NUMBER = 2;
   @SuppressWarnings("serial")
   private volatile java.lang.Object comment_ = "";
   /**
-   * <code>string comment = 4;</code>
+   * <code>string comment = 2;</code>
    * @return The comment.
    */
   @java.lang.Override
@@ -123,7 +101,7 @@ private static final long serialVersionUID = 0L;
     }
   }
   /**
-   * <code>string comment = 4;</code>
+   * <code>string comment = 2;</code>
    * @return The bytes for comment.
    */
   @java.lang.Override
@@ -141,15 +119,15 @@ private static final long serialVersionUID = 0L;
     }
   }
 
-  public static final int FOUND_FIELD_NUMBER = 5;
-  private boolean found_ = false;
+  public static final int RATING_FIELD_NUMBER = 3;
+  private int rating_ = 0;
   /**
-   * <code>bool found = 5;</code>
-   * @return The found.
+   * <code>int32 rating = 3;</code>
+   * @return The rating.
    */
   @java.lang.Override
-  public boolean getFound() {
-    return found_;
+  public int getRating() {
+    return rating_;
   }
 
   private byte memoizedIsInitialized = -1;
@@ -166,20 +144,14 @@ private static final long serialVersionUID = 0L;
   @java.lang.Override
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
-    if (movieId_ != 0) {
-      output.writeInt32(1, movieId_);
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(author_)) {
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 1, author_);
     }
-    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(reviewer_)) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 2, reviewer_);
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(comment_)) {
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 2, comment_);
     }
     if (rating_ != 0) {
       output.writeInt32(3, rating_);
-    }
-    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(comment_)) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 4, comment_);
-    }
-    if (found_ != false) {
-      output.writeBool(5, found_);
     }
     getUnknownFields().writeTo(output);
   }
@@ -190,23 +162,15 @@ private static final long serialVersionUID = 0L;
     if (size != -1) return size;
 
     size = 0;
-    if (movieId_ != 0) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeInt32Size(1, movieId_);
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(author_)) {
+      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, author_);
     }
-    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(reviewer_)) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, reviewer_);
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(comment_)) {
+      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, comment_);
     }
     if (rating_ != 0) {
       size += com.google.protobuf.CodedOutputStream
         .computeInt32Size(3, rating_);
-    }
-    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(comment_)) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, comment_);
-    }
-    if (found_ != false) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeBoolSize(5, found_);
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
@@ -218,21 +182,17 @@ private static final long serialVersionUID = 0L;
     if (obj == this) {
      return true;
     }
-    if (!(obj instanceof edu.eci.arsw.guide6_2.review.ReviewResponse)) {
+    if (!(obj instanceof edu.eci.arsw.guide6_2.review.Review)) {
       return super.equals(obj);
     }
-    edu.eci.arsw.guide6_2.review.ReviewResponse other = (edu.eci.arsw.guide6_2.review.ReviewResponse) obj;
+    edu.eci.arsw.guide6_2.review.Review other = (edu.eci.arsw.guide6_2.review.Review) obj;
 
-    if (getMovieId()
-        != other.getMovieId()) return false;
-    if (!getReviewer()
-        .equals(other.getReviewer())) return false;
-    if (getRating()
-        != other.getRating()) return false;
+    if (!getAuthor()
+        .equals(other.getAuthor())) return false;
     if (!getComment()
         .equals(other.getComment())) return false;
-    if (getFound()
-        != other.getFound()) return false;
+    if (getRating()
+        != other.getRating()) return false;
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
@@ -244,60 +204,55 @@ private static final long serialVersionUID = 0L;
     }
     int hash = 41;
     hash = (19 * hash) + getDescriptor().hashCode();
-    hash = (37 * hash) + MOVIEID_FIELD_NUMBER;
-    hash = (53 * hash) + getMovieId();
-    hash = (37 * hash) + REVIEWER_FIELD_NUMBER;
-    hash = (53 * hash) + getReviewer().hashCode();
-    hash = (37 * hash) + RATING_FIELD_NUMBER;
-    hash = (53 * hash) + getRating();
+    hash = (37 * hash) + AUTHOR_FIELD_NUMBER;
+    hash = (53 * hash) + getAuthor().hashCode();
     hash = (37 * hash) + COMMENT_FIELD_NUMBER;
     hash = (53 * hash) + getComment().hashCode();
-    hash = (37 * hash) + FOUND_FIELD_NUMBER;
-    hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
-        getFound());
+    hash = (37 * hash) + RATING_FIELD_NUMBER;
+    hash = (53 * hash) + getRating();
     hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
   }
 
-  public static edu.eci.arsw.guide6_2.review.ReviewResponse parseFrom(
+  public static edu.eci.arsw.guide6_2.review.Review parseFrom(
       java.nio.ByteBuffer data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static edu.eci.arsw.guide6_2.review.ReviewResponse parseFrom(
+  public static edu.eci.arsw.guide6_2.review.Review parseFrom(
       java.nio.ByteBuffer data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static edu.eci.arsw.guide6_2.review.ReviewResponse parseFrom(
+  public static edu.eci.arsw.guide6_2.review.Review parseFrom(
       com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static edu.eci.arsw.guide6_2.review.ReviewResponse parseFrom(
+  public static edu.eci.arsw.guide6_2.review.Review parseFrom(
       com.google.protobuf.ByteString data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static edu.eci.arsw.guide6_2.review.ReviewResponse parseFrom(byte[] data)
+  public static edu.eci.arsw.guide6_2.review.Review parseFrom(byte[] data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static edu.eci.arsw.guide6_2.review.ReviewResponse parseFrom(
+  public static edu.eci.arsw.guide6_2.review.Review parseFrom(
       byte[] data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static edu.eci.arsw.guide6_2.review.ReviewResponse parseFrom(java.io.InputStream input)
+  public static edu.eci.arsw.guide6_2.review.Review parseFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input);
   }
-  public static edu.eci.arsw.guide6_2.review.ReviewResponse parseFrom(
+  public static edu.eci.arsw.guide6_2.review.Review parseFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -305,26 +260,26 @@ private static final long serialVersionUID = 0L;
         .parseWithIOException(PARSER, input, extensionRegistry);
   }
 
-  public static edu.eci.arsw.guide6_2.review.ReviewResponse parseDelimitedFrom(java.io.InputStream input)
+  public static edu.eci.arsw.guide6_2.review.Review parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseDelimitedWithIOException(PARSER, input);
   }
 
-  public static edu.eci.arsw.guide6_2.review.ReviewResponse parseDelimitedFrom(
+  public static edu.eci.arsw.guide6_2.review.Review parseDelimitedFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
   }
-  public static edu.eci.arsw.guide6_2.review.ReviewResponse parseFrom(
+  public static edu.eci.arsw.guide6_2.review.Review parseFrom(
       com.google.protobuf.CodedInputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input);
   }
-  public static edu.eci.arsw.guide6_2.review.ReviewResponse parseFrom(
+  public static edu.eci.arsw.guide6_2.review.Review parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -337,7 +292,7 @@ private static final long serialVersionUID = 0L;
   public static Builder newBuilder() {
     return DEFAULT_INSTANCE.toBuilder();
   }
-  public static Builder newBuilder(edu.eci.arsw.guide6_2.review.ReviewResponse prototype) {
+  public static Builder newBuilder(edu.eci.arsw.guide6_2.review.Review prototype) {
     return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
   }
   @java.lang.Override
@@ -353,26 +308,26 @@ private static final long serialVersionUID = 0L;
     return builder;
   }
   /**
-   * Protobuf type {@code ReviewResponse}
+   * Protobuf type {@code Review}
    */
   public static final class Builder extends
       com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-      // @@protoc_insertion_point(builder_implements:ReviewResponse)
-      edu.eci.arsw.guide6_2.review.ReviewResponseOrBuilder {
+      // @@protoc_insertion_point(builder_implements:Review)
+      edu.eci.arsw.guide6_2.review.ReviewOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return edu.eci.arsw.guide6_2.review.ReviewProto.internal_static_ReviewResponse_descriptor;
+      return edu.eci.arsw.guide6_2.review.ReviewProto.internal_static_Review_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return edu.eci.arsw.guide6_2.review.ReviewProto.internal_static_ReviewResponse_fieldAccessorTable
+      return edu.eci.arsw.guide6_2.review.ReviewProto.internal_static_Review_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              edu.eci.arsw.guide6_2.review.ReviewResponse.class, edu.eci.arsw.guide6_2.review.ReviewResponse.Builder.class);
+              edu.eci.arsw.guide6_2.review.Review.class, edu.eci.arsw.guide6_2.review.Review.Builder.class);
     }
 
-    // Construct using edu.eci.arsw.guide6_2.review.ReviewResponse.newBuilder()
+    // Construct using edu.eci.arsw.guide6_2.review.Review.newBuilder()
     private Builder() {
 
     }
@@ -386,28 +341,26 @@ private static final long serialVersionUID = 0L;
     public Builder clear() {
       super.clear();
       bitField0_ = 0;
-      movieId_ = 0;
-      reviewer_ = "";
-      rating_ = 0;
+      author_ = "";
       comment_ = "";
-      found_ = false;
+      rating_ = 0;
       return this;
     }
 
     @java.lang.Override
     public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
-      return edu.eci.arsw.guide6_2.review.ReviewProto.internal_static_ReviewResponse_descriptor;
+      return edu.eci.arsw.guide6_2.review.ReviewProto.internal_static_Review_descriptor;
     }
 
     @java.lang.Override
-    public edu.eci.arsw.guide6_2.review.ReviewResponse getDefaultInstanceForType() {
-      return edu.eci.arsw.guide6_2.review.ReviewResponse.getDefaultInstance();
+    public edu.eci.arsw.guide6_2.review.Review getDefaultInstanceForType() {
+      return edu.eci.arsw.guide6_2.review.Review.getDefaultInstance();
     }
 
     @java.lang.Override
-    public edu.eci.arsw.guide6_2.review.ReviewResponse build() {
-      edu.eci.arsw.guide6_2.review.ReviewResponse result = buildPartial();
+    public edu.eci.arsw.guide6_2.review.Review build() {
+      edu.eci.arsw.guide6_2.review.Review result = buildPartial();
       if (!result.isInitialized()) {
         throw newUninitializedMessageException(result);
       }
@@ -415,29 +368,23 @@ private static final long serialVersionUID = 0L;
     }
 
     @java.lang.Override
-    public edu.eci.arsw.guide6_2.review.ReviewResponse buildPartial() {
-      edu.eci.arsw.guide6_2.review.ReviewResponse result = new edu.eci.arsw.guide6_2.review.ReviewResponse(this);
+    public edu.eci.arsw.guide6_2.review.Review buildPartial() {
+      edu.eci.arsw.guide6_2.review.Review result = new edu.eci.arsw.guide6_2.review.Review(this);
       if (bitField0_ != 0) { buildPartial0(result); }
       onBuilt();
       return result;
     }
 
-    private void buildPartial0(edu.eci.arsw.guide6_2.review.ReviewResponse result) {
+    private void buildPartial0(edu.eci.arsw.guide6_2.review.Review result) {
       int from_bitField0_ = bitField0_;
       if (((from_bitField0_ & 0x00000001) != 0)) {
-        result.movieId_ = movieId_;
+        result.author_ = author_;
       }
       if (((from_bitField0_ & 0x00000002) != 0)) {
-        result.reviewer_ = reviewer_;
+        result.comment_ = comment_;
       }
       if (((from_bitField0_ & 0x00000004) != 0)) {
         result.rating_ = rating_;
-      }
-      if (((from_bitField0_ & 0x00000008) != 0)) {
-        result.comment_ = comment_;
-      }
-      if (((from_bitField0_ & 0x00000010) != 0)) {
-        result.found_ = found_;
       }
     }
 
@@ -475,34 +422,28 @@ private static final long serialVersionUID = 0L;
     }
     @java.lang.Override
     public Builder mergeFrom(com.google.protobuf.Message other) {
-      if (other instanceof edu.eci.arsw.guide6_2.review.ReviewResponse) {
-        return mergeFrom((edu.eci.arsw.guide6_2.review.ReviewResponse)other);
+      if (other instanceof edu.eci.arsw.guide6_2.review.Review) {
+        return mergeFrom((edu.eci.arsw.guide6_2.review.Review)other);
       } else {
         super.mergeFrom(other);
         return this;
       }
     }
 
-    public Builder mergeFrom(edu.eci.arsw.guide6_2.review.ReviewResponse other) {
-      if (other == edu.eci.arsw.guide6_2.review.ReviewResponse.getDefaultInstance()) return this;
-      if (other.getMovieId() != 0) {
-        setMovieId(other.getMovieId());
+    public Builder mergeFrom(edu.eci.arsw.guide6_2.review.Review other) {
+      if (other == edu.eci.arsw.guide6_2.review.Review.getDefaultInstance()) return this;
+      if (!other.getAuthor().isEmpty()) {
+        author_ = other.author_;
+        bitField0_ |= 0x00000001;
+        onChanged();
       }
-      if (!other.getReviewer().isEmpty()) {
-        reviewer_ = other.reviewer_;
+      if (!other.getComment().isEmpty()) {
+        comment_ = other.comment_;
         bitField0_ |= 0x00000002;
         onChanged();
       }
       if (other.getRating() != 0) {
         setRating(other.getRating());
-      }
-      if (!other.getComment().isEmpty()) {
-        comment_ = other.comment_;
-        bitField0_ |= 0x00000008;
-        onChanged();
-      }
-      if (other.getFound() != false) {
-        setFound(other.getFound());
       }
       this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
@@ -530,13 +471,13 @@ private static final long serialVersionUID = 0L;
             case 0:
               done = true;
               break;
-            case 8: {
-              movieId_ = input.readInt32();
+            case 10: {
+              author_ = input.readStringRequireUtf8();
               bitField0_ |= 0x00000001;
               break;
-            } // case 8
+            } // case 10
             case 18: {
-              reviewer_ = input.readStringRequireUtf8();
+              comment_ = input.readStringRequireUtf8();
               bitField0_ |= 0x00000002;
               break;
             } // case 18
@@ -545,16 +486,6 @@ private static final long serialVersionUID = 0L;
               bitField0_ |= 0x00000004;
               break;
             } // case 24
-            case 34: {
-              comment_ = input.readStringRequireUtf8();
-              bitField0_ |= 0x00000008;
-              break;
-            } // case 34
-            case 40: {
-              found_ = input.readBool();
-              bitField0_ |= 0x00000010;
-              break;
-            } // case 40
             default: {
               if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                 done = true; // was an endgroup tag
@@ -572,105 +503,145 @@ private static final long serialVersionUID = 0L;
     }
     private int bitField0_;
 
-    private int movieId_ ;
+    private java.lang.Object author_ = "";
     /**
-     * <code>int32 movieId = 1;</code>
-     * @return The movieId.
+     * <code>string author = 1;</code>
+     * @return The author.
      */
-    @java.lang.Override
-    public int getMovieId() {
-      return movieId_;
-    }
-    /**
-     * <code>int32 movieId = 1;</code>
-     * @param value The movieId to set.
-     * @return This builder for chaining.
-     */
-    public Builder setMovieId(int value) {
-
-      movieId_ = value;
-      bitField0_ |= 0x00000001;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>int32 movieId = 1;</code>
-     * @return This builder for chaining.
-     */
-    public Builder clearMovieId() {
-      bitField0_ = (bitField0_ & ~0x00000001);
-      movieId_ = 0;
-      onChanged();
-      return this;
-    }
-
-    private java.lang.Object reviewer_ = "";
-    /**
-     * <code>string reviewer = 2;</code>
-     * @return The reviewer.
-     */
-    public java.lang.String getReviewer() {
-      java.lang.Object ref = reviewer_;
+    public java.lang.String getAuthor() {
+      java.lang.Object ref = author_;
       if (!(ref instanceof java.lang.String)) {
         com.google.protobuf.ByteString bs =
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        reviewer_ = s;
+        author_ = s;
         return s;
       } else {
         return (java.lang.String) ref;
       }
     }
     /**
-     * <code>string reviewer = 2;</code>
-     * @return The bytes for reviewer.
+     * <code>string author = 1;</code>
+     * @return The bytes for author.
      */
     public com.google.protobuf.ByteString
-        getReviewerBytes() {
-      java.lang.Object ref = reviewer_;
+        getAuthorBytes() {
+      java.lang.Object ref = author_;
       if (ref instanceof String) {
         com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
-        reviewer_ = b;
+        author_ = b;
         return b;
       } else {
         return (com.google.protobuf.ByteString) ref;
       }
     }
     /**
-     * <code>string reviewer = 2;</code>
-     * @param value The reviewer to set.
+     * <code>string author = 1;</code>
+     * @param value The author to set.
      * @return This builder for chaining.
      */
-    public Builder setReviewer(
+    public Builder setAuthor(
         java.lang.String value) {
       if (value == null) { throw new NullPointerException(); }
-      reviewer_ = value;
+      author_ = value;
+      bitField0_ |= 0x00000001;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>string author = 1;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearAuthor() {
+      author_ = getDefaultInstance().getAuthor();
+      bitField0_ = (bitField0_ & ~0x00000001);
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>string author = 1;</code>
+     * @param value The bytes for author to set.
+     * @return This builder for chaining.
+     */
+    public Builder setAuthorBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) { throw new NullPointerException(); }
+      checkByteStringIsUtf8(value);
+      author_ = value;
+      bitField0_ |= 0x00000001;
+      onChanged();
+      return this;
+    }
+
+    private java.lang.Object comment_ = "";
+    /**
+     * <code>string comment = 2;</code>
+     * @return The comment.
+     */
+    public java.lang.String getComment() {
+      java.lang.Object ref = comment_;
+      if (!(ref instanceof java.lang.String)) {
+        com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        comment_ = s;
+        return s;
+      } else {
+        return (java.lang.String) ref;
+      }
+    }
+    /**
+     * <code>string comment = 2;</code>
+     * @return The bytes for comment.
+     */
+    public com.google.protobuf.ByteString
+        getCommentBytes() {
+      java.lang.Object ref = comment_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        comment_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+    /**
+     * <code>string comment = 2;</code>
+     * @param value The comment to set.
+     * @return This builder for chaining.
+     */
+    public Builder setComment(
+        java.lang.String value) {
+      if (value == null) { throw new NullPointerException(); }
+      comment_ = value;
       bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
     /**
-     * <code>string reviewer = 2;</code>
+     * <code>string comment = 2;</code>
      * @return This builder for chaining.
      */
-    public Builder clearReviewer() {
-      reviewer_ = getDefaultInstance().getReviewer();
+    public Builder clearComment() {
+      comment_ = getDefaultInstance().getComment();
       bitField0_ = (bitField0_ & ~0x00000002);
       onChanged();
       return this;
     }
     /**
-     * <code>string reviewer = 2;</code>
-     * @param value The bytes for reviewer to set.
+     * <code>string comment = 2;</code>
+     * @param value The bytes for comment to set.
      * @return This builder for chaining.
      */
-    public Builder setReviewerBytes(
+    public Builder setCommentBytes(
         com.google.protobuf.ByteString value) {
       if (value == null) { throw new NullPointerException(); }
       checkByteStringIsUtf8(value);
-      reviewer_ = value;
+      comment_ = value;
       bitField0_ |= 0x00000002;
       onChanged();
       return this;
@@ -707,110 +678,6 @@ private static final long serialVersionUID = 0L;
       onChanged();
       return this;
     }
-
-    private java.lang.Object comment_ = "";
-    /**
-     * <code>string comment = 4;</code>
-     * @return The comment.
-     */
-    public java.lang.String getComment() {
-      java.lang.Object ref = comment_;
-      if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs =
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        comment_ = s;
-        return s;
-      } else {
-        return (java.lang.String) ref;
-      }
-    }
-    /**
-     * <code>string comment = 4;</code>
-     * @return The bytes for comment.
-     */
-    public com.google.protobuf.ByteString
-        getCommentBytes() {
-      java.lang.Object ref = comment_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        comment_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-    /**
-     * <code>string comment = 4;</code>
-     * @param value The comment to set.
-     * @return This builder for chaining.
-     */
-    public Builder setComment(
-        java.lang.String value) {
-      if (value == null) { throw new NullPointerException(); }
-      comment_ = value;
-      bitField0_ |= 0x00000008;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string comment = 4;</code>
-     * @return This builder for chaining.
-     */
-    public Builder clearComment() {
-      comment_ = getDefaultInstance().getComment();
-      bitField0_ = (bitField0_ & ~0x00000008);
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string comment = 4;</code>
-     * @param value The bytes for comment to set.
-     * @return This builder for chaining.
-     */
-    public Builder setCommentBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) { throw new NullPointerException(); }
-      checkByteStringIsUtf8(value);
-      comment_ = value;
-      bitField0_ |= 0x00000008;
-      onChanged();
-      return this;
-    }
-
-    private boolean found_ ;
-    /**
-     * <code>bool found = 5;</code>
-     * @return The found.
-     */
-    @java.lang.Override
-    public boolean getFound() {
-      return found_;
-    }
-    /**
-     * <code>bool found = 5;</code>
-     * @param value The found to set.
-     * @return This builder for chaining.
-     */
-    public Builder setFound(boolean value) {
-
-      found_ = value;
-      bitField0_ |= 0x00000010;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>bool found = 5;</code>
-     * @return This builder for chaining.
-     */
-    public Builder clearFound() {
-      bitField0_ = (bitField0_ & ~0x00000010);
-      found_ = false;
-      onChanged();
-      return this;
-    }
     @java.lang.Override
     public final Builder setUnknownFields(
         final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -824,23 +691,23 @@ private static final long serialVersionUID = 0L;
     }
 
 
-    // @@protoc_insertion_point(builder_scope:ReviewResponse)
+    // @@protoc_insertion_point(builder_scope:Review)
   }
 
-  // @@protoc_insertion_point(class_scope:ReviewResponse)
-  private static final edu.eci.arsw.guide6_2.review.ReviewResponse DEFAULT_INSTANCE;
+  // @@protoc_insertion_point(class_scope:Review)
+  private static final edu.eci.arsw.guide6_2.review.Review DEFAULT_INSTANCE;
   static {
-    DEFAULT_INSTANCE = new edu.eci.arsw.guide6_2.review.ReviewResponse();
+    DEFAULT_INSTANCE = new edu.eci.arsw.guide6_2.review.Review();
   }
 
-  public static edu.eci.arsw.guide6_2.review.ReviewResponse getDefaultInstance() {
+  public static edu.eci.arsw.guide6_2.review.Review getDefaultInstance() {
     return DEFAULT_INSTANCE;
   }
 
-  private static final com.google.protobuf.Parser<ReviewResponse>
-      PARSER = new com.google.protobuf.AbstractParser<ReviewResponse>() {
+  private static final com.google.protobuf.Parser<Review>
+      PARSER = new com.google.protobuf.AbstractParser<Review>() {
     @java.lang.Override
-    public ReviewResponse parsePartialFrom(
+    public Review parsePartialFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -859,17 +726,17 @@ private static final long serialVersionUID = 0L;
     }
   };
 
-  public static com.google.protobuf.Parser<ReviewResponse> parser() {
+  public static com.google.protobuf.Parser<Review> parser() {
     return PARSER;
   }
 
   @java.lang.Override
-  public com.google.protobuf.Parser<ReviewResponse> getParserForType() {
+  public com.google.protobuf.Parser<Review> getParserForType() {
     return PARSER;
   }
 
   @java.lang.Override
-  public edu.eci.arsw.guide6_2.review.ReviewResponse getDefaultInstanceForType() {
+  public edu.eci.arsw.guide6_2.review.Review getDefaultInstanceForType() {
     return DEFAULT_INSTANCE;
   }
 

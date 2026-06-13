@@ -1,7 +1,20 @@
 @startuml
-!theme plain
-
 title Exercise 6.3 - CRUD Operation Flow (AppointmentService Example)
+
+skinparam actor {
+    BackgroundColor #FFFFFF
+    BorderColor #000000
+}
+
+skinparam participant {
+    BackgroundColor #E8F4E8
+    BorderColor #2E7D32
+}
+
+skinparam database {
+    BackgroundColor #FCE4E4
+    BorderColor #B22222
+}
 
 actor "User" as USER
 participant "WellnessClient" as CLIENT
@@ -10,16 +23,16 @@ participant "AppointmentServiceImpl\n(Port 50061)" as SERVER
 database "Appointments Map" as DB
 
 == CREATE (Request Appointment) ==
-USER -> CLIENT : Option 1: studentId, serviceType, date
+USER -> CLIENT : studentId, serviceType, date
 CLIENT -> STUB : requestAppointment(AppointmentRequest)
 STUB -> SERVER : gRPC call
 SERVER -> DB : put(id, new Appointment(REQUESTED))
 SERVER --> STUB : AppointmentResponse(success, appointment)
 STUB --> CLIENT : response
-CLIENT --> USER : "Cita solicitada exitosamente" + details
+CLIENT --> USER : "Cita solicitada exitosamente"
 
 == READ (Get Appointments) ==
-USER -> CLIENT : Option 3: studentId
+USER -> CLIENT : studentId
 CLIENT -> STUB : getAppointments(StudentRequest)
 STUB -> SERVER : gRPC call
 SERVER -> DB : values().filter(studentId)
@@ -28,28 +41,19 @@ STUB --> CLIENT : list
 CLIENT --> USER : formatted appointment list
 
 == UPDATE (Reprogram Date) ==
-USER -> CLIENT : Option 5: appointmentId, newDate
+USER -> CLIENT : appointmentId, newDate
 CLIENT -> STUB : updateAppointmentDate(UpdateDateRequest)
 STUB -> SERVER : gRPC call
-SERVER -> DB : get(id) -> toBuilder().setDate(newDate).build()
-SERVER --> STUB : UpdateDateResponse(success, updated)
+SERVER -> DB : get(id).setDate(newDate)
+SERVER --> STUB : UpdateDateResponse(success)
 STUB --> CLIENT : response
 CLIENT --> USER : "Cita reprogramada exitosamente"
 
-== DELETE (Hard) ==
-USER -> CLIENT : Option 4: appointmentId
-CLIENT -> STUB : deleteAppointment(DeleteAppointmentRequest)
-STUB -> SERVER : gRPC call
-SERVER -> DB : remove(id)
-SERVER --> STUB : DeleteAppointmentResponse(success)
-STUB --> CLIENT : response
-CLIENT --> USER : "Cita eliminada permanentemente"
-
-== DELETE (Soft - Cancel) ==
-USER -> CLIENT : Option 2: appointmentId
+== DELETE (Cancel) ==
+USER -> CLIENT : appointmentId
 CLIENT -> STUB : cancelAppointment(CancelRequest)
 STUB -> SERVER : gRPC call
-SERVER -> DB : get(id) -> toBuilder().setStatus(CANCELLED).build()
+SERVER -> DB : get(id).setStatus(CANCELLED)
 SERVER --> STUB : CancelResponse(success)
 STUB --> CLIENT : response
 CLIENT --> USER : "Cita cancelada exitosamente"

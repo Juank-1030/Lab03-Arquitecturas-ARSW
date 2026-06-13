@@ -1,23 +1,53 @@
 @startuml
+skinparam componentStyle rectangle
+skinparam backgroundColor white
+skinparam defaultTextAlignment center
+
+skinparam component {
+  BackgroundColor #FFFEF0
+  BorderColor #888888
+  FontSize 13
+  FontStyle bold
+  ArrowColor #555555
+}
+
+skinparam interface {
+  BackgroundColor white
+  BorderColor #555555
+}
+
+skinparam arrow {
+  Color #555555
+  FontSize 11
+}
+
 title Exercise 3.3 - Room Management HTTP Architecture
 
-actor "Browser / curl" as client
-participant "HTTP\n(:8081)" as http
-participant "RoomsHandler" as handler
-database "RoomRepository\n(E301-E304)" as repo
+' Subsistemas
+package "«subsystem» Client" {
+  component ":Browser / curl" as Browser
+}
 
-client -> http : GET /rooms
-client -> http : GET /rooms?id=E303
-client -> http : POST /rooms/reserve?id=E303
-http -> handler : handle(HttpExchange)\n(method + path dispatch)
-handler -> repo : findAll() / consult() / reserve() / release()
-repo --> handler : status text
-handler --> http : 200 OK\n<html>...</html>
-http --> client : HTML response
+package "«subsystem» RoomHttpServer" {
+  component ":RoomHttpServer" as HttpServer
+  component ":RoomRepository" as RoomRepo
+  component ":Room" as RoomModel
+}
 
-legend right
-  4 routes: list/consult/reserve/release
-  Dispatch by method+path
-endlegend
+' Provided interfaces
+interface "HTTP :8081" as IHttp
+
+' Conexiones (ball = provee, socket = requiere)
+' RoomHttpServer provee HTTP
+HttpServer --( IHttp
+
+' Browser requiere HTTP
+Browser -- IHttp
+
+' HttpServer usa repositorio
+HttpServer --> RoomRepo : <<use>>
+
+' Repositorio contiene modelo
+RoomRepo --> RoomModel : <<use>>
 
 @enduml

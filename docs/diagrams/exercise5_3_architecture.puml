@@ -1,25 +1,53 @@
 @startuml
-title Exercise 5.3 - Wellness gRPC Architecture
+skinparam componentStyle rectangle
+skinparam backgroundColor white
+skinparam defaultTextAlignment center
 
-package "Runtime" {
-  participant "WellnessClient" as client
-  participant "gRPC Channel\n(:50061)" as channel
-  participant "WellnessServer" as server
-  database "Appointments\n(in memory)" as repo
-
-  client -> channel : requestAppointment(Request)\ncancelAppointment(Cancel)\ngetAppointments(Student)
-  channel -> server : HTTP/2\nprotobuf binary
-  server -> repo : create / cancel / query
-  repo --> server : result
-  server --> channel : AppointmentResponse
-  channel --> client : deserialized response
+skinparam component {
+  BackgroundColor #FFFEF0
+  BorderColor #888888
+  FontSize 13
+  FontStyle bold
+  ArrowColor #555555
 }
 
-legend right
-  Service: AppointmentService
-  3 RPCs: request/cancel/get
-  Enums: ServiceType, Status
-  Single gRPC server
-endlegend
+skinparam interface {
+  BackgroundColor white
+  BorderColor #555555
+}
+
+skinparam arrow {
+  Color #555555
+  FontSize 11
+}
+
+title Exercise 5.3 - Wellness gRPC Architecture
+
+' Subsistemas
+package "«subsystem» Client" {
+  component ":WellnessGrpcClient" as Client
+}
+
+package "«subsystem» WellnessGrpcServer" {
+  component ":WellnessServiceImpl" as ServiceImpl
+  component ":appointment.proto\n(3 RPCs)" as ProtoFile
+  database ":Appointments\n(in memory)" as AppDb
+}
+
+' Provided interfaces
+interface "gRPC :50061\nAppointmentService" as IGrpc
+
+' Conexiones (ball = provee, socket = requiere)
+' ServiceImpl provee gRPC
+ServiceImpl --( IGrpc
+
+' Client requiere gRPC
+Client -- IGrpc
+
+' Proto define el contrato
+ProtoFile --> IGrpc : <<defines>>
+
+' ServiceImpl usa BD
+ServiceImpl --> AppDb : <<use>>
 
 @enduml

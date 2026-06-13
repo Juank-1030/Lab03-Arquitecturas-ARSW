@@ -1,25 +1,53 @@
 @startuml
+skinparam componentStyle rectangle
+skinparam backgroundColor white
+skinparam defaultTextAlignment center
+
+skinparam component {
+  BackgroundColor #FFFEF0
+  BorderColor #888888
+  FontSize 13
+  FontStyle bold
+  ArrowColor #555555
+}
+
+skinparam interface {
+  BackgroundColor white
+  BorderColor #555555
+}
+
+skinparam arrow {
+  Color #555555
+  FontSize 11
+}
+
 title Exercise 2.3 - Room Management TCP Architecture
 
-actor "User" as user
-participant "RoomClient" as client
-participant "TCP Socket\n(:36000)" as socket
-participant "RoomServer" as server
-database "RoomRepository\n(E301-E304)" as repo
+' Subsistemas
+package "«subsystem» Client" {
+  component ":RoomClient" as RoomClient
+}
 
-user -> client : types command + room code
-client -> socket : connect()\nRESERVAR_SALON,E303
-socket -> server : accept()\nreadLine()
-server -> repo : reserve("E303")
-repo --> server : "RESERVA_EXITOSA"
-server --> socket : println()
-socket --> client : readLine()
-client --> user : display result
+package "«subsystem» RoomServer" {
+  component ":RoomServer" as RoomServer
+  component ":RoomRepository" as RoomRepo
+  component ":Room" as RoomModel
+}
 
-legend right
-  Protocol: COMANDO,CODIGO
-  3 operations: consult/reserve/release
-  Single-threaded
-endlegend
+' Provided interfaces
+interface "TCP :36000" as ITcp
+
+' Conexiones (ball = provee, socket = requiere)
+' RoomServer provee TCP
+RoomServer --( ITcp
+
+' RoomClient requiere TCP
+RoomClient -- ITcp
+
+' RoomServer usa repositorio
+RoomServer --> RoomRepo : <<use>>
+
+' Repositorio contiene modelo
+RoomRepo --> RoomModel : <<use>>
 
 @enduml

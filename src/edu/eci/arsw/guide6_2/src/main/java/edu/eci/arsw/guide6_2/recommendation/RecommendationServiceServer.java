@@ -3,7 +3,9 @@ package edu.eci.arsw.guide6_2.recommendation;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class RecommendationServiceServer {
@@ -17,26 +19,37 @@ public class RecommendationServiceServer {
     }
 
     static class RecommendationServiceImpl extends RecommendationServiceGrpc.RecommendationServiceImplBase {
-        private Map<Integer, RecommendationResponse> recommendations = new HashMap<>();
+        private Map<Integer, List<String>> recommendations = new HashMap<>();
 
         public RecommendationServiceImpl() {
-            recommendations.put(1, RecommendationResponse.newBuilder()
-                    .setMovieId(1).addRecommendedIds(2).addRecommendedIds(3).setFound(true).build());
-            recommendations.put(2, RecommendationResponse.newBuilder()
-                    .setMovieId(2).addRecommendedIds(1).addRecommendedIds(3).setFound(true).build());
-            recommendations.put(3, RecommendationResponse.newBuilder()
-                    .setMovieId(3).addRecommendedIds(1).addRecommendedIds(2).setFound(true).build());
+            List<String> movie1Recs = new ArrayList<>();
+            movie1Recs.add("Inception");
+            movie1Recs.add("Contact");
+            movie1Recs.add("2001: A Space Odyssey");
+            recommendations.put(1, movie1Recs);
+
+            List<String> movie2Recs = new ArrayList<>();
+            movie2Recs.add("The Matrix Reloaded");
+            movie2Recs.add("Blade Runner");
+            movie2Recs.add("Dark City");
+            recommendations.put(2, movie2Recs);
+
+            List<String> movie3Recs = new ArrayList<>();
+            movie3Recs.add("Interstellar");
+            movie3Recs.add("Shutter Island");
+            movie3Recs.add("The Prestige");
+            recommendations.put(3, movie3Recs);
         }
 
         @Override
-        public void getRecommendation(RecommendationRequest request,
-                                       StreamObserver<RecommendationResponse> responseObserver) {
-            RecommendationResponse response = recommendations.get(request.getMovieId());
-            if (response == null) {
-                response = RecommendationResponse.newBuilder()
-                        .setMovieId(request.getMovieId()).setFound(false).build();
+        public void getRecommendations(RecommendationRequest request,
+                                        StreamObserver<RecommendationList> responseObserver) {
+            List<String> movieRecs = recommendations.get(request.getMovieId());
+            RecommendationList.Builder listBuilder = RecommendationList.newBuilder();
+            if (movieRecs != null) {
+                listBuilder.addAllTitles(movieRecs);
             }
-            responseObserver.onNext(response);
+            responseObserver.onNext(listBuilder.build());
             responseObserver.onCompleted();
         }
     }

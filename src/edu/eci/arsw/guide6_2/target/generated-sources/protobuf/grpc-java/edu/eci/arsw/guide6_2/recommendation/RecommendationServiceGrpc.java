@@ -16,34 +16,34 @@ public final class RecommendationServiceGrpc {
 
   // Static method descriptors that strictly reflect the proto.
   private static volatile io.grpc.MethodDescriptor<edu.eci.arsw.guide6_2.recommendation.RecommendationRequest,
-      edu.eci.arsw.guide6_2.recommendation.RecommendationResponse> getGetRecommendationMethod;
+      edu.eci.arsw.guide6_2.recommendation.RecommendationList> getGetRecommendationsMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "GetRecommendation",
+      fullMethodName = SERVICE_NAME + '/' + "GetRecommendations",
       requestType = edu.eci.arsw.guide6_2.recommendation.RecommendationRequest.class,
-      responseType = edu.eci.arsw.guide6_2.recommendation.RecommendationResponse.class,
+      responseType = edu.eci.arsw.guide6_2.recommendation.RecommendationList.class,
       methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
   public static io.grpc.MethodDescriptor<edu.eci.arsw.guide6_2.recommendation.RecommendationRequest,
-      edu.eci.arsw.guide6_2.recommendation.RecommendationResponse> getGetRecommendationMethod() {
-    io.grpc.MethodDescriptor<edu.eci.arsw.guide6_2.recommendation.RecommendationRequest, edu.eci.arsw.guide6_2.recommendation.RecommendationResponse> getGetRecommendationMethod;
-    if ((getGetRecommendationMethod = RecommendationServiceGrpc.getGetRecommendationMethod) == null) {
+      edu.eci.arsw.guide6_2.recommendation.RecommendationList> getGetRecommendationsMethod() {
+    io.grpc.MethodDescriptor<edu.eci.arsw.guide6_2.recommendation.RecommendationRequest, edu.eci.arsw.guide6_2.recommendation.RecommendationList> getGetRecommendationsMethod;
+    if ((getGetRecommendationsMethod = RecommendationServiceGrpc.getGetRecommendationsMethod) == null) {
       synchronized (RecommendationServiceGrpc.class) {
-        if ((getGetRecommendationMethod = RecommendationServiceGrpc.getGetRecommendationMethod) == null) {
-          RecommendationServiceGrpc.getGetRecommendationMethod = getGetRecommendationMethod =
-              io.grpc.MethodDescriptor.<edu.eci.arsw.guide6_2.recommendation.RecommendationRequest, edu.eci.arsw.guide6_2.recommendation.RecommendationResponse>newBuilder()
+        if ((getGetRecommendationsMethod = RecommendationServiceGrpc.getGetRecommendationsMethod) == null) {
+          RecommendationServiceGrpc.getGetRecommendationsMethod = getGetRecommendationsMethod =
+              io.grpc.MethodDescriptor.<edu.eci.arsw.guide6_2.recommendation.RecommendationRequest, edu.eci.arsw.guide6_2.recommendation.RecommendationList>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "GetRecommendation"))
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "GetRecommendations"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
                   edu.eci.arsw.guide6_2.recommendation.RecommendationRequest.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  edu.eci.arsw.guide6_2.recommendation.RecommendationResponse.getDefaultInstance()))
-              .setSchemaDescriptor(new RecommendationServiceMethodDescriptorSupplier("GetRecommendation"))
+                  edu.eci.arsw.guide6_2.recommendation.RecommendationList.getDefaultInstance()))
+              .setSchemaDescriptor(new RecommendationServiceMethodDescriptorSupplier("GetRecommendations"))
               .build();
         }
       }
     }
-    return getGetRecommendationMethod;
+    return getGetRecommendationsMethod;
   }
 
   /**
@@ -96,9 +96,9 @@ public final class RecommendationServiceGrpc {
 
     /**
      */
-    default void getRecommendation(edu.eci.arsw.guide6_2.recommendation.RecommendationRequest request,
-        io.grpc.stub.StreamObserver<edu.eci.arsw.guide6_2.recommendation.RecommendationResponse> responseObserver) {
-      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getGetRecommendationMethod(), responseObserver);
+    default void getRecommendations(edu.eci.arsw.guide6_2.recommendation.RecommendationRequest request,
+        io.grpc.stub.StreamObserver<edu.eci.arsw.guide6_2.recommendation.RecommendationList> responseObserver) {
+      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getGetRecommendationsMethod(), responseObserver);
     }
   }
 
@@ -131,10 +131,10 @@ public final class RecommendationServiceGrpc {
 
     /**
      */
-    public void getRecommendation(edu.eci.arsw.guide6_2.recommendation.RecommendationRequest request,
-        io.grpc.stub.StreamObserver<edu.eci.arsw.guide6_2.recommendation.RecommendationResponse> responseObserver) {
+    public void getRecommendations(edu.eci.arsw.guide6_2.recommendation.RecommendationRequest request,
+        io.grpc.stub.StreamObserver<edu.eci.arsw.guide6_2.recommendation.RecommendationList> responseObserver) {
       io.grpc.stub.ClientCalls.asyncUnaryCall(
-          getChannel().newCall(getGetRecommendationMethod(), getCallOptions()), request, responseObserver);
+          getChannel().newCall(getGetRecommendationsMethod(), getCallOptions()), request, responseObserver);
     }
   }
 
@@ -156,9 +156,9 @@ public final class RecommendationServiceGrpc {
 
     /**
      */
-    public edu.eci.arsw.guide6_2.recommendation.RecommendationResponse getRecommendation(edu.eci.arsw.guide6_2.recommendation.RecommendationRequest request) {
+    public edu.eci.arsw.guide6_2.recommendation.RecommendationList getRecommendations(edu.eci.arsw.guide6_2.recommendation.RecommendationRequest request) {
       return io.grpc.stub.ClientCalls.blockingUnaryCall(
-          getChannel(), getGetRecommendationMethod(), getCallOptions(), request);
+          getChannel(), getGetRecommendationsMethod(), getCallOptions(), request);
     }
   }
 
@@ -180,14 +180,14 @@ public final class RecommendationServiceGrpc {
 
     /**
      */
-    public com.google.common.util.concurrent.ListenableFuture<edu.eci.arsw.guide6_2.recommendation.RecommendationResponse> getRecommendation(
+    public com.google.common.util.concurrent.ListenableFuture<edu.eci.arsw.guide6_2.recommendation.RecommendationList> getRecommendations(
         edu.eci.arsw.guide6_2.recommendation.RecommendationRequest request) {
       return io.grpc.stub.ClientCalls.futureUnaryCall(
-          getChannel().newCall(getGetRecommendationMethod(), getCallOptions()), request);
+          getChannel().newCall(getGetRecommendationsMethod(), getCallOptions()), request);
     }
   }
 
-  private static final int METHODID_GET_RECOMMENDATION = 0;
+  private static final int METHODID_GET_RECOMMENDATIONS = 0;
 
   private static final class MethodHandlers<Req, Resp> implements
       io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
@@ -206,9 +206,9 @@ public final class RecommendationServiceGrpc {
     @java.lang.SuppressWarnings("unchecked")
     public void invoke(Req request, io.grpc.stub.StreamObserver<Resp> responseObserver) {
       switch (methodId) {
-        case METHODID_GET_RECOMMENDATION:
-          serviceImpl.getRecommendation((edu.eci.arsw.guide6_2.recommendation.RecommendationRequest) request,
-              (io.grpc.stub.StreamObserver<edu.eci.arsw.guide6_2.recommendation.RecommendationResponse>) responseObserver);
+        case METHODID_GET_RECOMMENDATIONS:
+          serviceImpl.getRecommendations((edu.eci.arsw.guide6_2.recommendation.RecommendationRequest) request,
+              (io.grpc.stub.StreamObserver<edu.eci.arsw.guide6_2.recommendation.RecommendationList>) responseObserver);
           break;
         default:
           throw new AssertionError();
@@ -229,12 +229,12 @@ public final class RecommendationServiceGrpc {
   public static final io.grpc.ServerServiceDefinition bindService(AsyncService service) {
     return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor())
         .addMethod(
-          getGetRecommendationMethod(),
+          getGetRecommendationsMethod(),
           io.grpc.stub.ServerCalls.asyncUnaryCall(
             new MethodHandlers<
               edu.eci.arsw.guide6_2.recommendation.RecommendationRequest,
-              edu.eci.arsw.guide6_2.recommendation.RecommendationResponse>(
-                service, METHODID_GET_RECOMMENDATION)))
+              edu.eci.arsw.guide6_2.recommendation.RecommendationList>(
+                service, METHODID_GET_RECOMMENDATIONS)))
         .build();
   }
 
@@ -283,7 +283,7 @@ public final class RecommendationServiceGrpc {
         if (result == null) {
           serviceDescriptor = result = io.grpc.ServiceDescriptor.newBuilder(SERVICE_NAME)
               .setSchemaDescriptor(new RecommendationServiceFileDescriptorSupplier())
-              .addMethod(getGetRecommendationMethod())
+              .addMethod(getGetRecommendationsMethod())
               .build();
         }
       }

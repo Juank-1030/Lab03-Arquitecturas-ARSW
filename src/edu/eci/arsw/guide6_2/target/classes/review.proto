@@ -4,17 +4,19 @@ option java_package = "edu.eci.arsw.guide6_2.review";
 option java_outer_classname = "ReviewProto";
 
 service ReviewService {
-  rpc GetReview (ReviewRequest) returns (ReviewResponse);
+  rpc GetReviews (ReviewRequest) returns (ReviewList);
 }
 
 message ReviewRequest {
   int32 movieId = 1;
 }
 
-message ReviewResponse {
-  int32 movieId = 1;
-  string reviewer = 2;
+message Review {
+  string author = 1;
+  string comment = 2;
   int32 rating = 3;
-  string comment = 4;
-  bool found = 5;
+}
+
+message ReviewList {
+  repeated Review reviews = 1;
 }

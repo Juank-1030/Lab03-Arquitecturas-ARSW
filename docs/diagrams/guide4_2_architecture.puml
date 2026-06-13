@@ -1,25 +1,57 @@
 @startuml
+skinparam componentStyle rectangle
+skinparam backgroundColor white
+skinparam defaultTextAlignment center
+
+skinparam component {
+  BackgroundColor #FFFEF0
+  BorderColor #888888
+  FontSize 13
+  FontStyle bold
+  ArrowColor #555555
+}
+
+skinparam interface {
+  BackgroundColor white
+  BorderColor #555555
+}
+
+skinparam arrow {
+  Color #555555
+  FontSize 11
+}
+
 title Guide 4.2 - MovieService RMI Architecture
 
-actor "User" as user
-participant "MovieRmiClient" as client
-participant "RMI Registry\n(:23000)" as registry
-participant "MovieServiceImpl" as server
-database "MovieRepository\n(in memory)" as repo
+' Subsistemas
+package "«subsystem» Client" {
+  component ":MovieRmiClient" as Client
+}
 
-user -> client : types movie ID
-client -> registry : lookup("movieService")
-registry --> client : remote stub
-client -> server : getMovie(1)\n(remote call)
-server -> repo : findById(1)
-repo --> server : Movie
-server --> client : serialized Movie
-client --> user : display result
+package "«subsystem» MovieServer" {
+  component ":MovieRmiServer" as Server
+  component ":MovieServiceImpl" as ServiceImpl
+  component ":MovieService\n(interface)" as ServiceInterface
+  component ":Movie" as MovieModel
+}
 
-legend right
-  Contract: MovieService interface
-  Java-only (RMI)
-  Serializable required
-endlegend
+' Provided interfaces
+interface "RMI Registry :23000\n(movieService)" as IRmi
+
+' Conexiones (ball = provee, socket = requiere)
+' Server provee servicio RMI
+Server --( IRmi
+
+' Cliente requiere RMI
+Client -- IRmi
+
+' Server registra implementacion
+Server --> ServiceImpl : <<bind>>
+
+' ServiceImpl implementa interfaz remota
+ServiceImpl --> ServiceInterface : extends UnicastRemoteObject\nimplements MovieService
+
+' ServiceImpl contiene BD interna (Map)
+ServiceImpl --> MovieModel : <<in-memory map>>
 
 @enduml

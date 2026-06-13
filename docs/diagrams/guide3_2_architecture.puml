@@ -1,22 +1,53 @@
 @startuml
+skinparam componentStyle rectangle
+skinparam backgroundColor white
+skinparam defaultTextAlignment center
+
+skinparam component {
+  BackgroundColor #FFFEF0
+  BorderColor #888888
+  FontSize 13
+  FontStyle bold
+  ArrowColor #555555
+}
+
+skinparam interface {
+  BackgroundColor white
+  BorderColor #555555
+}
+
+skinparam arrow {
+  Color #555555
+  FontSize 11
+}
+
 title Guide 3.2 - MovieHttpServer Architecture
 
-actor "Browser / curl" as client
-participant "HTTP\n(:8080)" as http
-participant "MovieHandler" as handler
-database "MovieRepository\n(in memory)" as repo
+' Subsistemas
+package "«subsystem» Client" {
+  component ":Browser / curl" as Browser
+}
 
-client -> http : GET /movie?id=1
-http -> handler : handle(HttpExchange)
-handler -> repo : findById(1)
-repo --> handler : Movie
-handler --> http : 200 OK\n<html>...</html>
-http --> client : HTML response
+package "«subsystem» MovieHttpServer" {
+  component ":MovieHttpServer" as HttpServer
+  component ":MovieRepository" as MovieRepo
+  component ":Movie" as MovieModel
+}
 
-legend right
-  Standard HTTP
-  No framework
-  Single-threaded
-endlegend
+' Provided interfaces
+interface "HTTP :8080" as IHttp
+
+' Conexiones (ball = provee, socket = requiere)
+' MovieHttpServer provee HTTP
+HttpServer --( IHttp
+
+' Browser requiere HTTP
+Browser -- IHttp
+
+' HttpServer usa repositorio
+HttpServer --> MovieRepo : <<use>>
+
+' Repositorio contiene modelo
+MovieRepo --> MovieModel : <<use>>
 
 @enduml

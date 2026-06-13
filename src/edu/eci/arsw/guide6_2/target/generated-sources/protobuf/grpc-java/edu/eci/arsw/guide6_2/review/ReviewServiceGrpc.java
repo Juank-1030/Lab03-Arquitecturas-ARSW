@@ -16,34 +16,34 @@ public final class ReviewServiceGrpc {
 
   // Static method descriptors that strictly reflect the proto.
   private static volatile io.grpc.MethodDescriptor<edu.eci.arsw.guide6_2.review.ReviewRequest,
-      edu.eci.arsw.guide6_2.review.ReviewResponse> getGetReviewMethod;
+      edu.eci.arsw.guide6_2.review.ReviewList> getGetReviewsMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "GetReview",
+      fullMethodName = SERVICE_NAME + '/' + "GetReviews",
       requestType = edu.eci.arsw.guide6_2.review.ReviewRequest.class,
-      responseType = edu.eci.arsw.guide6_2.review.ReviewResponse.class,
+      responseType = edu.eci.arsw.guide6_2.review.ReviewList.class,
       methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
   public static io.grpc.MethodDescriptor<edu.eci.arsw.guide6_2.review.ReviewRequest,
-      edu.eci.arsw.guide6_2.review.ReviewResponse> getGetReviewMethod() {
-    io.grpc.MethodDescriptor<edu.eci.arsw.guide6_2.review.ReviewRequest, edu.eci.arsw.guide6_2.review.ReviewResponse> getGetReviewMethod;
-    if ((getGetReviewMethod = ReviewServiceGrpc.getGetReviewMethod) == null) {
+      edu.eci.arsw.guide6_2.review.ReviewList> getGetReviewsMethod() {
+    io.grpc.MethodDescriptor<edu.eci.arsw.guide6_2.review.ReviewRequest, edu.eci.arsw.guide6_2.review.ReviewList> getGetReviewsMethod;
+    if ((getGetReviewsMethod = ReviewServiceGrpc.getGetReviewsMethod) == null) {
       synchronized (ReviewServiceGrpc.class) {
-        if ((getGetReviewMethod = ReviewServiceGrpc.getGetReviewMethod) == null) {
-          ReviewServiceGrpc.getGetReviewMethod = getGetReviewMethod =
-              io.grpc.MethodDescriptor.<edu.eci.arsw.guide6_2.review.ReviewRequest, edu.eci.arsw.guide6_2.review.ReviewResponse>newBuilder()
+        if ((getGetReviewsMethod = ReviewServiceGrpc.getGetReviewsMethod) == null) {
+          ReviewServiceGrpc.getGetReviewsMethod = getGetReviewsMethod =
+              io.grpc.MethodDescriptor.<edu.eci.arsw.guide6_2.review.ReviewRequest, edu.eci.arsw.guide6_2.review.ReviewList>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "GetReview"))
+              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "GetReviews"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
                   edu.eci.arsw.guide6_2.review.ReviewRequest.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  edu.eci.arsw.guide6_2.review.ReviewResponse.getDefaultInstance()))
-              .setSchemaDescriptor(new ReviewServiceMethodDescriptorSupplier("GetReview"))
+                  edu.eci.arsw.guide6_2.review.ReviewList.getDefaultInstance()))
+              .setSchemaDescriptor(new ReviewServiceMethodDescriptorSupplier("GetReviews"))
               .build();
         }
       }
     }
-    return getGetReviewMethod;
+    return getGetReviewsMethod;
   }
 
   /**
@@ -96,9 +96,9 @@ public final class ReviewServiceGrpc {
 
     /**
      */
-    default void getReview(edu.eci.arsw.guide6_2.review.ReviewRequest request,
-        io.grpc.stub.StreamObserver<edu.eci.arsw.guide6_2.review.ReviewResponse> responseObserver) {
-      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getGetReviewMethod(), responseObserver);
+    default void getReviews(edu.eci.arsw.guide6_2.review.ReviewRequest request,
+        io.grpc.stub.StreamObserver<edu.eci.arsw.guide6_2.review.ReviewList> responseObserver) {
+      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getGetReviewsMethod(), responseObserver);
     }
   }
 
@@ -131,10 +131,10 @@ public final class ReviewServiceGrpc {
 
     /**
      */
-    public void getReview(edu.eci.arsw.guide6_2.review.ReviewRequest request,
-        io.grpc.stub.StreamObserver<edu.eci.arsw.guide6_2.review.ReviewResponse> responseObserver) {
+    public void getReviews(edu.eci.arsw.guide6_2.review.ReviewRequest request,
+        io.grpc.stub.StreamObserver<edu.eci.arsw.guide6_2.review.ReviewList> responseObserver) {
       io.grpc.stub.ClientCalls.asyncUnaryCall(
-          getChannel().newCall(getGetReviewMethod(), getCallOptions()), request, responseObserver);
+          getChannel().newCall(getGetReviewsMethod(), getCallOptions()), request, responseObserver);
     }
   }
 
@@ -156,9 +156,9 @@ public final class ReviewServiceGrpc {
 
     /**
      */
-    public edu.eci.arsw.guide6_2.review.ReviewResponse getReview(edu.eci.arsw.guide6_2.review.ReviewRequest request) {
+    public edu.eci.arsw.guide6_2.review.ReviewList getReviews(edu.eci.arsw.guide6_2.review.ReviewRequest request) {
       return io.grpc.stub.ClientCalls.blockingUnaryCall(
-          getChannel(), getGetReviewMethod(), getCallOptions(), request);
+          getChannel(), getGetReviewsMethod(), getCallOptions(), request);
     }
   }
 
@@ -180,14 +180,14 @@ public final class ReviewServiceGrpc {
 
     /**
      */
-    public com.google.common.util.concurrent.ListenableFuture<edu.eci.arsw.guide6_2.review.ReviewResponse> getReview(
+    public com.google.common.util.concurrent.ListenableFuture<edu.eci.arsw.guide6_2.review.ReviewList> getReviews(
         edu.eci.arsw.guide6_2.review.ReviewRequest request) {
       return io.grpc.stub.ClientCalls.futureUnaryCall(
-          getChannel().newCall(getGetReviewMethod(), getCallOptions()), request);
+          getChannel().newCall(getGetReviewsMethod(), getCallOptions()), request);
     }
   }
 
-  private static final int METHODID_GET_REVIEW = 0;
+  private static final int METHODID_GET_REVIEWS = 0;
 
   private static final class MethodHandlers<Req, Resp> implements
       io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
@@ -206,9 +206,9 @@ public final class ReviewServiceGrpc {
     @java.lang.SuppressWarnings("unchecked")
     public void invoke(Req request, io.grpc.stub.StreamObserver<Resp> responseObserver) {
       switch (methodId) {
-        case METHODID_GET_REVIEW:
-          serviceImpl.getReview((edu.eci.arsw.guide6_2.review.ReviewRequest) request,
-              (io.grpc.stub.StreamObserver<edu.eci.arsw.guide6_2.review.ReviewResponse>) responseObserver);
+        case METHODID_GET_REVIEWS:
+          serviceImpl.getReviews((edu.eci.arsw.guide6_2.review.ReviewRequest) request,
+              (io.grpc.stub.StreamObserver<edu.eci.arsw.guide6_2.review.ReviewList>) responseObserver);
           break;
         default:
           throw new AssertionError();
@@ -229,12 +229,12 @@ public final class ReviewServiceGrpc {
   public static final io.grpc.ServerServiceDefinition bindService(AsyncService service) {
     return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor())
         .addMethod(
-          getGetReviewMethod(),
+          getGetReviewsMethod(),
           io.grpc.stub.ServerCalls.asyncUnaryCall(
             new MethodHandlers<
               edu.eci.arsw.guide6_2.review.ReviewRequest,
-              edu.eci.arsw.guide6_2.review.ReviewResponse>(
-                service, METHODID_GET_REVIEW)))
+              edu.eci.arsw.guide6_2.review.ReviewList>(
+                service, METHODID_GET_REVIEWS)))
         .build();
   }
 
@@ -283,7 +283,7 @@ public final class ReviewServiceGrpc {
         if (result == null) {
           serviceDescriptor = result = io.grpc.ServiceDescriptor.newBuilder(SERVICE_NAME)
               .setSchemaDescriptor(new ReviewServiceFileDescriptorSupplier())
-              .addMethod(getGetReviewMethod())
+              .addMethod(getGetReviewsMethod())
               .build();
         }
       }

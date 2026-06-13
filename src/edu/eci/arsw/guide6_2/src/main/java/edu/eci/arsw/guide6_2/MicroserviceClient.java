@@ -3,11 +3,12 @@ package edu.eci.arsw.guide6_2;
 import edu.eci.arsw.guide6_2.movie.MovieRequest;
 import edu.eci.arsw.guide6_2.movie.MovieResponse;
 import edu.eci.arsw.guide6_2.movie.MovieServiceGrpc;
+import edu.eci.arsw.guide6_2.review.Review;
+import edu.eci.arsw.guide6_2.review.ReviewList;
 import edu.eci.arsw.guide6_2.review.ReviewRequest;
-import edu.eci.arsw.guide6_2.review.ReviewResponse;
 import edu.eci.arsw.guide6_2.review.ReviewServiceGrpc;
+import edu.eci.arsw.guide6_2.recommendation.RecommendationList;
 import edu.eci.arsw.guide6_2.recommendation.RecommendationRequest;
-import edu.eci.arsw.guide6_2.recommendation.RecommendationResponse;
 import edu.eci.arsw.guide6_2.recommendation.RecommendationServiceGrpc;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -35,9 +36,9 @@ public class MicroserviceClient {
         while (true) {
             System.out.println("\nOperaciones disponibles:");
             System.out.println("  1. Consultar pelicula");
-            System.out.println("  2. Consultar resena");
+            System.out.println("  2. Consultar resenas");
             System.out.println("  3. Obtener recomendaciones");
-            System.out.println("  4. Consultar todo (pelicula + resena + recomendaciones)");
+            System.out.println("  4. Consultar todo (pelicula + resenas + recomendaciones)");
             System.out.println("  5. Salir");
             System.out.print("Seleccione una opcion: ");
             String option = scanner.nextLine().trim();
@@ -58,22 +59,28 @@ public class MicroserviceClient {
                 case "2":
                     System.out.print("ID de la pelicula (1-3): ");
                     int id2 = Integer.parseInt(scanner.nextLine().trim());
-                    ReviewResponse review = reviewStub.getReview(ReviewRequest.newBuilder().setMovieId(id2).build());
-                    if (review.getFound()) {
-                        System.out.println("Resena por " + review.getReviewer()
-                                + ": " + review.getRating() + "/5 - " + review.getComment());
+                    ReviewList reviewList = reviewStub.getReviews(ReviewRequest.newBuilder().setMovieId(id2).build());
+                    if (reviewList.getReviewsCount() > 0) {
+                        System.out.println("Resenas de la pelicula " + id2 + ":");
+                        for (Review r : reviewList.getReviewsList()) {
+                            System.out.println("  - " + r.getAuthor() + ": " + r.getComment()
+                                    + " Rating: " + r.getRating());
+                        }
                     } else {
-                        System.out.println("Resena no encontrada");
+                        System.out.println("No hay resenas para esta pelicula");
                     }
                     break;
 
                 case "3":
                     System.out.print("ID de la pelicula (1-3): ");
                     int id3 = Integer.parseInt(scanner.nextLine().trim());
-                    RecommendationResponse rec = recommendationStub.getRecommendation(
+                    RecommendationList recList = recommendationStub.getRecommendations(
                             RecommendationRequest.newBuilder().setMovieId(id3).build());
-                    if (rec.getFound()) {
-                        System.out.println("Peliculas recomendadas: " + rec.getRecommendedIdsList());
+                    if (recList.getTitlesCount() > 0) {
+                        System.out.println("Recomendaciones:");
+                        for (String title : recList.getTitlesList()) {
+                            System.out.println("  - " + title);
+                        }
                     } else {
                         System.out.println("No hay recomendaciones");
                     }
@@ -83,22 +90,30 @@ public class MicroserviceClient {
                     System.out.print("ID de la pelicula (1-3): ");
                     int id4 = Integer.parseInt(scanner.nextLine().trim());
                     MovieResponse m = movieStub.getMovie(MovieRequest.newBuilder().setId(id4).build());
-                    ReviewResponse r = reviewStub.getReview(ReviewRequest.newBuilder().setMovieId(id4).build());
-                    RecommendationResponse rc = recommendationStub.getRecommendation(
+                    ReviewList rl = reviewStub.getReviews(ReviewRequest.newBuilder().setMovieId(id4).build());
+                    RecommendationList rcl = recommendationStub.getRecommendations(
                             RecommendationRequest.newBuilder().setMovieId(id4).build());
+
                     System.out.println("\n=== Resultados completos para pelicula " + id4 + " ===");
                     if (m.getFound()) {
                         System.out.println("Pelicula: " + m.getTitle() + " - " + m.getDirector() + " - " + m.getYear());
                     } else {
                         System.out.println("Pelicula: no encontrada");
                     }
-                    if (r.getFound()) {
-                        System.out.println("Resena: " + r.getReviewer() + " - " + r.getRating() + "/5 - " + r.getComment());
+                    if (rl.getReviewsCount() > 0) {
+                        System.out.println("Resenas:");
+                        for (Review r : rl.getReviewsList()) {
+                            System.out.println("  - " + r.getAuthor() + ": " + r.getComment()
+                                    + " Rating: " + r.getRating());
+                        }
                     } else {
-                        System.out.println("Resena: no encontrada");
+                        System.out.println("Resenas: no disponibles");
                     }
-                    if (rc.getFound()) {
-                        System.out.println("Recomendaciones: " + rc.getRecommendedIdsList());
+                    if (rcl.getTitlesCount() > 0) {
+                        System.out.println("Recomendaciones:");
+                        for (String title : rcl.getTitlesList()) {
+                            System.out.println("  - " + title);
+                        }
                     } else {
                         System.out.println("Recomendaciones: no disponibles");
                     }

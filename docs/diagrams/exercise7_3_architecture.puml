@@ -1,46 +1,97 @@
 @startuml
+skinparam componentStyle rectangle
+skinparam backgroundColor white
+skinparam defaultTextAlignment center
+
+skinparam component {
+  BackgroundColor #FFFEF0
+  BorderColor #888888
+  FontSize 13
+  FontStyle bold
+  ArrowColor #555555
+}
+
+skinparam interface {
+  BackgroundColor white
+  BorderColor #555555
+}
+
+skinparam arrow {
+  Color #555555
+  FontSize 11
+}
+
 title Exercise 7.3 - WellnessGateway Architecture
 
-actor "Client / curl" as client
-
-rectangle "WellnessGateway\n(:8083)" as gateway {
-  component [HTTP Server\ncom.sun.net.httpserver] as http
-  component [AppointmentStub\ngRPC] as appStub
-  component [MedicalStub\ngRPC] as medStub
-  component [GymStub\ngRPC] as gymStub
-  component [RecreationStub\ngRPC] as recStub
+' Subsistemas
+package "«subsystem» Client" {
+  component ":Browser / curl" as Browser
 }
 
-node "AppointmentService\n(:50061)" as appSvc {
-  [AppointmentServiceImpl] as appImpl
+package "«subsystem» WellnessGateway" {
+  component ":WellnessGateway\n(HTTP :8083)" as Gateway
+  component ":AppointmentStub" as AppStub
+  component ":MedicalStub" as MedStub
+  component ":GymStub" as GymStub
+  component ":RecStub" as RecStub
 }
 
-node "MedicalService\n(:50062)" as medSvc {
-  [MedicalServiceImpl] as medImpl
+package "«subsystem» AppointmentService" {
+  component ":AppointmentServiceImpl" as AppSvc
+  database ":Appointments" as AppDb
 }
 
-node "GymService\n(:50063)" as gymSvc {
-  [GymServiceImpl] as gymImpl
+package "«subsystem» MedicalService" {
+  component ":MedicalServiceImpl" as MedSvc
+  database ":Specialties" as MedDb
 }
 
-node "RecreationService\n(:50064)" as recSvc {
-  [RecreationServiceImpl] as recImpl
+package "«subsystem» GymService" {
+  component ":GymServiceImpl" as GymSvc
+  database ":Sessions" as GymDb
 }
 
-client --> gateway : HTTP POST /appointment\nHTTP GET /wellness-summary
-http --> appStub : route
-http --> medStub : route
-http --> gymStub : route
-http --> recStub : route
-appStub --> appImpl : gRPC
-medStub --> medImpl : gRPC
-gymStub --> gymImpl : gRPC
-recStub --> recImpl : gRPC
+package "«subsystem» RecreationService" {
+  component ":RecreationServiceImpl" as RecSvc
+  database ":Resources" as RecDb
+}
 
-legend right
-  Gateway for 4 wellness services
-  HTTP/gRPC protocol adapter
-  Single entry point (:8083)
-endlegend
+' Provided interfaces
+interface "HTTP :8083" as IHttp
+interface "gRPC :50061\nAppointmentService" as IApp
+interface "gRPC :50062\nMedicalService" as IMed
+interface "gRPC :50063\nGymService" as IGym
+interface "gRPC :50064\nRecreationService" as IRec
+
+' Conexiones (ball = provee, socket = requiere)
+' Gateway provee HTTP
+Gateway --( IHttp
+
+' Browser requiere HTTP
+Browser -- IHttp
+
+' Microservicios proveen gRPC
+AppSvc --( IApp
+MedSvc --( IMed
+GymSvc --( IGym
+RecSvc --( IRec
+
+' Gateway requiere los 4 servicios
+AppStub -- IApp
+MedStub -- IMed
+GymStub -- IGym
+RecStub -- IRec
+
+' Gateway usa stubs internamente
+Gateway --> AppStub : <<use>>
+Gateway --> MedStub : <<use>>
+Gateway --> GymStub : <<use>>
+Gateway --> RecStub : <<use>>
+
+' Servidores usan sus BD
+AppSvc --> AppDb : <<use>>
+MedSvc --> MedDb : <<use>>
+GymSvc --> GymDb : <<use>>
+RecSvc --> RecDb : <<use>>
 
 @enduml
